@@ -1,5 +1,7 @@
 package com.shopacc.backend.service;
 
+import com.shopacc.backend.dto.order.OrderItemResponse;
+import com.shopacc.backend.dto.order.OrderResponse;
 import com.shopacc.backend.dto.order.PurchaseResponse;
 import com.shopacc.backend.entity.*;
 import com.shopacc.backend.enums.ListingStatus;
@@ -14,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,10 +33,16 @@ public class OrderService {
     public PurchaseResponse purchaseListing(Long userId, Long listingId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
 
         Listing listing = listingRepository.findById(listingId)
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Listing not found"
+                ));
 
         if (listing.getStatus() != ListingStatus.PUBLISHED) {
             throw new ResponseStatusException(
@@ -86,7 +95,6 @@ public class OrderService {
                 .amountAfter(amountAfter)
                 .type("PURCHASE")
                 .description("Purchase listing: " + listing.getTitle())
-                .createdAt(LocalDateTime.now())
                 .build();
 
         balanceLogRepository.save(balanceLog);
@@ -98,6 +106,90 @@ public class OrderService {
                 .orderCode(orderCode)
                 .listingTitle(listing.getTitle())
                 .secretData(listing.getSecretDataEncrypted())
+                .build();
+    }
+
+    public List<OrderResponse> getMyOrders(Long userId) {
+
+        return orderRepository.findByUserIdWithUserOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(this::mapToOrderResponse)
+                .toList();
+    }
+
+    public OrderResponse getMyOrderDetail(Long userId, Long orderId) {
+
+        Order order = orderRepository.findByIdWithUser(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order not found"
+                ));
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You cannot access this order"
+            );
+        }
+
+        return mapToOrderResponse(order);
+    }
+
+    public List<OrderResponse> getAllOrdersForAdmin() {
+
+        return orderRepository.findAllWithUserOrderByCreatedAtDesc()
+                .stream()
+                .map(this::mapToOrderResponse)
+                .toList();
+    }
+
+    public OrderResponse getOrderDetailForAdmin(Long orderId) {
+
+        Order order = orderRepository.findByIdWithUser(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order not found"
+                ));
+
+        return mapToOrderResponse(order);
+    }
+
+    private OrderResponse mapToOrderResponse(Order order) {
+
+        List<OrderItemResponse> items =
+                orderItemRepository.findByOrderId(order.getId())
+                        .stream()
+                        .map(this::mapToOrderItemResponse)
+                        .toList();
+
+        return OrderResponse.builder()
+                .id(order.getId())
+                .orderCode(order.getOrderCode())
+                .userId(order.getUser().getId())
+                .username(order.getUser().getUsername())
+                .totalPrice(order.getTotalPrice())
+                .status(order.getStatus())
+                .paymentStatus(order.getPaymentStatus())
+                .createdAt(order.getCreatedAt())
+                .items(items)
+                .build();
+    }
+
+    private OrderItemResponse mapToOrderItemResponse(OrderItem item) {
+
+        Long listingId = null;
+
+        if (item.getListing() != null) {
+            listingId = item.getListing().getId();
+        }
+
+        return OrderItemResponse.builder()
+                .id(item.getId())
+                .listingId(listingId)
+                .listingTitle(item.getListingTitle())
+                .listingThumbnail(item.getListingThumbnail())
+                .quantity(item.getQuantity())
+                .price(item.getPrice())
                 .build();
     }
 }

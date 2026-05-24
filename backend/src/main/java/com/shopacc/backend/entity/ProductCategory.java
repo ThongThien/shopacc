@@ -32,7 +32,8 @@ public class ProductCategory extends BaseEntity {
 
     @Column(name = "sort_order")
     private Integer sortOrder;
-
+    
+    @Builder.Default
     @Column(name = "is_active")
     private Boolean isActive = true;
 }

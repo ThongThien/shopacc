@@ -28,7 +28,8 @@ public class RefreshToken extends BaseEntity {
 
     @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
-
+    
+    @Builder.Default
     @Column(nullable = false)
     private Boolean revoked = false;
 }

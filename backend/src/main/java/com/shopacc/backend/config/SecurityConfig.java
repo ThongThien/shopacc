@@ -67,7 +67,13 @@ public class SecurityConfig {
                                 "/api/listings/*/images"
                         )
                         .hasRole("ADMIN")
+                        
+                        .requestMatchers("/api/admin/**")
+                        .hasRole("ADMIN")
 
+                        .requestMatchers("/api/users/me/**")
+                        .authenticated()
+                        
                         .anyRequest()
                         .authenticated()
                 )
