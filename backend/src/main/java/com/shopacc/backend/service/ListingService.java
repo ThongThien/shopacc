@@ -1,40 +1,52 @@
 package com.shopacc.backend.service;
 
 import com.shopacc.backend.dto.listing.CreateListingRequest;
+import com.shopacc.backend.dto.listing.ListingDetailResponse;
 import com.shopacc.backend.dto.listing.ListingResponse;
 import com.shopacc.backend.entity.Listing;
+import com.shopacc.backend.entity.ListingImage;
 import com.shopacc.backend.entity.ProductCategory;
 import com.shopacc.backend.enums.ListingStatus;
+import com.shopacc.backend.repository.ListingImageRepository;
 import com.shopacc.backend.repository.ListingRepository;
 import com.shopacc.backend.repository.ProductCategoryRepository;
 import lombok.RequiredArgsConstructor;
+import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
-import com.shopacc.backend.entity.ListingImage;
-import com.shopacc.backend.dto.listing.ListingDetailResponse;
-import com.shopacc.backend.repository.ListingImageRepository;
-
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ListingService {
 
     private final ListingRepository listingRepository;
-
     private final ProductCategoryRepository categoryRepository;
-
     private final ListingImageRepository listingImageRepository;
 
-    public ListingResponse createListing(
-            CreateListingRequest request
-    ) {
+    private final WebClient webClient = WebClient.builder().build();
 
-        ProductCategory category =
-                categoryRepository.findById(request.getCategoryId())
-                        .orElseThrow(
-                                () -> new RuntimeException("Category not found")
-                        );
+    @Value("${SUPABASE_URL}")
+    private String supabaseUrl;
+
+    @Value("${SUPABASE_SERVICE_ROLE_KEY}")
+    private String serviceRoleKey;
+
+    @Value("${SUPABASE_BUCKET}")
+    private String bucket;
+
+    public ListingResponse createListing(CreateListingRequest request) {
+
+        ProductCategory category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Category not found"));
 
         Listing listing = Listing.builder()
                 .category(category)
@@ -46,16 +58,11 @@ public class ListingService {
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .thumbnail(request.getThumbnail())
-                .secretDataEncrypted(
-                        request.getSecretDataEncrypted()
-                )
+                .secretDataEncrypted(request.getSecretDataEncrypted())
                 .status(ListingStatus.PUBLISHED)
                 .build();
 
-        Listing saved =
-                listingRepository.save(listing);
-
-        return mapToResponse(saved);
+        return mapToResponse(listingRepository.save(listing));
     }
 
     public List<ListingResponse> getAllListings() {
@@ -66,43 +73,15 @@ public class ListingService {
                 .toList();
     }
 
-    private ListingResponse mapToResponse(
-            Listing listing
-    ) {
+    public ListingDetailResponse getListingDetail(Long id) {
 
-        return ListingResponse.builder()
-                .id(listing.getId())
-                .title(listing.getTitle())
-                .slug(listing.getSlug())
-                .description(listing.getDescription())
-                .price(listing.getPrice())
-                .thumbnail(listing.getThumbnail())
-                .gameName(listing.getGameName())
-                .serverName(listing.getServerName())
-                .listingType(listing.getListingType())
-                .status(listing.getStatus())
-                .categoryName(
-                        listing.getCategory().getName()
-                )
-                .build();
-    }
-    public ListingDetailResponse getListingDetail(
-        Long id
-    ) {
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
 
-        Listing listing =
-                listingRepository.findById(id)
-                        .orElseThrow(
-                                () -> new RuntimeException("Listing not found")
-                        );
-
-        List<ListingImage> listingImages =
-                listingImageRepository.findByListingId(id);
-
-        List<String> imageUrls =
-                listingImages.stream()
-                        .map(ListingImage::getImageUrl)
-                        .toList();
+        List<String> images = listingImageRepository.findByListingId(id)
+                .stream()
+                .map(ListingImage::getImageUrl)
+                .toList();
 
         return ListingDetailResponse.builder()
                 .id(listing.getId())
@@ -117,10 +96,76 @@ public class ListingService {
                 .status(listing.getStatus())
                 .isFeatured(listing.getIsFeatured())
                 .viewCount(listing.getViewCount())
-                .categoryName(
-                        listing.getCategory().getName()
-                )
-                .images(imageUrls)
+                .categoryName(listing.getCategory().getName())
+                .images(images)
+                .build();
+    }
+
+    public String uploadListingImage(Long listingId, MultipartFile file) throws IOException {
+
+        Listing listing = listingRepository.findById(listingId)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+        String fileName = UUID.randomUUID() + ".jpg";
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        Thumbnails.of(file.getInputStream())
+                .size(1280, 1280)
+                .outputQuality(0.7)
+                .outputFormat("jpg")
+                .toOutputStream(outputStream);
+
+        byte[] compressedImage = outputStream.toByteArray();
+
+        String uploadUrl = supabaseUrl
+                + "/storage/v1/object/"
+                + bucket
+                + "/"
+                + fileName;
+
+        webClient.post()
+                .uri(uploadUrl)
+                .header("Authorization", "Bearer " + serviceRoleKey)
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(Mono.just(compressedImage), byte[].class)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        String publicUrl = supabaseUrl
+                + "/storage/v1/object/public/"
+                + bucket
+                + "/"
+                + fileName;
+
+        int sortOrder = listingImageRepository.findByListingId(listingId).size() + 1;
+
+        ListingImage listingImage = ListingImage.builder()
+                .listing(listing)
+                .imageUrl(publicUrl)
+                .sortOrder(sortOrder)
+                .build();
+
+        listingImageRepository.save(listingImage);
+
+        return publicUrl;
+    }
+
+    private ListingResponse mapToResponse(Listing listing) {
+
+        return ListingResponse.builder()
+                .id(listing.getId())
+                .title(listing.getTitle())
+                .slug(listing.getSlug())
+                .description(listing.getDescription())
+                .price(listing.getPrice())
+                .thumbnail(listing.getThumbnail())
+                .gameName(listing.getGameName())
+                .serverName(listing.getServerName())
+                .listingType(listing.getListingType())
+                .status(listing.getStatus())
+                .categoryName(listing.getCategory().getName())
                 .build();
     }
 }
