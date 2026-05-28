@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import com.shopacc.backend.dto.user.*;
 import com.shopacc.backend.enums.ListingStatus;
 import com.shopacc.backend.enums.ListingType;
+import com.shopacc.backend.dto.user.TransactionResponse;
+import com.shopacc.backend.service.PaymentService;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +20,8 @@ import java.util.Map;
 public class AdminController {
 
     private final AdminService adminService;
+
+    private final PaymentService paymentService;
 
     @GetMapping("/categories")
     public List<ProductCategory> getAllCategories() {
@@ -179,5 +183,27 @@ public class AdminController {
                 listingType,
                 gameName
         );
+    }
+
+    @GetMapping("/transactions")
+    public List<TransactionResponse> getAllTransactions() {
+
+        return paymentService.getAllTransactionsForAdmin();
+    }
+
+    @PatchMapping("/transactions/{id}/approve")
+    public TransactionResponse approveTransaction(
+            @PathVariable Long id
+    ) {
+
+        return paymentService.approveTransaction(id);
+    }
+
+    @PatchMapping("/transactions/{id}/reject")
+    public TransactionResponse rejectTransaction(
+            @PathVariable Long id
+    ) {
+
+        return paymentService.rejectTransaction(id);
     }
 }
