@@ -46,6 +46,8 @@ public class AdminService {
 
     private final ListingImageRepository listingImageRepository;
 
+    private final CryptoService cryptoService;
+
     public List<ProductCategory> getAllCategories() {
 
         return categoryRepository.findAll();
@@ -129,7 +131,11 @@ public class AdminService {
         listing.setDescription(request.getDescription());
         listing.setPrice(request.getPrice());
         listing.setThumbnail(request.getThumbnail());
-        listing.setSecretDataEncrypted(request.getSecretDataEncrypted());
+        listing.setSecretDataEncrypted(
+                cryptoService.encrypt(
+                        request.getSecretDataEncrypted()
+                )
+        );
 
         return mapToListingResponse(listing);
     }

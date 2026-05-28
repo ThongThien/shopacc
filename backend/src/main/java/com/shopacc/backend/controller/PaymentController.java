@@ -1,5 +1,5 @@
 package com.shopacc.backend.controller;
-
+import jakarta.validation.Valid;
 import com.shopacc.backend.dto.payment.CreateDepositRequest;
 import com.shopacc.backend.dto.payment.DepositResponse;
 import com.shopacc.backend.dto.user.TransactionResponse;
@@ -21,7 +21,7 @@ public class PaymentController {
     @PostMapping("/deposits")
     public DepositResponse createDeposit(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody CreateDepositRequest request
+            @Valid @RequestBody CreateDepositRequest request
     ) {
 
         return paymentService.createDeposit(

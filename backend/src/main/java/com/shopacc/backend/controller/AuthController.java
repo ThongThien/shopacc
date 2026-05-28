@@ -1,5 +1,5 @@
 package com.shopacc.backend.controller;
-
+import jakarta.validation.Valid;
 import com.shopacc.backend.dto.auth.AuthResponse;
 import com.shopacc.backend.dto.auth.LoginRequest;
 import com.shopacc.backend.dto.auth.RegisterRequest;
@@ -16,7 +16,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public AuthResponse register(
-            @RequestBody RegisterRequest request
+            @Valid @RequestBody RegisterRequest request
     ) {
 
         return authService.register(request);
@@ -24,9 +24,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public AuthResponse login(
-            @RequestBody LoginRequest request
+            @Valid @RequestBody LoginRequest request
     ) {
-        System.out.println("LOGIN API HIT");
         return authService.login(request);
     }
 }

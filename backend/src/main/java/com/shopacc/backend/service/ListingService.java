@@ -31,8 +31,9 @@ public class ListingService {
     private final ListingRepository listingRepository;
     private final ProductCategoryRepository categoryRepository;
     private final ListingImageRepository listingImageRepository;
-
+    private final CryptoService cryptoService;
     private final WebClient webClient = WebClient.builder().build();
+    private final FileValidationService fileValidationService;
 
     @Value("${SUPABASE_URL}")
     private String supabaseUrl;
@@ -58,7 +59,11 @@ public class ListingService {
                 .description(request.getDescription())
                 .price(request.getPrice())
                 .thumbnail(request.getThumbnail())
-                .secretDataEncrypted(request.getSecretDataEncrypted())
+                .secretDataEncrypted(        
+                        cryptoService.encrypt(
+                        request.getSecretDataEncrypted()
+                        )
+                )
                 .status(ListingStatus.PUBLISHED)
                 .build();
 
@@ -103,10 +108,17 @@ public class ListingService {
 
     public String uploadListingImage(Long listingId, MultipartFile file) throws IOException {
 
+        fileValidationService.validateImage(file);
+
         Listing listing = listingRepository.findById(listingId)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
 
-        String fileName = UUID.randomUUID() + ".jpg";
+        String fileName =
+                "listings/"
+                        + listingId
+                        + "/"
+                        + UUID.randomUUID()
+                        + ".jpg";
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 

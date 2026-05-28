@@ -1,5 +1,5 @@
 package com.shopacc.backend.controller;
-
+import jakarta.validation.Valid;
 import com.shopacc.backend.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ public class SepayWebhookController {
 
     @PostMapping("/sepay")
     public ResponseEntity<Map<String, Boolean>> handleSepayWebhook(
-            @RequestBody String rawBody,
+            @Valid @RequestBody String rawBody,
 
             @RequestHeader("X-SePay-Signature")
             String signature,

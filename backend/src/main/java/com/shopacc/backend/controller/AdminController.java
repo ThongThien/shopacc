@@ -11,6 +11,12 @@ import com.shopacc.backend.enums.ListingStatus;
 import com.shopacc.backend.enums.ListingType;
 import com.shopacc.backend.dto.user.TransactionResponse;
 import com.shopacc.backend.service.PaymentService;
+import jakarta.validation.Valid;
+import com.shopacc.backend.enums.AuditAction;
+import com.shopacc.backend.security.CustomUserDetails;
+import com.shopacc.backend.service.AuditLogService;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +29,8 @@ public class AdminController {
 
     private final PaymentService paymentService;
 
+    private final AuditLogService auditLogService;
+
     @GetMapping("/categories")
     public List<ProductCategory> getAllCategories() {
 
@@ -31,16 +39,27 @@ public class AdminController {
 
     @PostMapping("/categories")
     public ProductCategory createCategory(
-            @RequestBody CreateCategoryRequest request
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody CreateCategoryRequest request,
+            HttpServletRequest httpRequest
     ) {
 
-        return adminService.createCategory(request);
+        ProductCategory category = adminService.createCategory(request);
+
+        auditLogService.log(
+                userDetails.getId(),
+                AuditAction.ADMIN_CREATE_CATEGORY,
+                "categoryId=" + category.getId(),
+                httpRequest
+        );
+
+        return category;
     }
 
     @PutMapping("/categories/{id}")
     public ProductCategory updateCategory(
             @PathVariable Long id,
-            @RequestBody UpdateCategoryRequest request
+            @Valid @RequestBody UpdateCategoryRequest request
     ) {
 
         return adminService.updateCategory(id, request);
@@ -64,17 +83,28 @@ public class AdminController {
 
     @PutMapping("/listings/{id}")
     public ListingResponse updateListing(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long id,
-            @RequestBody UpdateListingRequest request
+            @Valid @RequestBody UpdateListingRequest request,
+            HttpServletRequest httpRequest
     ) {
 
-        return adminService.updateListing(id, request);
+        ListingResponse response = adminService.updateListing(id, request);
+
+        auditLogService.log(
+                userDetails.getId(),
+                AuditAction.ADMIN_UPDATE_LISTING,
+                "listingId=" + id,
+                httpRequest
+        );
+
+        return response;
     }
 
     @PatchMapping("/listings/{id}/status")
     public ListingResponse updateListingStatus(
             @PathVariable Long id,
-            @RequestBody UpdateListingStatusRequest request
+            @Valid @RequestBody UpdateListingStatusRequest request
     ) {
 
         return adminService.updateListingStatus(id, request);
@@ -83,7 +113,7 @@ public class AdminController {
     @PatchMapping("/listings/{id}/featured")
     public ListingResponse updateListingFeatured(
             @PathVariable Long id,
-            @RequestBody UpdateFeaturedRequest request
+            @Valid @RequestBody UpdateFeaturedRequest request
     ) {
 
         return adminService.updateListingFeatured(id, request);
@@ -122,7 +152,7 @@ public class AdminController {
     @PatchMapping("/users/{id}/balance")
     public UserBalanceResponse adjustUserBalance(
             @PathVariable Long id,
-            @RequestBody AdjustBalanceRequest request
+            @Valid @RequestBody AdjustBalanceRequest request
     ) {
 
         return adminService.adjustUserBalance(id, request);
@@ -152,7 +182,7 @@ public class AdminController {
     @PatchMapping("/listings/{id}/thumbnail")
     public ListingResponse updateThumbnail(
             @PathVariable Long id,
-            @RequestBody UpdateThumbnailRequest request
+            @Valid @RequestBody UpdateThumbnailRequest request
     ) {
 
         return adminService.updateThumbnail(
@@ -193,17 +223,39 @@ public class AdminController {
 
     @PatchMapping("/transactions/{id}/approve")
     public TransactionResponse approveTransaction(
-            @PathVariable Long id
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id,
+            HttpServletRequest httpRequest
     ) {
 
-        return paymentService.approveTransaction(id);
+        TransactionResponse response = paymentService.approveTransaction(id);
+
+        auditLogService.log(
+                userDetails.getId(),
+                AuditAction.ADMIN_APPROVE_TRANSACTION,
+                "transactionId=" + id,
+                httpRequest
+        );
+
+        return response;
     }
 
     @PatchMapping("/transactions/{id}/reject")
     public TransactionResponse rejectTransaction(
-            @PathVariable Long id
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long id,
+            HttpServletRequest httpRequest
     ) {
 
-        return paymentService.rejectTransaction(id);
+        TransactionResponse response = paymentService.rejectTransaction(id);
+
+        auditLogService.log(
+                userDetails.getId(),
+                AuditAction.ADMIN_REJECT_TRANSACTION,
+                "transactionId=" + id,
+                httpRequest
+        );
+
+        return response;
     }
 }

@@ -5,13 +5,13 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PurchaseResponse {
-
-    private String orderCode;
+public class OrderSecretResponse {
 
     private Long orderId;
 
+    private String orderCode;
+
     private String listingTitle;
 
-    private String message;
+    private String secretData;
 }
