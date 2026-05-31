@@ -1,7 +1,9 @@
 package com.shopacc.backend.service;
 
+import com.shopacc.backend.dto.order.CreateOrderPreviewResponse;
 import com.shopacc.backend.dto.order.OrderItemResponse;
 import com.shopacc.backend.dto.order.OrderResponse;
+import com.shopacc.backend.dto.order.OrderSecretResponse;
 import com.shopacc.backend.dto.order.PurchaseResponse;
 import com.shopacc.backend.entity.*;
 import com.shopacc.backend.enums.ListingStatus;
@@ -13,9 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import com.shopacc.backend.dto.order.OrderSecretResponse;
+
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,188 +24,76 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OrderService {
 
-        private final ListingRepository listingRepository;
+    private final ListingRepository listingRepository;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final UserBalanceLogRepository balanceLogRepository;
+    private final CryptoService cryptoService;
 
-        private final UserRepository userRepository;
+    @Transactional
+    public CreateOrderPreviewResponse createOrderPreview(
+            Long userId,
+            Long listingId
+    ) {
+        User user = getUser(userId);
 
-        private final OrderRepository orderRepository;
+        Listing listing = listingRepository.findById(listingId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Listing not found"
+                ));
 
-        private final OrderItemRepository orderItemRepository;
-
-        private final UserBalanceLogRepository balanceLogRepository;
-
-        private final CryptoService cryptoService;
-        
-        @Transactional
-        public PurchaseResponse purchaseListing(Long userId, Long listingId) {
-
-                User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "User not found"
-                        ));
-
-                Listing listing = listingRepository.findById(listingId)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Listing not found"
-                        ));
-
-                if (listing.getStatus() != ListingStatus.PUBLISHED) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Listing unavailable"
-                );
-                }
-
-                if (user.getBalance().compareTo(listing.getPrice()) < 0) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Insufficient balance"
-                );
-                }
-
-                BigDecimal amountBefore = user.getBalance();
-                BigDecimal amountAfter = amountBefore.subtract(listing.getPrice());
-
-                user.setBalance(amountAfter);
-                userRepository.save(user);
-
-                String orderCode = "ORD-" + UUID.randomUUID();
-
-                Order order = Order.builder()
-                        .orderCode(orderCode)
-                        .user(user)
-                        .totalPrice(listing.getPrice())
-                        .status(OrderStatus.COMPLETED)
-                        .paymentStatus(PaymentStatus.PAID)
-                        .build();
-
-                orderRepository.save(order);
-
-                OrderItem orderItem = OrderItem.builder()
-                        .order(order)
-                        .listing(listing)
-                        .listingTitle(listing.getTitle())
-                        .listingThumbnail(listing.getThumbnail())
-                        .quantity(1)
-                        .price(listing.getPrice())
-                        .createdAt(LocalDateTime.now())
-                        .build();
-
-                orderItemRepository.save(orderItem);
-
-                UserBalanceLog balanceLog = UserBalanceLog.builder()
-                        .user(user)
-                        .amountBefore(amountBefore)
-                        .amountChange(listing.getPrice().negate())
-                        .amountAfter(amountAfter)
-                        .type("PURCHASE")
-                        .description("Purchase listing: " + listing.getTitle())
-                        .build();
-
-                balanceLogRepository.save(balanceLog);
-
-                listing.setStatus(ListingStatus.SOLD_OUT);
-                listingRepository.save(listing);
-
-                return PurchaseResponse.builder()
-                        .orderCode(orderCode)
-                        .orderId(order.getId())
-                        .listingTitle(listing.getTitle())
-                        .message("Purchase successful")
-                        .build();
+        if (listing.getStatus() != ListingStatus.PUBLISHED) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Listing unavailable"
+            );
         }
 
-        public List<OrderResponse> getMyOrders(Long userId) {
+        BigDecimal currentBalance = user.getBalance();
+        BigDecimal price = listing.getPrice();
+        BigDecimal remainingBalance = currentBalance.subtract(price);
 
-                return orderRepository.findByUserIdWithUserOrderByCreatedAtDesc(userId)
-                        .stream()
-                        .map(this::mapToOrderResponse)
-                        .toList();
-        }
+        Order order = Order.builder()
+                .orderCode("ORD-" + UUID.randomUUID())
+                .user(user)
+                .totalPrice(price)
+                .status(OrderStatus.PENDING)
+                .paymentStatus(PaymentStatus.UNPAID)
+                .build();
 
-        public OrderResponse getMyOrderDetail(Long userId, Long orderId) {
+        orderRepository.save(order);
 
-                Order order = orderRepository.findByIdWithUser(orderId)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Order not found"
-                        ));
+        OrderItem orderItem = OrderItem.builder()
+                .order(order)
+                .listing(listing)
+                .listingTitle(listing.getTitle())
+                .listingThumbnail(listing.getThumbnail())
+                .quantity(1)
+                .price(price)
+                .build();
 
-                if (!order.getUser().getId().equals(userId)) {
-                throw new ResponseStatusException(
-                        HttpStatus.FORBIDDEN,
-                        "You cannot access this order"
-                );
-                }
+        orderItemRepository.save(orderItem);
 
-                return mapToOrderResponse(order);
-        }
+        return CreateOrderPreviewResponse.builder()
+                .orderId(order.getId())
+                .orderCode(order.getOrderCode())
+                .listingId(listing.getId())
+                .listingTitle(listing.getTitle())
+                .price(price)
+                .currentBalance(currentBalance)
+                .remainingBalance(remainingBalance)
+                .canPurchase(remainingBalance.compareTo(BigDecimal.ZERO) >= 0)
+                .build();
+    }
 
-        public List<OrderResponse> getAllOrdersForAdmin() {
-
-                return orderRepository.findAllWithUserOrderByCreatedAtDesc()
-                        .stream()
-                        .map(this::mapToOrderResponse)
-                        .toList();
-        }
-
-        public OrderResponse getOrderDetailForAdmin(Long orderId) {
-
-                Order order = orderRepository.findByIdWithUser(orderId)
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Order not found"
-                        ));
-
-                return mapToOrderResponse(order);
-        }
-
-        private OrderResponse mapToOrderResponse(Order order) {
-
-                List<OrderItemResponse> items =
-                        orderItemRepository.findByOrderId(order.getId())
-                                .stream()
-                                .map(this::mapToOrderItemResponse)
-                                .toList();
-
-                return OrderResponse.builder()
-                        .id(order.getId())
-                        .orderCode(order.getOrderCode())
-                        .userId(order.getUser().getId())
-                        .username(order.getUser().getUsername())
-                        .totalPrice(order.getTotalPrice())
-                        .status(order.getStatus())
-                        .paymentStatus(order.getPaymentStatus())
-                        .createdAt(order.getCreatedAt())
-                        .items(items)
-                        .build();
-        }
-
-        private OrderItemResponse mapToOrderItemResponse(OrderItem item) {
-
-                Long listingId = null;
-
-                if (item.getListing() != null) {
-                listingId = item.getListing().getId();
-                }
-
-                return OrderItemResponse.builder()
-                        .id(item.getId())
-                        .listingId(listingId)
-                        .listingTitle(item.getListingTitle())
-                        .listingThumbnail(item.getListingThumbnail())
-                        .quantity(item.getQuantity())
-                        .price(item.getPrice())
-                        .build();
-        }
-    
-    
-        public OrderSecretResponse getOrderSecret(
-                Long userId,
-                Long orderId
-        ) {
+    @Transactional
+    public PurchaseResponse confirmPurchase(
+            Long userId,
+            Long orderId
+    ) {
+        User user = getUser(userId);
 
         Order order = orderRepository.findByIdWithUser(orderId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -213,43 +102,190 @@ public class OrderService {
                 ));
 
         if (!order.getUser().getId().equals(userId)) {
-                throw new ResponseStatusException(
-                        HttpStatus.FORBIDDEN,
-                        "You cannot access this order"
-                );
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You cannot access this order"
+            );
         }
 
-        if (order.getStatus() != OrderStatus.COMPLETED ||
-                order.getPaymentStatus() != PaymentStatus.PAID) {
-
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Order is not completed"
-                );
+        if (order.getStatus() != OrderStatus.PENDING) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Order already processed"
+            );
         }
 
-        OrderItem orderItem =
-                orderItemRepository.findByOrderId(order.getId())
-                        .stream()
-                        .findFirst()
-                        .orElseThrow(() -> new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Order item not found"
-                        ));
+        OrderItem orderItem = orderItemRepository.findByOrderId(order.getId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order item not found"
+                ));
 
         Listing listing = orderItem.getListing();
 
         if (listing == null) {
-                throw new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Listing not found"
-                );
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Listing not found"
+            );
         }
 
-        String secretData =
-                cryptoService.decrypt(
-                        listing.getSecretDataEncrypted()
-                );
+        if (listing.getStatus() != ListingStatus.PUBLISHED) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Listing unavailable"
+            );
+        }
+
+        BigDecimal before = user.getBalance();
+        BigDecimal price = order.getTotalPrice();
+
+        if (before.compareTo(price) < 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Insufficient balance"
+            );
+        }
+
+        BigDecimal after = before.subtract(price);
+
+        user.setBalance(after);
+        userRepository.save(user);
+
+        order.setStatus(OrderStatus.COMPLETED);
+        order.setPaymentStatus(PaymentStatus.PAID);
+        orderRepository.save(order);
+
+        listing.setStatus(ListingStatus.SOLD_OUT);
+        listingRepository.save(listing);
+
+        UserBalanceLog balanceLog = UserBalanceLog.builder()
+                .user(user)
+                .amountBefore(before)
+                .amountChange(price.negate())
+                .amountAfter(after)
+                .type("PURCHASE")
+                .description("Purchase listing: " + listing.getTitle())
+                .build();
+
+        balanceLogRepository.save(balanceLog);
+
+        return PurchaseResponse.builder()
+                .orderCode(order.getOrderCode())
+                .orderId(order.getId())
+                .listingTitle(listing.getTitle())
+                .message("Purchase successful")
+                .build();
+    }
+
+    @Transactional
+    public PurchaseResponse purchaseListing(
+            Long userId,
+            Long listingId
+    ) {
+        CreateOrderPreviewResponse preview = createOrderPreview(userId, listingId);
+
+        if (!preview.isCanPurchase()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Insufficient balance"
+            );
+        }
+
+        return confirmPurchase(userId, preview.getOrderId());
+    }
+
+    public List<OrderResponse> getMyOrders(Long userId) {
+        return orderRepository.findByUserIdWithUserOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(this::mapToOrderResponse)
+                .toList();
+    }
+
+    public OrderResponse getMyOrderDetail(
+            Long userId,
+            Long orderId
+    ) {
+        Order order = orderRepository.findByIdWithUser(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order not found"
+                ));
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You cannot access this order"
+            );
+        }
+
+        return mapToOrderResponse(order);
+    }
+
+    public List<OrderResponse> getAllOrdersForAdmin() {
+        return orderRepository.findAllWithUserOrderByCreatedAtDesc()
+                .stream()
+                .map(this::mapToOrderResponse)
+                .toList();
+    }
+
+    public OrderResponse getOrderDetailForAdmin(Long orderId) {
+        Order order = orderRepository.findByIdWithUser(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order not found"
+                ));
+
+        return mapToOrderResponse(order);
+    }
+
+    public OrderSecretResponse getOrderSecret(
+            Long userId,
+            Long orderId
+    ) {
+        Order order = orderRepository.findByIdWithUser(orderId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order not found"
+                ));
+
+        if (!order.getUser().getId().equals(userId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN,
+                    "You cannot access this order"
+            );
+        }
+
+        if (order.getStatus() != OrderStatus.COMPLETED ||
+                order.getPaymentStatus() != PaymentStatus.PAID) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Order is not completed"
+            );
+        }
+
+        OrderItem orderItem = orderItemRepository.findByOrderId(order.getId())
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Order item not found"
+                ));
+
+        Listing listing = orderItem.getListing();
+
+        if (listing == null) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Listing not found"
+            );
+        }
+
+        String secretData = cryptoService.decrypt(
+                listing.getSecretDataEncrypted()
+        );
 
         return OrderSecretResponse.builder()
                 .orderId(order.getId())
@@ -257,5 +293,49 @@ public class OrderService {
                 .listingTitle(orderItem.getListingTitle())
                 .secretData(secretData)
                 .build();
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
+    }
+
+    private OrderResponse mapToOrderResponse(Order order) {
+        List<OrderItemResponse> items = orderItemRepository.findByOrderId(order.getId())
+                .stream()
+                .map(this::mapToOrderItemResponse)
+                .toList();
+
+        return OrderResponse.builder()
+                .id(order.getId())
+                .orderCode(order.getOrderCode())
+                .userId(order.getUser().getId())
+                .username(order.getUser().getUsername())
+                .totalPrice(order.getTotalPrice())
+                .status(order.getStatus())
+                .paymentStatus(order.getPaymentStatus())
+                .createdAt(order.getCreatedAt())
+                .items(items)
+                .build();
+    }
+
+    private OrderItemResponse mapToOrderItemResponse(OrderItem item) {
+        Long listingId = null;
+
+        if (item.getListing() != null) {
+            listingId = item.getListing().getId();
         }
+
+        return OrderItemResponse.builder()
+                .id(item.getId())
+                .listingId(listingId)
+                .listingTitle(item.getListingTitle())
+                .listingThumbnail(item.getListingThumbnail())
+                .quantity(item.getQuantity())
+                .price(item.getPrice())
+                .build();
+    }
 }

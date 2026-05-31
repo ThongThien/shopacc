@@ -33,4 +33,9 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             ORDER BY o.createdAt DESC
             """)
     List<Order> findAllWithUserOrderByCreatedAtDesc();
+
+    Optional<Order> findByIdAndUserId(
+        Long id,
+        Long userId
+        );
 }
