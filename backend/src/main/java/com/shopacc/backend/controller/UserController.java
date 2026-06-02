@@ -1,5 +1,8 @@
 package com.shopacc.backend.controller;
-
+import java.util.Map;
+import jakarta.validation.Valid;
+import com.shopacc.backend.dto.user.ChangePasswordRequest;
+import com.shopacc.backend.dto.user.UserProfileResponse;
 import com.shopacc.backend.dto.user.TransactionResponse;
 import com.shopacc.backend.dto.user.UserBalanceResponse;
 import com.shopacc.backend.security.CustomUserDetails;
@@ -31,5 +34,25 @@ public class UserController {
     ) {
 
         return userService.getMyTransactions(userDetails.getId());
+    }
+
+    @GetMapping("/profile")
+    public UserProfileResponse profile(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return userService.getProfile(userDetails);
+    }
+
+    @PutMapping("/password")
+    public Map<String, String> changePassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        userService.changePassword(userDetails, request);
+
+        return Map.of(
+                "message",
+                "Password changed successfully"
+        );
     }
 }

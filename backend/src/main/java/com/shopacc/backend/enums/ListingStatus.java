@@ -1,7 +1,6 @@
 package com.shopacc.backend.enums;
 
 public enum ListingStatus {
-
     DRAFT,
     PUBLISHED,
     HIDDEN,

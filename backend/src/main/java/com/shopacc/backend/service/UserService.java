@@ -1,5 +1,10 @@
 package com.shopacc.backend.service;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.shopacc.backend.security.CustomUserDetails;
+import com.shopacc.backend.dto.user.ChangePasswordRequest;
+import com.shopacc.backend.dto.user.UserProfileResponse;
 import com.shopacc.backend.dto.user.TransactionResponse;
 import com.shopacc.backend.dto.user.UserBalanceResponse;
 import com.shopacc.backend.entity.Transaction;
@@ -51,5 +56,56 @@ public class UserService {
                 .description(transaction.getDescription())
                 .createdAt(transaction.getCreatedAt())
                 .build();
+    }
+
+    private final PasswordEncoder passwordEncoder;
+
+    public UserProfileResponse getProfile(CustomUserDetails userDetails) {
+
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
+
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .status(user.getStatus().name())
+                .balance(user.getBalance())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .lastLoginAt(null)
+                .build();
+    }
+
+    public void changePassword(
+            CustomUserDetails userDetails,
+            ChangePasswordRequest request
+    ) {
+
+        User user = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
+
+        if (!passwordEncoder.matches(
+                request.getCurrentPassword(),
+                user.getPasswordHash()
+        )) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Current password is incorrect"
+            );
+        }
+
+        user.setPasswordHash(
+                passwordEncoder.encode(request.getNewPassword())
+        );
+
+        userRepository.save(user);
     }
 }

@@ -1,4 +1,9 @@
 package com.shopacc.backend.service;
+import com.shopacc.backend.security.CustomUserDetails;
+import java.time.LocalDate;
+import com.shopacc.backend.repository.OrderRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import com.shopacc.backend.dto.order.OrderResponse;
 import com.shopacc.backend.dto.admin.*;
 import com.shopacc.backend.dto.listing.ListingResponse;
@@ -31,6 +36,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
+        private final OrderRepository orderRepository;
 
     private final ProductCategoryRepository categoryRepository;
 
@@ -327,4 +333,63 @@ public class AdminService {
                 .map(this::mapToListingResponse)
                 .toList();
     }
+        public AdminDashboardResponse getDashboard(
+                CustomUserDetails userDetails
+        ) {
+
+        User admin = userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Admin not found"
+                ));
+
+        LocalDate now = LocalDate.now();
+
+        LocalDateTime startOfMonth = now.withDayOfMonth(1).atStartOfDay();
+
+        LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusNanos(1);
+
+        List<AdminDashboardResponse.TopOrderItem> topOrders =
+                orderRepository.findTop5ByOrderByTotalPriceDesc()
+                        .stream()
+                        .map(order -> AdminDashboardResponse.TopOrderItem.builder()
+                                .orderId(order.getId())
+                                .orderCode(order.getOrderCode())
+                                .username(order.getUser().getUsername())
+                                .totalPrice(order.getTotalPrice())
+                                .createdAt(String.valueOf(order.getCreatedAt()))
+                                .build())
+                        .toList();
+
+        return AdminDashboardResponse.builder()
+                .adminBalance(admin.getBalance())
+                .revenueThisMonth(
+                        orderRepository.sumCompletedRevenueBetween(
+                                startOfMonth,
+                                endOfMonth
+                        )
+                )
+                .revenueAllTime(orderRepository.sumCompletedRevenueAllTime())
+                .totalUsers(userRepository.count())
+                .totalListings(listingRepository.count())
+                .publishedListings(
+                        listingRepository.countByStatus(
+                                ListingStatus.PUBLISHED
+                        )
+                )
+                .soldListings(
+                        listingRepository.countByStatus(
+                                ListingStatus.SOLD_OUT
+                        )
+                )
+                .totalOrders(orderRepository.count())
+                .ordersThisMonth(
+                        orderRepository.countByCreatedAtBetween(
+                                startOfMonth,
+                                endOfMonth
+                        )
+                )
+                .topOrders(topOrders)
+                .build();
+        }
 }

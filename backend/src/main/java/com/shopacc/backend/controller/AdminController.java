@@ -258,4 +258,10 @@ public class AdminController {
 
         return response;
     }
+        @GetMapping("/dashboard")
+        public AdminDashboardResponse dashboard(
+                @AuthenticationPrincipal CustomUserDetails userDetails
+        ) {
+        return adminService.getDashboard(userDetails);
+        }
 }
