@@ -8,8 +8,10 @@ import com.shopacc.backend.dto.order.OrderResponse;
 import com.shopacc.backend.dto.admin.*;
 import com.shopacc.backend.dto.listing.ListingResponse;
 import com.shopacc.backend.entity.Listing;
+import com.shopacc.backend.entity.Order;
 import com.shopacc.backend.entity.ProductCategory;
 import com.shopacc.backend.repository.ListingRepository;
+import com.shopacc.backend.repository.OrderItemRepository;
 import com.shopacc.backend.repository.ProductCategoryRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +26,12 @@ import com.shopacc.backend.repository.TransactionRepository;
 import com.shopacc.backend.repository.UserBalanceLogRepository;
 import com.shopacc.backend.repository.UserRepository;
 import com.shopacc.backend.entity.ListingImage;
+import com.shopacc.backend.entity.OrderItem;
 import com.shopacc.backend.enums.ListingType;
+import com.shopacc.backend.enums.OrderStatus;
 import com.shopacc.backend.enums.ListingStatus;
 import com.shopacc.backend.repository.ListingImageRepository;
+import com.shopacc.backend.dto.listing.CreateListingRequest;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -53,6 +58,8 @@ public class AdminService {
     private final ListingImageRepository listingImageRepository;
 
     private final CryptoService cryptoService;
+
+    private final OrderItemRepository orderItemRepository;
 
     public List<ProductCategory> getAllCategories() {
 
@@ -168,30 +175,39 @@ public class AdminService {
         return mapToListingResponse(listing);
     }
 
-    public void deleteListing(Long id) {
-
-        Listing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
-
-        listingRepository.delete(listing);
-    }
-
-    private ListingResponse mapToListingResponse(Listing listing) {
+        private ListingResponse mapToListingResponse(Listing listing) {
 
         return ListingResponse.builder()
                 .id(listing.getId())
+                .categoryId(
+                        listing.getCategory() != null
+                                ? listing.getCategory().getId()
+                                : null
+                )
+                .categoryName(
+                        listing.getCategory() != null
+                                ? listing.getCategory().getName()
+                                : null
+                )
+                .listingType(listing.getListingType())
+                .gameName(listing.getGameName())
+                .serverName(listing.getServerName())
                 .title(listing.getTitle())
                 .slug(listing.getSlug())
                 .description(listing.getDescription())
                 .price(listing.getPrice())
                 .thumbnail(listing.getThumbnail())
-                .gameName(listing.getGameName())
-                .serverName(listing.getServerName())
-                .listingType(listing.getListingType())
                 .status(listing.getStatus())
-                .categoryName(listing.getCategory() != null ? listing.getCategory().getName() : null)
+                .isFeatured(listing.getIsFeatured())
+                .viewCount(
+                        listing.getViewCount() == null
+                                ? 0L
+                                : listing.getViewCount()
+                )
+                .createdAt(listing.getCreatedAt())
+                .updatedAt(listing.getUpdatedAt())
                 .build();
-    }
+        }
 
     public List<OrderResponse> getAllOrders() {
 
@@ -280,7 +296,7 @@ public class AdminService {
                 .build();
     }
 
-    private TransactionResponse mapTransaction(Transaction transaction) {
+        private TransactionResponse mapTransaction(Transaction transaction) {
 
         return TransactionResponse.builder()
                 .id(transaction.getId())
@@ -291,8 +307,11 @@ public class AdminService {
                 .provider(transaction.getProvider())
                 .description(transaction.getDescription())
                 .createdAt(transaction.getCreatedAt())
+                .userId(transaction.getUser().getId())
+                .username(transaction.getUser().getUsername())
+                .email(transaction.getUser().getEmail())
                 .build();
-    }
+        }
     public void deleteListingImage(Long imageId) {
 
         ListingImage image = listingImageRepository.findById(imageId)
@@ -391,5 +410,156 @@ public class AdminService {
                 )
                 .topOrders(topOrders)
                 .build();
+        }
+        @Transactional
+        public ListingResponse createListing(CreateListingRequest request) {
+
+        ProductCategory category = categoryRepository.findById(request.getCategoryId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Category not found"
+                ));
+
+        Listing listing = Listing.builder()
+                .category(category)
+                .listingType(request.getListingType())
+                .gameName(request.getGameName())
+                .serverName(request.getServerName())
+                .title(request.getTitle())
+                .slug(request.getSlug())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .thumbnail(request.getThumbnail())
+                .secretDataEncrypted(
+                        cryptoService.encrypt(request.getSecretDataEncrypted())
+                )
+                .status(ListingStatus.PUBLISHED)
+                .isFeatured(false)
+                .viewCount(0L)
+                .build();
+
+        listingRepository.save(listing);
+
+        return mapToListingResponse(listing);
+        }
+
+        public AdminListingDetailResponse getListingDetail(Long id) {
+
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Listing not found"
+                ));
+
+        List<String> images = listingImageRepository.findByListingIdOrderBySortOrderAsc(id)
+                .stream()
+                .map(ListingImage::getImageUrl)
+                .toList();
+
+        OrderItem soldItem = orderItemRepository.findByListingId(id)
+                .stream()
+                .filter(item -> item.getOrder() != null)
+                .filter(item -> item.getOrder().getStatus() == OrderStatus.COMPLETED)
+                .findFirst()
+                .orElse(null);
+
+        boolean sold = soldItem != null;
+
+        Long buyerUserId = null;
+        String buyerUsername = null;
+        String buyerEmail = null;
+        Long orderId = null;
+        String orderCode = null;
+        LocalDateTime soldAt = null;
+
+        if (soldItem != null) {
+                Order order = soldItem.getOrder();
+
+                orderId = order.getId();
+                orderCode = order.getOrderCode();
+                soldAt = order.getCreatedAt();
+
+                if (order.getUser() != null) {
+                buyerUserId = order.getUser().getId();
+                buyerUsername = order.getUser().getUsername();
+                buyerEmail = order.getUser().getEmail();
+                }
+        }
+
+        String secretData = null;
+
+        try {
+                secretData = cryptoService.decrypt(listing.getSecretDataEncrypted());
+        } catch (Exception ex) {
+                secretData = "Cannot decrypt secret data";
+        }
+
+        return AdminListingDetailResponse.builder()
+                .id(listing.getId())
+                .categoryId(
+                        listing.getCategory() != null
+                                ? listing.getCategory().getId()
+                                : null
+                )
+                .categoryName(
+                        listing.getCategory() != null
+                                ? listing.getCategory().getName()
+                                : null
+                )
+                .listingType(listing.getListingType())
+                .gameName(listing.getGameName())
+                .serverName(listing.getServerName())
+                .title(listing.getTitle())
+                .slug(listing.getSlug())
+                .description(listing.getDescription())
+                .price(listing.getPrice())
+                .thumbnail(listing.getThumbnail())
+                .status(listing.getStatus())
+                .isFeatured(listing.getIsFeatured())
+                .viewCount(
+                        listing.getViewCount() == null
+                                ? 0L
+                                : listing.getViewCount()
+                )
+                .secretData(secretData)
+                .images(images)
+                .sold(sold)
+                .buyerUserId(buyerUserId)
+                .buyerUsername(buyerUsername)
+                .buyerEmail(buyerEmail)
+                .orderId(orderId)
+                .orderCode(orderCode)
+                .soldAt(soldAt)
+                .createdAt(listing.getCreatedAt())
+                .updatedAt(listing.getUpdatedAt())
+                .build();
+        }
+
+        @Transactional
+        public void deleteListing(Long id) {
+
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Listing not found"
+                ));
+
+        boolean hasCompletedOrder = orderItemRepository.findByListingId(id)
+                .stream()
+                .anyMatch(item ->
+                        item.getOrder() != null &&
+                                item.getOrder().getStatus() == OrderStatus.COMPLETED
+                );
+
+        if (hasCompletedOrder) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Cannot delete listing that already has completed order"
+                );
+        }
+
+        listingImageRepository.deleteByListingId(id);
+
+        listingRepository.delete(listing);
         }
 }

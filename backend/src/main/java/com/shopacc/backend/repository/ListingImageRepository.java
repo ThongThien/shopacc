@@ -11,4 +11,8 @@ public interface ListingImageRepository
     List<ListingImage> findByListingId(Long listingId);
 
     Optional<ListingImage> findById(Long id);
+
+    List<ListingImage> findByListingIdOrderBySortOrderAsc(Long listingId);
+
+    void deleteByListingId(Long listingId);
 }

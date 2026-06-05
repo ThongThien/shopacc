@@ -1,6 +1,7 @@
 package com.shopacc.backend.controller;
 import com.shopacc.backend.dto.order.OrderResponse;
 import com.shopacc.backend.dto.admin.*;
+import com.shopacc.backend.dto.listing.CreateListingRequest;
 import com.shopacc.backend.dto.listing.ListingResponse;
 import com.shopacc.backend.entity.ProductCategory;
 import com.shopacc.backend.service.AdminService;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import com.shopacc.backend.dto.user.*;
 import com.shopacc.backend.enums.ListingStatus;
 import com.shopacc.backend.enums.ListingType;
-import com.shopacc.backend.dto.user.TransactionResponse;
 import com.shopacc.backend.service.PaymentService;
 import jakarta.validation.Valid;
 import com.shopacc.backend.enums.AuditAction;
@@ -37,6 +37,12 @@ public class AdminController {
         return adminService.getAllCategories();
     }
 
+        @GetMapping("/listings/{id:\\d+}")
+        public AdminListingDetailResponse getListingDetail(
+                @PathVariable Long id
+        ) {
+        return adminService.getListingDetail(id);
+        }
     @PostMapping("/categories")
     public ProductCategory createCategory(
             @AuthenticationPrincipal CustomUserDetails userDetails,
@@ -191,29 +197,15 @@ public class AdminController {
         );
     }
 
-    @GetMapping("/listings/filter")
-    public List<ListingResponse> filterListings(
-
-            @RequestParam(required = false)
-            ListingStatus status,
-
-            @RequestParam(required = false)
-            Long categoryId,
-
-            @RequestParam(required = false)
-            ListingType listingType,
-
-            @RequestParam(required = false)
-            String gameName
-    ) {
-
-        return adminService.filterListings(
-                status,
-                categoryId,
-                listingType,
-                gameName
-        );
-    }
+        @GetMapping("/listings/filter")
+        public List<ListingResponse> filterListings(
+                @RequestParam(required = false) ListingStatus status,
+                @RequestParam(required = false) Long categoryId,
+                @RequestParam(required = false) ListingType listingType,
+                @RequestParam(required = false) String gameName
+        ) {
+        return adminService.filterListings(status, categoryId, listingType, gameName);
+        }
 
     @GetMapping("/transactions")
     public List<TransactionResponse> getAllTransactions() {
@@ -258,10 +250,28 @@ public class AdminController {
 
         return response;
     }
-        @GetMapping("/dashboard")
-        public AdminDashboardResponse dashboard(
-                @AuthenticationPrincipal CustomUserDetails userDetails
-        ) {
+    @GetMapping("/dashboard")
+    public AdminDashboardResponse dashboard(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
         return adminService.getDashboard(userDetails);
-        }
+    }
+
+    @PostMapping("/listings")
+    public ListingResponse createListing(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @Valid @RequestBody CreateListingRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        ListingResponse response = adminService.createListing(request);
+
+        auditLogService.log(
+                userDetails.getId(),
+                AuditAction.ADMIN_CREATE_LISTING,
+                "listingId=" + response.getId(),
+                httpRequest
+        );
+
+        return response;
+    }
 }

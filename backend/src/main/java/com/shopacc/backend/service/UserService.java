@@ -55,6 +55,9 @@ public class UserService {
                 .provider(transaction.getProvider())
                 .description(transaction.getDescription())
                 .createdAt(transaction.getCreatedAt())
+                .userId(transaction.getUser().getId())
+                .username(transaction.getUser().getUsername())
+                .email(transaction.getUser().getEmail())
                 .build();
     }
 

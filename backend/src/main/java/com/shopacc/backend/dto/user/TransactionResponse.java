@@ -14,6 +14,12 @@ public class TransactionResponse {
 
     private Long id;
 
+    private Long userId;
+
+    private String username;
+
+    private String email;
+
     private String transactionCode;
 
     private TransactionType type;

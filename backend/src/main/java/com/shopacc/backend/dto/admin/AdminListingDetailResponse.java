@@ -1,4 +1,4 @@
-package com.shopacc.backend.dto.listing;
+package com.shopacc.backend.dto.admin;
 
 import com.shopacc.backend.enums.ListingStatus;
 import com.shopacc.backend.enums.ListingType;
@@ -7,10 +7,11 @@ import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
-public class ListingResponse {
+public class AdminListingDetailResponse {
 
     private Long id;
 
@@ -39,6 +40,24 @@ public class ListingResponse {
     private Boolean isFeatured;
 
     private Long viewCount;
+
+    private String secretData;
+
+    private List<String> images;
+
+    private Boolean sold;
+
+    private Long buyerUserId;
+
+    private String buyerUsername;
+
+    private String buyerEmail;
+
+    private Long orderId;
+
+    private String orderCode;
+
+    private LocalDateTime soldAt;
 
     private LocalDateTime createdAt;
 
