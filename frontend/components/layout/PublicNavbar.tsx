@@ -138,8 +138,6 @@ export default function PublicNavbar() {
 
             <div className="user-dropdown">
               <Link href="/me">Hồ sơ</Link>
-              <Link href="/me/orders">Lịch sử mua</Link>
-              <Link href="/me/deposits">Nạp tiền</Link>
 
               {role === "ADMIN" && <Link href="/admin">Admin</Link>}
 

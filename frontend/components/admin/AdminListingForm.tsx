@@ -6,16 +6,18 @@ import {
   createAdminListing,
   getAdminCategories,
   updateAdminListing,
+  updateAdminListingThumbnail,
   uploadListingImage,
 } from "@/services/admin.service";
 import { AdminListingPayload } from "@/types/admin";
 import { Category } from "@/types/category";
-import { Listing, ListingType } from "@/types/listing";
+import { ListingType } from "@/types/listing";
+import { AdminListingDetail } from "@/types/admin-listing";
 import { useNotify } from "@/components/shared/NotificationProvider";
 
 interface Props {
   mode: "create" | "edit";
-  listing?: Listing;
+  listing?: AdminListingDetail;
 }
 
 const initialPayload: AdminListingPayload = {
@@ -37,10 +39,8 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [payload, setPayload] = useState<AdminListingPayload>(initialPayload);
-  const [createdListingId, setCreatedListingId] = useState<number | null>(
-    listing?.id || null,
-  );
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [galleryFile, setGalleryFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -51,13 +51,13 @@ export default function AdminListingForm({ mode, listing }: Props) {
     if (!listing) return;
 
     setPayload({
-      categoryId: 0,
+      categoryId: listing.categoryId || 0,
       listingType: listing.listingType,
       gameName: listing.gameName,
       serverName: listing.serverName || "",
       title: listing.title,
       slug: listing.slug,
-      description: listing.description,
+      description: listing.description || "",
       price: listing.price,
       thumbnail: listing.thumbnail || "",
       secretDataEncrypted: "",
@@ -81,43 +81,58 @@ export default function AdminListingForm({ mode, listing }: Props) {
       .replace(/^-+|-+$/g, "");
   }
 
+  async function uploadThumbnailIfNeeded(listingId: number) {
+    if (!thumbnailFile) return;
+
+    const uploaded = await uploadListingImage(listingId, thumbnailFile);
+
+    await updateAdminListingThumbnail(listingId, {
+      thumbnail: uploaded.url,
+    });
+  }
+
+  async function uploadGalleryIfNeeded(listingId: number) {
+    if (!galleryFile) return;
+
+    await uploadListingImage(listingId, galleryFile);
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
     const ok = await confirmAction(
       mode === "create" ? "Tạo listing mới?" : "Cập nhật listing này?",
+      mode === "create" ? "Tạo listing" : "Cập nhật listing",
     );
+
     if (!ok) return;
 
     try {
       setLoading(true);
 
       if (mode === "create") {
-        const created = await createAdminListing(payload);
-        setCreatedListingId(created.id);
-        notify("success", "Tạo listing thành công");
-
-        if (imageFile) {
-          const uploaded = await uploadListingImage(created.id, imageFile);
-          notify("success", "Upload ảnh thành công");
-
-          if (!payload.thumbnail) {
-            await updateAdminListing(created.id, {
-              ...payload,
-              thumbnail: uploaded.url,
-            });
-          }
+        if (!payload.secretDataEncrypted.trim()) {
+          notify("error", "Secret data là bắt buộc khi tạo listing");
+          return;
         }
-      } else {
+
+        const created = await createAdminListing(payload);
+
+        await uploadThumbnailIfNeeded(created.id);
+        await uploadGalleryIfNeeded(created.id);
+
+        notify("success", "Tạo listing thành công");
+      }
+
+      if (mode === "edit") {
         if (!listing) return;
 
         await updateAdminListing(listing.id, payload);
-        notify("success", "Cập nhật listing thành công");
 
-        if (imageFile) {
-          await uploadListingImage(listing.id, imageFile);
-          notify("success", "Upload ảnh thành công");
-        }
+        await uploadThumbnailIfNeeded(listing.id);
+        await uploadGalleryIfNeeded(listing.id);
+
+        notify("success", "Cập nhật listing thành công");
       }
 
       router.push("/admin/listings");
@@ -145,7 +160,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
               updateField("listingType", e.target.value as ListingType)
             }
           >
-            <option value="ACCOUNT">Account</option>
+            <option value="ACCOUNT">Tài khoản</option>
             <option value="SERVICE">Dịch vụ</option>
             <option value="ITEM">Vật phẩm</option>
             <option value="RANDOM">Random</option>
@@ -169,7 +184,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
         </div>
 
         <div>
-          <label>Game / Nhóm dịch vụ</label>
+          <label>Game</label>
           <input
             className="input"
             value={payload.gameName}
@@ -195,10 +210,11 @@ export default function AdminListingForm({ mode, listing }: Props) {
             value={payload.title}
             onChange={(e) => {
               updateField("title", e.target.value);
-              if (mode === "create")
+
+              if (mode === "create") {
                 updateField("slug", autoSlug(e.target.value));
+              }
             }}
-            placeholder="Acc NRO VIP / Săn đệ tử"
           />
         </div>
 
@@ -222,12 +238,21 @@ export default function AdminListingForm({ mode, listing }: Props) {
         </div>
 
         <div>
-          <label>Thumbnail URL</label>
-          <input
+          <label>Trạng thái</label>
+          <select
             className="input"
-            value={payload.thumbnail}
-            onChange={(e) => updateField("thumbnail", e.target.value)}
-          />
+            value={payload.status || "PUBLISHED"}
+            onChange={(e) =>
+              updateField(
+                "status" as keyof AdminListingPayload,
+                e.target.value as never,
+              )
+            }
+          >
+            <option value="PUBLISHED">Đang bán</option>
+            <option value="SOLD_OUT">Đã bán</option>
+            <option value="DRAFT">Nháp</option>
+          </select>
         </div>
 
         <div className="form-col-span-2">
@@ -236,14 +261,12 @@ export default function AdminListingForm({ mode, listing }: Props) {
             className="input textarea"
             value={payload.description}
             onChange={(e) => updateField("description", e.target.value)}
-            placeholder="Mô tả chi tiết acc hoặc dịch vụ"
           />
         </div>
 
         <div className="form-col-span-2">
           <label>
-            Secret / Thông tin giao hàng{" "}
-            {isService && "(có thể ghi hướng dẫn xử lý dịch vụ)"}
+            Secret data {mode === "edit" && "(để trống nếu không đổi)"}
           </label>
           <textarea
             className="input textarea"
@@ -257,20 +280,24 @@ export default function AdminListingForm({ mode, listing }: Props) {
           />
         </div>
 
-        <div className="form-col-span-2">
-          <label>Upload ảnh listing</label>
+        <div>
+          <label>Upload thumbnail</label>
           <input
             className="input"
             type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
           />
+        </div>
 
-          {createdListingId && (
-            <p className="muted-text">
-              Listing ID hiện tại: {createdListingId}
-            </p>
-          )}
+        <div>
+          <label>Upload ảnh phụ</label>
+          <input
+            className="input"
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+            onChange={(e) => setGalleryFile(e.target.files?.[0] || null)}
+          />
         </div>
       </div>
 

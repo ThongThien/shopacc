@@ -4,80 +4,143 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   deleteAdminListing,
+  getAdminCategories,
   getAdminListings,
-  updateAdminListingStatus,
 } from "@/services/admin.service";
-import { Listing, ListingStatus } from "@/types/listing";
-import { formatCurrency } from "@/lib/format";
+import { Listing, ListingStatus, ListingType } from "@/types/listing";
+import { Category } from "@/types/category";
+import { formatCurrency, formatDateTime } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import { listingStatusLabel, listingTypeLabel } from "@/lib/admin-labels";
+
+type SortKey = "price" | "createdAt" | "updatedAt" | "viewCount";
+type SortDirection = "asc" | "desc";
 
 export default function AdminListings() {
   const { notify, confirmAction } = useNotify();
 
   const [listings, setListings] = useState<Listing[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [listingType, setListingType] = useState<ListingType | "">("");
   const [keyword, setKeyword] = useState("");
+  const [categoryId, setCategoryId] = useState("");
   const [status, setStatus] = useState("");
-  const [listingType, setListingType] = useState("");
-  const [gameName, setGameName] = useState("");
-  const [sortBy, setSortBy] = useState("newest");
+  const [activeGame, setActiveGame] = useState("all");
 
-  async function loadListings() {
+  const [sortKey, setSortKey] = useState<SortKey>("createdAt");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  async function loadData() {
     setLoading(true);
 
     try {
-      const data = await getAdminListings();
-      setListings(data);
+      const [listingData, categoryData] = await Promise.all([
+        getAdminListings(),
+        getAdminCategories(),
+      ]);
+
+      setListings(listingData);
+      setCategories(categoryData);
     } finally {
       setLoading(false);
     }
   }
 
   useEffect(() => {
-    void loadListings().catch(console.error);
+    void loadData().catch(console.error);
   }, []);
+
+  const games = useMemo(() => {
+    return Array.from(
+      new Set(listings.map((listing) => listing.gameName).filter(Boolean)),
+    );
+  }, [listings]);
 
   const filteredListings = useMemo(() => {
     const kw = keyword.toLowerCase().trim();
 
     return listings
       .filter((item) => {
+        if (activeGame === "all") return true;
+        return item.gameName === activeGame;
+      })
+      .filter((item) => {
         if (!kw) return true;
 
-        return `${item.title} ${item.description} ${item.gameName} ${item.serverName}`
+        return `${item.title} ${item.description} ${item.serverName}`
           .toLowerCase()
           .includes(kw);
       })
       .filter((item) => {
-        if (!status) return true;
-        return item.status === status;
+        if (!categoryId) return true;
+        return String(item.categoryId) === categoryId;
       })
       .filter((item) => {
         if (!listingType) return true;
         return item.listingType === listingType;
       })
       .filter((item) => {
-        if (!gameName) return true;
-        return item.gameName.toLowerCase().includes(gameName.toLowerCase());
+        if (!status) return true;
+        return item.status === status;
       })
       .sort((a, b) => {
-        if (sortBy === "price-desc") return b.price - a.price;
-        if (sortBy === "price-asc") return a.price - b.price;
+        let aValue = 0;
+        let bValue = 0;
 
-        const aDate = a.createdAt ? new Date(a.createdAt).getTime() : a.id;
-        const bDate = b.createdAt ? new Date(b.createdAt).getTime() : b.id;
+        if (sortKey === "price") {
+          aValue = a.price;
+          bValue = b.price;
+        }
 
-        if (sortBy === "oldest") return aDate - bDate;
+        if (sortKey === "viewCount") {
+          aValue = a.viewCount || 0;
+          bValue = b.viewCount || 0;
+        }
 
-        return bDate - aDate;
+        if (sortKey === "createdAt") {
+          aValue = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          bValue = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        }
+
+        if (sortKey === "updatedAt") {
+          aValue = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+          bValue = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+        }
+
+        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
       });
-  }, [listings, keyword, status, listingType, gameName, sortBy]);
+  }, [
+    listings,
+    keyword,
+    categoryId,
+    status,
+    listingType,
+    activeGame,
+    sortKey,
+    sortDirection,
+  ]);
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) {
+      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+      return;
+    }
+
+    setSortKey(key);
+    setSortDirection("desc");
+  }
+
+  function sortLabel(key: SortKey) {
+    if (sortKey !== key) return "";
+
+    return sortDirection === "asc" ? " ↑" : " ↓";
+  }
 
   async function handleDelete(id: number) {
     const ok = await confirmAction(
-      "Listing bị xóa sẽ không thể hiển thị lại. Bạn chắc chắn muốn xóa?",
+      "Nếu listing đã có đơn hoàn tất thì hệ thống sẽ không cho xóa. Bạn chắc chắn muốn xóa?",
       "Xóa listing",
     );
 
@@ -86,22 +149,9 @@ export default function AdminListings() {
     try {
       await deleteAdminListing(id);
       notify("success", "Đã xóa listing");
-      await loadListings();
+      await loadData();
     } catch (error) {
       notify("error", error instanceof Error ? error.message : "Xóa thất bại");
-    }
-  }
-
-  async function handleStatus(id: number, nextStatus: ListingStatus) {
-    try {
-      await updateAdminListingStatus(id, { status: nextStatus });
-      notify("success", "Đã cập nhật trạng thái listing");
-      await loadListings();
-    } catch (error) {
-      notify(
-        "error",
-        error instanceof Error ? error.message : "Cập nhật thất bại",
-      );
     }
   }
 
@@ -110,7 +160,7 @@ export default function AdminListings() {
       <div className="admin-page-header">
         <div>
           <h1>Quản lý Listings</h1>
-          <p>Quản lý acc, dịch vụ, vật phẩm, vàng/ngọc trong shop.</p>
+          <p>Quản lý acc, dịch vụ, vật phẩm và các sản phẩm số.</p>
         </div>
 
         <Link href="/admin/listings/create" className="btn-primary">
@@ -121,52 +171,53 @@ export default function AdminListings() {
       <div className="card admin-toolbar">
         <input
           className="input"
-          placeholder="Tìm title, mô tả, game, server..."
+          placeholder="Tìm tiêu đề, mô tả, server..."
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
-
-        <input
-          className="input"
-          placeholder="Game name"
-          value={gameName}
-          onChange={(e) => setGameName(e.target.value)}
-        />
-
         <select
           className="input"
           value={listingType}
-          onChange={(e) => setListingType(e.target.value)}
+          onChange={(e) => setListingType(e.target.value as ListingType | "")}
         >
           <option value="">Tất cả loại</option>
-          <option value="ACCOUNT">ACCOUNT</option>
-          <option value="SERVICE">SERVICE</option>
-          <option value="ITEM">ITEM</option>
-          <option value="RANDOM">RANDOM</option>
+          <option value="ACCOUNT">Tài khoản</option>
+          <option value="ITEM">Vật phẩm</option>
+          <option value="SERVICE">Dịch vụ</option>
+          <option value="RANDOM">Random</option>
         </select>
-
         <select
           className="input"
           value={status}
           onChange={(e) => setStatus(e.target.value)}
         >
           <option value="">Tất cả trạng thái</option>
-          <option value="PUBLISHED">PUBLISHED</option>
-          <option value="HIDDEN">HIDDEN</option>
-          <option value="SOLD_OUT">SOLD_OUT</option>
-          <option value="DRAFT">DRAFT</option>
+          <option value="PUBLISHED">Đang bán</option>
+          <option value="SOLD_OUT">Đã bán</option>
+          <option value="DRAFT">Nháp</option>
         </select>
+        <div className="admin-game-tabs">
+          <button
+            className={
+              activeGame === "all" ? "btn btn-primary" : "btn btn-outline"
+            }
+            type="button"
+            onClick={() => setActiveGame("all")}
+          >
+            Tất cả
+          </button>
 
-        <select
-          className="input"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option value="newest">Mới nhất</option>
-          <option value="oldest">Cũ nhất</option>
-          <option value="price-desc">Giá cao đến thấp</option>
-          <option value="price-asc">Giá thấp đến cao</option>
-        </select>
+          {games.map((game) => (
+            <button
+              key={game}
+              className={activeGame === game ? "btn btn-primary" : "btn"}
+              type="button"
+              onClick={() => setActiveGame(game)}
+            >
+              {game}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="card table-card">
@@ -182,9 +233,19 @@ export default function AdminListings() {
                   <th>Loại</th>
                   <th>Game</th>
                   <th>Server</th>
-                  <th>Lượt xem</th>
-                  <th>Giá</th>
+                  <th onClick={() => toggleSort("viewCount")}>
+                    Lượt xem{sortLabel("viewCount")}
+                  </th>
+                  <th onClick={() => toggleSort("price")}>
+                    Giá{sortLabel("price")}
+                  </th>
                   <th>Trạng thái</th>
+                  <th onClick={() => toggleSort("createdAt")}>
+                    Ngày tạo{sortLabel("createdAt")}
+                  </th>
+                  <th onClick={() => toggleSort("updatedAt")}>
+                    Cập nhật{sortLabel("updatedAt")}
+                  </th>
                   <th></th>
                 </tr>
               </thead>
@@ -194,34 +255,20 @@ export default function AdminListings() {
                   <tr key={listing.id}>
                     <td>#{listing.id}</td>
                     <td>{listing.title}</td>
-                    <td>{listing.listingType}</td>
+                    <td>{listingTypeLabel(listing.listingType)}</td>
                     <td>{listing.gameName}</td>
                     <td>{listing.serverName || "-"}</td>
-                    <td>{listing.viewCount ?? 0}</td>
+                    <td>{listing.viewCount || 0}</td>
                     <td>{formatCurrency(listing.price)}</td>
-                    <td>{listing.status}</td>
+                    <td>{listingStatusLabel(listing.status)}</td>
+                    <td>{formatDateTime(listing.createdAt || "")}</td>
+                    <td>{formatDateTime(listing.updatedAt || "")}</td>
                     <td className="admin-actions">
+                      <Link href={`/admin/listings/${listing.id}`}>Xem</Link>
+
                       <Link href={`/admin/listings/${listing.id}/edit`}>
                         Sửa
                       </Link>
-
-                      {listing.status !== "HIDDEN" && (
-                        <button
-                          type="button"
-                          onClick={() => handleStatus(listing.id, "HIDDEN")}
-                        >
-                          Ẩn
-                        </button>
-                      )}
-
-                      {listing.status === "HIDDEN" && (
-                        <button
-                          type="button"
-                          onClick={() => handleStatus(listing.id, "PUBLISHED")}
-                        >
-                          Hiện
-                        </button>
-                      )}
 
                       <button
                         type="button"

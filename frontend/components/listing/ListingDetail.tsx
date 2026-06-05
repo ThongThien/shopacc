@@ -21,7 +21,9 @@ export default function ListingDetail({ listing }: Props) {
   const { notify } = useNotify();
 
   const images = listing.images || [];
+  const defaultImage = listing.thumbnail || images[0] || "/placeholder.png";
 
+  const [selectedImage, setSelectedImage] = useState(defaultImage);
   const [open, setOpen] = useState(false);
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -61,19 +63,27 @@ export default function ListingDetail({ listing }: Props) {
       <section className="listing-detail">
         <div className="detail-left">
           <img
-            src={listing.thumbnail || "/placeholder.png"}
+            src={selectedImage}
             alt={listing.title || "Listing detail"}
             className="detail-main-image"
           />
 
-          {images.length > 0 && (
+          {images.length > 1 && (
             <div className="detail-gallery">
               {images.map((image, index) => (
-                <img
+                <button
                   key={`${image}-${index}`}
-                  src={image}
-                  alt={`${listing.title} ${index + 1}`}
-                />
+                  type="button"
+                  className={
+                    selectedImage === image
+                      ? "gallery-thumb active"
+                      : "gallery-thumb"
+                  }
+                  onClick={() => setSelectedImage(image)}
+                  aria-label={`Xem ảnh ${index + 1}`}
+                >
+                  <img src={image} alt={`${listing.title} ${index + 1}`} />
+                </button>
               ))}
             </div>
           )}

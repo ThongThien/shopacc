@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { NotificationProvider } from "@/components/shared/NotificationProvider";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Thiên Ngọc Rồng Shop",
@@ -17,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body>
+      <body className={inter.className}>
         <NotificationProvider>{children}</NotificationProvider>
       </body>
     </html>

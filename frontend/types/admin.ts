@@ -11,6 +11,7 @@ export interface AdminListingPayload {
   price: number;
   thumbnail: string;
   secretDataEncrypted: string;
+  status?: ListingStatus;
 }
 
 export interface AdminCategoryPayload {

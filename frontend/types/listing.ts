@@ -4,7 +4,7 @@ export type ListingStatus = "DRAFT" | "PUBLISHED" | "SOLD_OUT" | "HIDDEN";
 
 export interface Listing {
   id: number;
-  categoryId?: number;
+  categoryId?: number | null;
   title: string;
   slug: string;
   description: string;
@@ -17,6 +17,7 @@ export interface Listing {
   categoryName: string;
   viewCount: number;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ListingDetail extends Listing {

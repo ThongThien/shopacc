@@ -41,24 +41,21 @@ export async function apiFetch<T>(
     });
 
     if (!response.ok) {
+      const text = await response.text();
+
+      console.error("API ERROR:", {
+        url,
+        status: response.status,
+        body: text,
+      });
+
       let message = "API request failed";
 
       try {
-        const error = await response.json();
-        message = error.message || message;
+        const data = JSON.parse(text);
+        message = data.message || data.error || message;
       } catch {
-        message = response.statusText || message;
-      }
-
-      // token hết hạn hoặc chưa login
-      if (response.status === 401) {
-        if (typeof window !== "undefined") {
-          localStorage.removeItem(AUTH_STORAGE_KEYS.accessToken);
-          localStorage.removeItem(AUTH_STORAGE_KEYS.refreshToken);
-          localStorage.removeItem(AUTH_STORAGE_KEYS.role);
-        }
-
-        throw new Error("UNAUTHORIZED");
+        message = text || message;
       }
 
       throw new Error(message);

@@ -6,7 +6,7 @@ import {
   UpdateUserBalanceRequest,
 } from "@/types/admin";
 import { AdminDashboard } from "@/types/admin-dashboard";
-
+import { AdminListingDetail } from "@/types/admin-listing";
 import { Category } from "@/types/category";
 import { Listing } from "@/types/listing";
 import { Order } from "@/types/order";
@@ -17,10 +17,9 @@ export async function getAdminListings(): Promise<Listing[]> {
   return apiFetch<Listing[]>("/api/admin/listings");
 }
 
-export async function getAdminListing(id: number): Promise<Listing> {
-  return apiFetch<Listing>(`/api/admin/listings/${id}`);
+export async function getAdminListing(id: number): Promise<AdminListingDetail> {
+  return apiFetch<AdminListingDetail>(`/api/admin/listings/${id}`);
 }
-
 export async function createAdminListing(
   payload: AdminListingPayload,
 ): Promise<Listing> {
@@ -134,4 +133,14 @@ export async function getAdminTransactions(): Promise<Transaction[]> {
 
 export async function getAdminDashboard(): Promise<AdminDashboard> {
   return apiFetch<AdminDashboard>("/api/admin/dashboard");
+}
+
+export async function updateAdminListingThumbnail(
+  id: number,
+  payload: { thumbnail: string },
+): Promise<Listing> {
+  return apiFetch<Listing>(`/api/admin/listings/${id}/thumbnail`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
 }

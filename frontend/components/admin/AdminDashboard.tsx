@@ -24,10 +24,6 @@ export default function AdminDashboard() {
           <h1>Admin Dashboard</h1>
           <p>Tổng quan shop, doanh thu, đơn hàng và tài khoản.</p>
         </div>
-
-        <Link href="/" className="btn-secondary">
-          Quay về shop
-        </Link>
       </div>
 
       <div className="admin-stat-grid">
