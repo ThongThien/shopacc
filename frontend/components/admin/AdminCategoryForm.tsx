@@ -45,7 +45,7 @@ export default function AdminCategoryForm({ mode, category }: Props) {
       slug: category.slug,
       description: category.description || "",
       parentId: category.parentId || null,
-      sortOrder: 0,
+      sortOrder: category.sortOrder || 0,
       isActive: category.isActive,
     });
   }, [category]);

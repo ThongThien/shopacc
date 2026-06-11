@@ -7,7 +7,8 @@ import {
   getAdminCategories,
   getAdminListings,
 } from "@/services/admin.service";
-import { Listing, ListingStatus, ListingType } from "@/types/listing";
+import { Listing, ListingType } from "@/types/listing";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { Category } from "@/types/category";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
@@ -17,12 +18,15 @@ import { listingStatusLabel, listingTypeLabel } from "@/lib/admin-labels";
 type SortKey = "price" | "createdAt" | "updatedAt" | "viewCount";
 type SortDirection = "asc" | "desc";
 
+const PAGE_SIZE = 10;
+
 export default function AdminListings() {
   const { notify, confirmAction } = useNotify();
 
   const [listings, setListings] = useState<Listing[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [listingType, setListingType] = useState<ListingType | "">("");
   const [keyword, setKeyword] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -31,6 +35,8 @@ export default function AdminListings() {
 
   const [sortKey, setSortKey] = useState<SortKey>("createdAt");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
+
+  const [page, setPage] = useState(1);
 
   async function loadData() {
     setLoading(true);
@@ -52,6 +58,18 @@ export default function AdminListings() {
     void loadData().catch(console.error);
   }, []);
 
+  useEffect(() => {
+    setPage(1);
+  }, [
+    keyword,
+    categoryId,
+    status,
+    listingType,
+    activeGame,
+    sortKey,
+    sortDirection,
+  ]);
+
   const games = useMemo(() => {
     return Array.from(
       new Set(listings.map((listing) => listing.gameName).filter(Boolean)),
@@ -61,7 +79,7 @@ export default function AdminListings() {
   const filteredListings = useMemo(() => {
     const kw = keyword.toLowerCase().trim();
 
-    return listings
+    return [...listings]
       .filter((item) => {
         if (activeGame === "all") return true;
         return item.gameName === activeGame;
@@ -69,7 +87,7 @@ export default function AdminListings() {
       .filter((item) => {
         if (!kw) return true;
 
-        return `${item.title} ${item.description} ${item.serverName}`
+        return `${item.title || ""} ${item.description || ""} ${item.serverName || ""}`
           .toLowerCase()
           .includes(kw);
       })
@@ -122,6 +140,10 @@ export default function AdminListings() {
     sortDirection,
   ]);
 
+  const visibleListings = useMemo(() => {
+    return filteredListings.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  }, [filteredListings, page]);
+
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
       setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
@@ -134,7 +156,6 @@ export default function AdminListings() {
 
   function sortLabel(key: SortKey) {
     if (sortKey !== key) return "";
-
     return sortDirection === "asc" ? " ↑" : " ↓";
   }
 
@@ -175,6 +196,20 @@ export default function AdminListings() {
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
+
+        <select
+          className="input"
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+        >
+          <option value="">Tất cả danh mục</option>
+          {categories.map((category) => (
+            <option key={category.id} value={String(category.id)}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+
         <select
           className="input"
           value={listingType}
@@ -186,6 +221,7 @@ export default function AdminListings() {
           <option value="SERVICE">Dịch vụ</option>
           <option value="RANDOM">Random</option>
         </select>
+
         <select
           className="input"
           value={status}
@@ -196,6 +232,7 @@ export default function AdminListings() {
           <option value="SOLD_OUT">Đã bán</option>
           <option value="DRAFT">Nháp</option>
         </select>
+
         <div className="admin-game-tabs">
           <button
             className={
@@ -210,7 +247,9 @@ export default function AdminListings() {
           {games.map((game) => (
             <button
               key={game}
-              className={activeGame === game ? "btn btn-primary" : "btn"}
+              className={
+                activeGame === game ? "btn btn-primary" : "btn btn-outline"
+              }
               type="button"
               onClick={() => setActiveGame(game)}
             >
@@ -224,64 +263,81 @@ export default function AdminListings() {
         {loading ? (
           <LoadingSpinner text="Đang tải listings..." />
         ) : (
-          <div className="responsive-table">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tiêu đề</th>
-                  <th>Loại</th>
-                  <th>Game</th>
-                  <th>Server</th>
-                  <th onClick={() => toggleSort("viewCount")}>
-                    Lượt xem{sortLabel("viewCount")}
-                  </th>
-                  <th onClick={() => toggleSort("price")}>
-                    Giá{sortLabel("price")}
-                  </th>
-                  <th>Trạng thái</th>
-                  <th onClick={() => toggleSort("createdAt")}>
-                    Ngày tạo{sortLabel("createdAt")}
-                  </th>
-                  <th onClick={() => toggleSort("updatedAt")}>
-                    Cập nhật{sortLabel("updatedAt")}
-                  </th>
-                  <th></th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredListings.map((listing) => (
-                  <tr key={listing.id}>
-                    <td>#{listing.id}</td>
-                    <td>{listing.title}</td>
-                    <td>{listingTypeLabel(listing.listingType)}</td>
-                    <td>{listing.gameName}</td>
-                    <td>{listing.serverName || "-"}</td>
-                    <td>{listing.viewCount || 0}</td>
-                    <td>{formatCurrency(listing.price)}</td>
-                    <td>{listingStatusLabel(listing.status)}</td>
-                    <td>{formatDateTime(listing.createdAt || "")}</td>
-                    <td>{formatDateTime(listing.updatedAt || "")}</td>
-                    <td className="admin-actions">
-                      <Link href={`/admin/listings/${listing.id}`}>Xem</Link>
-
-                      <Link href={`/admin/listings/${listing.id}/edit`}>
-                        Sửa
-                      </Link>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(listing.id)}
-                      >
-                        Xóa
-                      </button>
-                    </td>
+          <>
+            <div className="responsive-table">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tiêu đề</th>
+                    <th>Loại</th>
+                    <th>Game</th>
+                    <th>Server</th>
+                    <th onClick={() => toggleSort("viewCount")}>
+                      Lượt xem{sortLabel("viewCount")}
+                    </th>
+                    <th onClick={() => toggleSort("price")}>
+                      Giá{sortLabel("price")}
+                    </th>
+                    <th>Trạng thái</th>
+                    <th onClick={() => toggleSort("createdAt")}>
+                      Ngày tạo{sortLabel("createdAt")}
+                    </th>
+                    <th onClick={() => toggleSort("updatedAt")}>
+                      Cập nhật{sortLabel("updatedAt")}
+                    </th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody>
+                  {visibleListings.map((listing) => (
+                    <tr key={listing.id}>
+                      <td>#{listing.id}</td>
+                      <td>{listing.title}</td>
+                      <td>{listingTypeLabel(listing.listingType)}</td>
+                      <td>{listing.gameName}</td>
+                      <td>{listing.serverName || "-"}</td>
+                      <td>{listing.viewCount || 0}</td>
+                      <td>{formatCurrency(listing.price)}</td>
+                      <td>{listingStatusLabel(listing.status)}</td>
+                      <td>{formatDateTime(listing.createdAt || "")}</td>
+                      <td>{formatDateTime(listing.updatedAt || "")}</td>
+                      <td className="admin-actions">
+                        <Link href={`/admin/listings/${listing.id}`}>Xem</Link>
+
+                        <Link href={`/admin/listings/${listing.id}/edit`}>
+                          Sửa
+                        </Link>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(listing.id)}
+                        >
+                          Xóa
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {visibleListings.length === 0 && (
+                    <tr>
+                      <td colSpan={11} className="empty-cell">
+                        Không có listing nào.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <AdminPagination
+              page={page}
+              totalItems={filteredListings.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setPage}
+            />
+          </>
         )}
       </div>
     </section>

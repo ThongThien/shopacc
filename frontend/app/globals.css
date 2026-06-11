@@ -1442,3 +1442,156 @@ button:disabled {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+.admin-section-gap {
+  margin-top: 20px;
+}
+
+.admin-table-search {
+  max-width: 320px;
+}
+.admin-pagination {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-pagination p {
+  color: var(--muted);
+  margin: 0;
+}
+
+.admin-pagination div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bill-card {
+  padding: 24px;
+}
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+}
+
+.bill-header h2 {
+  margin: 0 0 6px;
+}
+
+.bill-header p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.bill-status {
+  text-align: right;
+  display: grid;
+  gap: 6px;
+}
+
+.bill-status span,
+.bill-status b {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+}
+
+.bill-status b {
+  color: var(--primary);
+}
+
+.bill-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.bill-grid h3,
+.bill-items h3 {
+  margin-top: 0;
+}
+
+.bill-grid p {
+  margin: 7px 0;
+}
+
+.bill-items {
+  margin-top: 24px;
+}
+
+.bill-item-image {
+  width: 74px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.bill-total {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  align-items: center;
+}
+
+.bill-total span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.bill-total strong {
+  color: var(--accent);
+  font-size: 28px;
+}
+
+@media (max-width: 800px) {
+  .admin-pagination,
+  .bill-header,
+  .bill-total {
+    display: grid;
+    justify-content: initial;
+  }
+
+  .bill-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bill-status {
+    text-align: left;
+  }
+}
+.admin-pagination {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-pagination p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.admin-pagination div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .admin-pagination {
+    display: grid;
+  }
+}

@@ -43,12 +43,6 @@ export async function apiFetch<T>(
     if (!response.ok) {
       const text = await response.text();
 
-      console.error("API ERROR:", {
-        url,
-        status: response.status,
-        body: text,
-      });
-
       let message = "API request failed";
 
       try {

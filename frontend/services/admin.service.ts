@@ -7,12 +7,16 @@ import {
 } from "@/types/admin";
 import { AdminDashboard } from "@/types/admin-dashboard";
 import { AdminListingDetail } from "@/types/admin-listing";
-import { Category } from "@/types/category";
 import { Listing } from "@/types/listing";
 import { Order } from "@/types/order";
 import { Transaction } from "@/types/transaction";
 import { User } from "@/types/user";
+import { AdminCategoryDetail, Category } from "@/types/category";
+import { AuditLog } from "@/types/audit-log";
 
+export async function getAdminAuditLogs(): Promise<AuditLog[]> {
+  return apiFetch<AuditLog[]>("/api/admin/audit-logs");
+}
 export async function getAdminListings(): Promise<Listing[]> {
   return apiFetch<Listing[]>("/api/admin/listings");
 }
@@ -20,6 +24,7 @@ export async function getAdminListings(): Promise<Listing[]> {
 export async function getAdminListing(id: number): Promise<AdminListingDetail> {
   return apiFetch<AdminListingDetail>(`/api/admin/listings/${id}`);
 }
+
 export async function createAdminListing(
   payload: AdminListingPayload,
 ): Promise<Listing> {
@@ -74,8 +79,10 @@ export async function getAdminCategories(): Promise<Category[]> {
   return apiFetch<Category[]>("/api/admin/categories");
 }
 
-export async function getAdminCategory(id: number): Promise<Category> {
-  return apiFetch<Category>(`/api/admin/categories/${id}`);
+export async function getAdminCategory(
+  id: number,
+): Promise<AdminCategoryDetail> {
+  return apiFetch<AdminCategoryDetail>(`/api/admin/categories/${id}`);
 }
 
 export async function createAdminCategory(
@@ -111,6 +118,12 @@ export async function getAdminOrders(): Promise<Order[]> {
 
 export async function getAdminOrder(id: number): Promise<Order> {
   return apiFetch<Order>(`/api/admin/orders/${id}`);
+}
+
+export async function refundAdminOrder(id: number): Promise<Order> {
+  return apiFetch<Order>(`/api/admin/orders/${id}/refund`, {
+    method: "PATCH",
+  });
 }
 
 export async function getAdminUsers(): Promise<User[]> {

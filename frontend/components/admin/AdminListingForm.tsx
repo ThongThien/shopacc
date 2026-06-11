@@ -295,6 +295,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
           <input
             className="input"
             type="file"
+            multiple
             accept="image/png,image/jpeg,image/webp,image/gif"
             onChange={(e) => setGalleryFile(e.target.files?.[0] || null)}
           />

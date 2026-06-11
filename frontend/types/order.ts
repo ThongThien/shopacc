@@ -1,6 +1,10 @@
+export type OrderStatus = "PENDING" | "COMPLETED" | "CANCELLED";
+
+export type PaymentStatus = "UNPAID" | "PAID" | "REFUNDED";
+
 export interface OrderItem {
   id: number;
-  listingId: number;
+  listingId: number | null;
   listingTitle: string;
   listingThumbnail: string;
   quantity: number;
@@ -12,10 +16,13 @@ export interface Order {
   orderCode: string;
   userId: number;
   username: string;
+  userEmail?: string;
   totalPrice: number;
-  status: string;
-  paymentStatus: string;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  paymentMethod?: string;
   createdAt: string;
+  updatedAt?: string;
   items: OrderItem[];
 }
 

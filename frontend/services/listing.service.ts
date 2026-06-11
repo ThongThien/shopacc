@@ -14,10 +14,6 @@ export async function getListingDetail(id: number): Promise<ListingDetail> {
   });
 }
 
-/**
- * Tạm thời build home data từ listings public.
- * Sau này BE có API /home/categories thì đổi tại đây, không cần sửa UI.
- */
 export async function getPublicHomeData(): Promise<HomeGameSection[]> {
   const listings = await getListings();
 

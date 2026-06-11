@@ -9,6 +9,9 @@ import {
 import { Category } from "@/types/category";
 import { useNotify } from "@/components/shared/NotificationProvider";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import AdminPagination from "@/components/admin/AdminPagination";
+
+const PAGE_SIZE = 10;
 
 export default function AdminCategories() {
   const { notify, confirmAction } = useNotify();
@@ -17,7 +20,8 @@ export default function AdminCategories() {
   const [loading, setLoading] = useState(true);
 
   const [keyword, setKeyword] = useState("");
-  const [parentOnly, setParentOnly] = useState("parents");
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [page, setPage] = useState(1);
 
   async function loadCategories() {
     setLoading(true);
@@ -34,41 +38,52 @@ export default function AdminCategories() {
     void loadCategories().catch(console.error);
   }, []);
 
-  const categoryMap = useMemo(() => {
-    return new Map(categories.map((item) => [item.id, item]));
+  useEffect(() => {
+    setPage(1);
+  }, [keyword, selectedCategoryId]);
+
+  const childCategories = useMemo(() => {
+    return categories.filter((category) => category.parentId);
   }, [categories]);
 
   const filteredCategories = useMemo(() => {
     const kw = keyword.toLowerCase().trim();
 
-    return categories
-      .filter((item) => {
-        if (parentOnly === "parents") return !item.parentId;
-        if (parentOnly === "children") return Boolean(item.parentId);
-        return true;
+    return childCategories
+      .filter((category) => {
+        if (!selectedCategoryId) return true;
+        return String(category.id) === selectedCategoryId;
       })
-      .filter((item) => {
+      .filter((category) => {
         if (!kw) return true;
-        return `${item.name} ${item.slug} ${item.description || ""}`
+
+        return `${category.name} ${category.slug} ${category.description || ""} ${category.parentName || ""}`
           .toLowerCase()
           .includes(kw);
       });
-  }, [categories, keyword, parentOnly]);
+  }, [childCategories, keyword, selectedCategoryId]);
 
-  async function handleDelete(id: number) {
+  const visibleCategories = useMemo(() => {
+    return filteredCategories.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  }, [filteredCategories, page]);
+
+  async function handleDelete(category: Category) {
     const ok = await confirmAction(
-      "Nếu category đang được listing sử dụng, backend có thể từ chối xóa. Bạn vẫn muốn xóa?",
-      "Xóa category",
+      `Bạn chắc chắn muốn xóa danh mục "${category.name}"? Nếu danh mục còn listing, hệ thống sẽ không cho xóa.`,
+      "Xóa danh mục",
     );
 
     if (!ok) return;
 
     try {
-      await deleteAdminCategory(id);
-      notify("success", "Đã xóa category");
+      await deleteAdminCategory(category.id);
+      notify("success", "Đã xóa danh mục");
       await loadCategories();
     } catch (error) {
-      notify("error", error instanceof Error ? error.message : "Xóa thất bại");
+      notify(
+        "error",
+        error instanceof Error ? error.message : "Xóa danh mục thất bại",
+      );
     }
   }
 
@@ -76,81 +91,107 @@ export default function AdminCategories() {
     <section className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1>Quản lý Categories</h1>
-          <p>Hiển thị danh mục cha trước, có thể lọc danh mục con.</p>
+          <h1>Quản lý danh mục</h1>
+          <p>
+            Quản lý các danh mục bán hàng cụ thể như acc sơ sinh, acc bông tai,
+            dịch vụ săn đệ.
+          </p>
         </div>
 
         <Link href="/admin/categories/create" className="btn-primary">
-          Tạo category
+          Tạo danh mục
         </Link>
       </div>
 
       <div className="card admin-toolbar">
         <input
           className="input"
-          placeholder="Tìm tên, slug, mô tả..."
+          placeholder="Tìm tên, slug, mô tả danh mục..."
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
 
         <select
           className="input"
-          value={parentOnly}
-          onChange={(e) => setParentOnly(e.target.value)}
+          value={selectedCategoryId}
+          onChange={(e) => setSelectedCategoryId(e.target.value)}
         >
-          <option value="parents">Chỉ danh mục cha</option>
-          <option value="children">Chỉ danh mục con</option>
-          <option value="all">Tất cả</option>
+          <option value="">Tất cả danh mục bán hàng</option>
+
+          {childCategories.map((category) => (
+            <option key={category.id} value={String(category.id)}>
+              {category.name}{" "}
+              {category.parentName ? `(${category.parentName})` : ""}
+            </option>
+          ))}
         </select>
       </div>
 
       <div className="card table-card">
         {loading ? (
-          <LoadingSpinner text="Đang tải categories..." />
+          <LoadingSpinner text="Đang tải danh mục..." />
         ) : (
-          <div className="responsive-table">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tên</th>
-                  <th>Slug</th>
-                  <th>Danh mục cha</th>
-                  <th>Trạng thái</th>
-                  <th></th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredCategories.map((category) => (
-                  <tr key={category.id}>
-                    <td>#{category.id}</td>
-                    <td>{category.name}</td>
-                    <td>{category.slug}</td>
-                    <td>
-                      {category.parentId
-                        ? categoryMap.get(category.parentId)?.name ||
-                          `#${category.parentId}`
-                        : "Danh mục cha"}
-                    </td>
-                    <td>{category.isActive ? "Active" : "Hidden"}</td>
-                    <td className="admin-actions">
-                      <Link href={`/admin/categories/${category.id}/edit`}>
-                        Sửa
-                      </Link>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(category.id)}
-                      >
-                        Xóa
-                      </button>
-                    </td>
+          <>
+            <div className="responsive-table">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tên danh mục</th>
+                    <th>Slug</th>
+                    <th>Thuộc nhóm game</th>
+                    <th>Số listing</th>
+                    <th>Trạng thái</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody>
+                  {visibleCategories.map((category) => (
+                    <tr key={category.id}>
+                      <td>#{category.id}</td>
+                      <td>{category.name}</td>
+                      <td>{category.slug}</td>
+                      <td>{category.parentName || "-"}</td>
+                      <td>{category.listingCount ?? 0}</td>
+                      <td>{category.isActive ? "Đang hoạt động" : "Đã tắt"}</td>
+                      <td className="admin-actions">
+                        <Link href={`/admin/categories/${Number(category.id)}`}>
+                          Xem
+                        </Link>
+
+                        <Link href={`/admin/categories/${category.id}/edit`}>
+                          Sửa
+                        </Link>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(category)}
+                        >
+                          Xóa
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+
+                  {visibleCategories.length === 0 && (
+                    <tr>
+                      <td colSpan={7}>
+                        <p className="empty-text">Không có danh mục phù hợp.</p>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <AdminPagination
+              page={page}
+              totalItems={filteredCategories.length}
+              pageSize={PAGE_SIZE}
+              onPageChange={setPage}
+            />
+          </>
         )}
       </div>
     </section>

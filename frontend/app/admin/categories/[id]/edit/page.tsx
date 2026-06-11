@@ -1,13 +1,13 @@
-import AdminCategoryForm from "@/components/admin/AdminCategoryForm";
-import { getAdminCategory } from "@/services/admin.service";
+import AdminCategoryEditClient from "@/components/admin/AdminCategoryEditClient";
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: Promise<{
+    id: string;
+  }>;
 }
 
 export default async function EditCategoryPage({ params }: Props) {
   const { id } = await params;
-  const category = await getAdminCategory(Number(id));
 
-  return <AdminCategoryForm mode="edit" category={category} />;
+  return <AdminCategoryEditClient id={Number(id)} />;
 }
