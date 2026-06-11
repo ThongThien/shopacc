@@ -4,5 +4,5 @@ import com.shopacc.backend.entity.UserBalanceLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserBalanceLogRepository
-        extends JpaRepository<UserBalanceLog, Long> {
+                extends JpaRepository<UserBalanceLog, Long> {
 }

@@ -11,26 +11,25 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI shopAccOpenAPI() {
+        @Bean
+        public OpenAPI shopAccOpenAPI() {
 
-        String securitySchemeName = "bearerAuth";
+                String securitySchemeName = "bearerAuth";
 
-        return new OpenAPI()
-                .info(new Info()
-                        .title("ShopAcc API")
-                        .version("1.0.0")
-                        .description("API documentation for ShopAcc backend"))
-                .addSecurityItem(new SecurityRequirement()
-                        .addList(securitySchemeName))
-                .components(new Components()
-                        .addSecuritySchemes(
-                                securitySchemeName,
-                                new SecurityScheme()
-                                        .name(securitySchemeName)
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                        ));
-    }
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("ShopAcc API")
+                                                .version("1.0.0")
+                                                .description("API documentation for ShopAcc backend"))
+                                .addSecurityItem(new SecurityRequirement()
+                                                .addList(securitySchemeName))
+                                .components(new Components()
+                                                .addSecuritySchemes(
+                                                                securitySchemeName,
+                                                                new SecurityScheme()
+                                                                                .name(securitySchemeName)
+                                                                                .type(SecurityScheme.Type.HTTP)
+                                                                                .scheme("bearer")
+                                                                                .bearerFormat("JWT")));
+        }
 }

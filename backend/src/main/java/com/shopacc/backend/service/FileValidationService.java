@@ -24,15 +24,13 @@ public class FileValidationService {
         if (file == null || file.isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Image file is required"
-            );
+                    "Image file is required");
         }
 
         if (file.getSize() > maxImageSize) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Image file is too large"
-            );
+                    "Image file is too large");
         }
 
         String contentType = file.getContentType();
@@ -40,21 +38,18 @@ public class FileValidationService {
         if (contentType == null || contentType.isBlank()) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Invalid image content type"
-            );
+                    "Invalid image content type");
         }
 
         Set<String> allowedTypes = Arrays.stream(
-                        allowedContentTypesConfig.split(",")
-                )
+                allowedContentTypesConfig.split(","))
                 .map(String::trim)
                 .collect(Collectors.toSet());
 
         if (!allowedTypes.contains(contentType)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
-                    "Only JPG, PNG and WEBP images are allowed"
-            );
+                    "Only JPG, PNG and WEBP images are allowed");
         }
     }
 }

@@ -25,121 +25,97 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
+        private final UserRepository userRepository;
 
-    private final RefreshTokenRepository refreshTokenRepository;
+        private final RefreshTokenRepository refreshTokenRepository;
 
-    private final PasswordEncoder passwordEncoder;
+        private final PasswordEncoder passwordEncoder;
 
-    private final JwtService jwtService;
+        private final JwtService jwtService;
 
-    public AuthResponse register(
-            RegisterRequest request
-    ) {
+        public AuthResponse register(
+                        RegisterRequest request) {
 
-        User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .passwordHash(
-                        passwordEncoder.encode(
-                                request.getPassword()
-                        )
-                )
-                .role(UserRole.USER)
-                .status(UserStatus.ACTIVE)
-                .balance(BigDecimal.ZERO)
-                .build();
+                User user = User.builder()
+                                .username(request.getUsername())
+                                .email(request.getEmail())
+                                .passwordHash(
+                                                passwordEncoder.encode(
+                                                                request.getPassword()))
+                                .role(UserRole.USER)
+                                .status(UserStatus.ACTIVE)
+                                .balance(BigDecimal.ZERO)
+                                .build();
 
-        userRepository.save(user);
+                userRepository.save(user);
 
-        String accessToken =
-                jwtService.generateAccessToken(
-                        user.getEmail()
-                );
+                String accessToken = jwtService.generateAccessToken(
+                                user.getEmail());
 
-        String refreshToken =
-                jwtService.generateRefreshToken(
-                        user.getEmail()
-                );
+                String refreshToken = jwtService.generateRefreshToken(
+                                user.getEmail());
 
-        RefreshToken refreshTokenEntity =
-                RefreshToken.builder()
-                        .user(user)
-                        .token(refreshToken)
-                        .expiredAt(
-                                LocalDateTime.now().plusDays(7)
-                        )
-                        .revoked(false)
-                        .build();
+                RefreshToken refreshTokenEntity = RefreshToken.builder()
+                                .user(user)
+                                .token(refreshToken)
+                                .expiredAt(
+                                                LocalDateTime.now().plusDays(7))
+                                .revoked(false)
+                                .build();
 
-        refreshTokenRepository.save(
-                refreshTokenEntity
-        );
+                refreshTokenRepository.save(
+                                refreshTokenEntity);
 
-        System.out.println("REGISTER SUCCESS");
-        System.out.println(accessToken);
+                System.out.println("REGISTER SUCCESS");
+                System.out.println(accessToken);
 
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .role(user.getRole().name())
-                .build();
-    }
-
-    public AuthResponse login(
-            LoginRequest request
-    ) {
-
-        User user =
-                userRepository.findByEmail(
-                        request.getEmail()
-                ).orElseThrow(
-                        () -> new RuntimeException(
-                                "User not found"
-                        )
-                );
-
-        if (!passwordEncoder.matches(
-                request.getPassword(),
-                user.getPasswordHash()
-        )) {
-
-            throw new RuntimeException(
-                    "Invalid password"
-            );
+                return AuthResponse.builder()
+                                .accessToken(accessToken)
+                                .refreshToken(refreshToken)
+                                .role(user.getRole().name())
+                                .build();
         }
 
-        String accessToken =
-                jwtService.generateAccessToken(
-                        user.getEmail()
-                );
+        public AuthResponse login(
+                        LoginRequest request) {
 
-        String refreshToken =
-                jwtService.generateRefreshToken(
-                        user.getEmail()
-                );
+                User user = userRepository.findByEmail(
+                                request.getEmail()).orElseThrow(
+                                                () -> new RuntimeException(
+                                                                "User not found"));
 
-        RefreshToken refreshTokenEntity =
-                RefreshToken.builder()
-                        .user(user)
-                        .token(refreshToken)
-                        .expiredAt(
-                                LocalDateTime.now().plusDays(7)
-                        )
-                        .revoked(false)
-                        .build();
+                if (!passwordEncoder.matches(
+                                request.getPassword(),
+                                user.getPasswordHash())) {
 
-        refreshTokenRepository.save(
-                refreshTokenEntity
-        );
+                        throw new RuntimeException(
+                                        "Invalid password");
+                }
 
-        System.out.println("LOGIN SUCCESS");
-        System.out.println(accessToken);
+                String accessToken = jwtService.generateAccessToken(
+                                user.getEmail());
 
-        return AuthResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .role(user.getRole().name())
-                .build();
-    }
+                String refreshToken = jwtService.generateRefreshToken(
+                                user.getEmail());
+
+                RefreshToken refreshTokenEntity = RefreshToken.builder()
+                                .user(user)
+                                .token(refreshToken)
+                                .expiredAt(
+                                                LocalDateTime.now().plusDays(7))
+                                .revoked(false)
+                                .build();
+
+                refreshTokenRepository.save(
+                                refreshTokenEntity);
+
+                System.out.println("LOGIN SUCCESS");
+                System.out.println(accessToken);
+
+                return AuthResponse.builder()
+                                .accessToken(accessToken)
+                                .refreshToken(refreshToken)
+                                .role(user.getRole().name())
+                                .build();
+        }
 }

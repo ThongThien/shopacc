@@ -21,8 +21,7 @@ public class AuditLogService {
             Long userId,
             AuditAction action,
             String metadata,
-            HttpServletRequest request
-    ) {
+            HttpServletRequest request) {
 
         User user = null;
 

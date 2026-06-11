@@ -13,8 +13,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByUserIdAndTypeOrderByCreatedAtDesc(
             Long userId,
-            TransactionType type
-    );
+            TransactionType type);
 
     List<Transaction> findAllByOrderByCreatedAtDesc();
 

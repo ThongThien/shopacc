@@ -15,110 +15,96 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiErrorResponse> handleValidation(
-            MethodArgumentNotValidException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<ApiErrorResponse> handleValidation(
+                        MethodArgumentNotValidException ex,
+                        HttpServletRequest request) {
 
-        String message = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .findFirst()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .orElse("Invalid request");
+                String message = ex.getBindingResult()
+                                .getFieldErrors()
+                                .stream()
+                                .findFirst()
+                                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                                .orElse("Invalid request");
 
-        return buildError(
-                HttpStatus.BAD_REQUEST,
-                message,
-                request
-        );
-    }
+                return buildError(
+                                HttpStatus.BAD_REQUEST,
+                                message,
+                                request);
+        }
 
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ApiErrorResponse> handleResponseStatus(
-            ResponseStatusException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(ResponseStatusException.class)
+        public ResponseEntity<ApiErrorResponse> handleResponseStatus(
+                        ResponseStatusException ex,
+                        HttpServletRequest request) {
 
-        HttpStatus status = HttpStatus.valueOf(
-                ex.getStatusCode().value()
-        );
+                HttpStatus status = HttpStatus.valueOf(
+                                ex.getStatusCode().value());
 
-        return buildError(
-                status,
-                ex.getReason(),
-                request
-        );
-    }
+                return buildError(
+                                status,
+                                ex.getReason(),
+                                request);
+        }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiErrorResponse> handleInvalidJson(
-            HttpMessageNotReadableException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ApiErrorResponse> handleInvalidJson(
+                        HttpMessageNotReadableException ex,
+                        HttpServletRequest request) {
 
-        return buildError(
-                HttpStatus.BAD_REQUEST,
-                "Invalid JSON request body",
-                request
-        );
-    }
+                return buildError(
+                                HttpStatus.BAD_REQUEST,
+                                "Invalid JSON request body",
+                                request);
+        }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<ApiErrorResponse> handleAccessDenied(
-            AccessDeniedException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ApiErrorResponse> handleAccessDenied(
+                        AccessDeniedException ex,
+                        HttpServletRequest request) {
 
-        return buildError(
-                HttpStatus.FORBIDDEN,
-                "Access denied",
-                request
-        );
-    }
+                return buildError(
+                                HttpStatus.FORBIDDEN,
+                                "Access denied",
+                                request);
+        }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiErrorResponse> handleRuntime(
-            RuntimeException ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(RuntimeException.class)
+        public ResponseEntity<ApiErrorResponse> handleRuntime(
+                        RuntimeException ex,
+                        HttpServletRequest request) {
 
-        return buildError(
-                HttpStatus.BAD_REQUEST,
-                ex.getMessage(),
-                request
-        );
-    }
+                return buildError(
+                                HttpStatus.BAD_REQUEST,
+                                ex.getMessage(),
+                                request);
+        }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiErrorResponse> handleException(
-            Exception ex,
-            HttpServletRequest request
-    ) {
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiErrorResponse> handleException(
+                        Exception ex,
+                        HttpServletRequest request) {
 
-        return buildError(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                "Internal server error",
-                request
-        );
-    }
+                return buildError(
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Internal server error",
+                                request);
+        }
 
-    private ResponseEntity<ApiErrorResponse> buildError(
-            HttpStatus status,
-            String message,
-            HttpServletRequest request
-    ) {
+        private ResponseEntity<ApiErrorResponse> buildError(
+                        HttpStatus status,
+                        String message,
+                        HttpServletRequest request) {
 
-        ApiErrorResponse response = ApiErrorResponse.builder()
-                .status(status.value())
-                .message(message)
-                .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
-                .build();
+                ApiErrorResponse response = ApiErrorResponse.builder()
+                                .status(status.value())
+                                .message(message)
+                                .path(request.getRequestURI())
+                                .timestamp(LocalDateTime.now())
+                                .build();
 
-        return ResponseEntity
-                .status(status)
-                .body(response);
-    }
+                return ResponseEntity
+                                .status(status)
+                                .body(response);
+        }
 }

@@ -22,79 +22,67 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter
-        extends OncePerRequestFilter {
+                extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+        private final JwtService jwtService;
 
-    private final CustomUserDetailsService userDetailsService;
+        private final CustomUserDetailsService userDetailsService;
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+        @Override
+        protected void doFilterInternal(
+                        HttpServletRequest request,
+                        HttpServletResponse response,
+                        FilterChain filterChain) throws ServletException, IOException {
 
-        final String authHeader =
-                request.getHeader("Authorization");
-        System.out.println("==== JWT FILTER ====");
-        System.out.println(authHeader);
+                final String authHeader = request.getHeader("Authorization");
+                System.out.println("==== JWT FILTER ====");
+                System.out.println(authHeader);
 
-        if (authHeader == null
-                || !authHeader.startsWith("Bearer ")) {
+                if (authHeader == null
+                                || !authHeader.startsWith("Bearer ")) {
 
-            filterChain.doFilter(
-                    request,
-                    response
-            );
+                        filterChain.doFilter(
+                                        request,
+                                        response);
 
-            return;
+                        return;
+                }
+
+                String jwt = authHeader.substring(7);
+
+                String email = jwtService.extractUsername(jwt);
+                System.out.println("JWT: " + jwt);
+                System.out.println("EMAIL: " + email);
+
+                if (email != null
+                                && SecurityContextHolder
+                                                .getContext()
+                                                .getAuthentication() == null) {
+
+                        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService
+                                        .loadUserByUsername(email);
+
+                        if (jwtService.isTokenValid(
+                                        jwt,
+                                        userDetails.getUsername())) {
+
+                                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                                userDetails,
+                                                null,
+                                                userDetails.getAuthorities());
+
+                                authToken.setDetails(
+                                                new WebAuthenticationDetailsSource()
+                                                                .buildDetails(request));
+
+                                SecurityContextHolder
+                                                .getContext()
+                                                .setAuthentication(authToken);
+                        }
+                }
+
+                filterChain.doFilter(
+                                request,
+                                response);
         }
-
-        String jwt =
-                authHeader.substring(7);
-
-        String email =
-                jwtService.extractUsername(jwt);
-        System.out.println("JWT: " + jwt);
-        System.out.println("EMAIL: " + email);
-
-        if (email != null
-                && SecurityContextHolder
-                .getContext()
-                .getAuthentication() == null) {
-
-            CustomUserDetails userDetails =
-                    (CustomUserDetails)
-                            userDetailsService
-                                    .loadUserByUsername(email);
-
-            if (jwtService.isTokenValid(
-                    jwt,
-                    userDetails.getUsername()
-            )) {
-
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
-
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authToken);
-            }
-        }
-
-        filterChain.doFilter(
-                request,
-                response
-        );
-    }
 }

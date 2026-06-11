@@ -21,81 +21,70 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtFilter;
+        private final JwtAuthenticationFilter jwtFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(
-            HttpSecurity http
-    ) throws Exception {
+        @Bean
+        public SecurityFilterChain securityFilterChain(
+                        HttpSecurity http) throws Exception {
 
-        http
-                .cors(cors -> {})
-                .csrf(csrf -> csrf.disable())
+                http
+                                .cors(cors -> {
+                                })
+                                .csrf(csrf -> csrf.disable())
 
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS
-                        )
-                )
+                                .sessionManagement(session -> session.sessionCreationPolicy(
+                                                SessionCreationPolicy.STATELESS))
 
-                .authorizeHttpRequests(auth -> auth
+                                .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers(
-                                "/api/auth/**"
-                        )
-                        .permitAll()
+                                                .requestMatchers(
+                                                                "/api/auth/**")
+                                                .permitAll()
 
-                        .requestMatchers(
-                                HttpMethod.GET,
-                                "/api/listings/**"
-                        )
-                        .permitAll()
+                                                .requestMatchers(
+                                                                HttpMethod.GET,
+                                                                "/api/listings/**")
+                                                .permitAll()
 
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/api/listings/**"
-                        )
-                        .hasRole("ADMIN")
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/listings/**")
+                                                .hasRole("ADMIN")
 
-                        .requestMatchers(
-                                "/api/orders/**"
-                        )
-                        .authenticated()
+                                                .requestMatchers(
+                                                                "/api/orders/**")
+                                                .authenticated()
 
-                        .requestMatchers(
-                                HttpMethod.POST,
-                                "/api/listings/*/images"
-                        )
-                        .hasRole("ADMIN")
-                        
-                        .requestMatchers("/api/admin/**")
-                        .hasRole("ADMIN")
+                                                .requestMatchers(
+                                                                HttpMethod.POST,
+                                                                "/api/listings/*/images")
+                                                .hasRole("ADMIN")
 
-                        .requestMatchers("/api/users/me/**")
-                        .authenticated()
+                                                .requestMatchers("/api/admin/**")
+                                                .hasRole("ADMIN")
 
-                        .requestMatchers("/api/webhooks/sepay")
-                        .permitAll()
+                                                .requestMatchers("/api/users/me/**")
+                                                .authenticated()
 
-                        .requestMatchers("/api/payments/**")
-                        .authenticated()
+                                                .requestMatchers("/api/webhooks/sepay")
+                                                .permitAll()
 
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/v3/api-docs/**"
-                        )
-                        .permitAll()
-                        
-                        .anyRequest()
-                        .authenticated()
-                )
+                                                .requestMatchers("/api/payments/**")
+                                                .authenticated()
 
-                .addFilterBefore(
-                        jwtFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                                                .requestMatchers(
+                                                                "/swagger-ui/**",
+                                                                "/swagger-ui.html",
+                                                                "/v3/api-docs/**")
+                                                .permitAll()
 
-        return http.build();
-    }
+                                                .anyRequest()
+                                                .authenticated())
+
+                                .addFilterBefore(
+                                                jwtFilter,
+                                                UsernamePasswordAuthenticationFilter.class);
+
+                return http.build();
+        }
 }

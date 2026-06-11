@@ -1,4 +1,5 @@
 package com.shopacc.backend.controller;
+
 import com.shopacc.backend.dto.order.OrderResponse;
 import com.shopacc.backend.dto.order.PurchaseResponse;
 import com.shopacc.backend.security.CustomUserDetails;
@@ -22,66 +23,56 @@ public class OrderController {
 
         @PostMapping("/purchase/{listingId}")
         public PurchaseResponse purchase(
-                @AuthenticationPrincipal CustomUserDetails userDetails,
-                @PathVariable Long listingId,
-                HttpServletRequest httpRequest
-        ) {
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long listingId,
+                        HttpServletRequest httpRequest) {
 
-        PurchaseResponse response = orderService.purchaseListing(
-                userDetails.getId(),
-                listingId
-        );
+                PurchaseResponse response = orderService.purchaseListing(
+                                userDetails.getId(),
+                                listingId);
 
-        auditLogService.log(
-                userDetails.getId(),
-                AuditAction.USER_PURCHASE,
-                "listingId=" + listingId + ", orderId=" + response.getOrderId(),
-                httpRequest
-        );
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.USER_PURCHASE,
+                                "listingId=" + listingId + ", orderId=" + response.getOrderId(),
+                                httpRequest);
 
-        return response;
+                return response;
         }
 
         @GetMapping("/my")
         public List<OrderResponse> getMyOrders(
-                @AuthenticationPrincipal CustomUserDetails userDetails
-        ) {
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
 
                 return orderService.getMyOrders(
-                        userDetails.getId()
-                );
+                                userDetails.getId());
         }
 
         @GetMapping("/{orderId}")
         public OrderResponse getMyOrderDetail(
-                @AuthenticationPrincipal CustomUserDetails userDetails,
-                @PathVariable Long orderId
-        ) {
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long orderId) {
 
                 return orderService.getMyOrderDetail(
-                        userDetails.getId(),
-                        orderId
-                );
+                                userDetails.getId(),
+                                orderId);
         }
 
         @GetMapping("/{orderId}/secret")
         public OrderSecretResponse getOrderSecret(
-                @AuthenticationPrincipal CustomUserDetails userDetails,
-                @PathVariable Long orderId,
-                HttpServletRequest httpRequest
-        ) {
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long orderId,
+                        HttpServletRequest httpRequest) {
 
                 OrderSecretResponse response = orderService.getOrderSecret(
-                        userDetails.getId(),
-                        orderId
-                );
+                                userDetails.getId(),
+                                orderId);
 
                 auditLogService.log(
-                        userDetails.getId(),
-                        AuditAction.USER_VIEW_SECRET,
-                        "orderId=" + orderId,
-                        httpRequest
-                );
+                                userDetails.getId(),
+                                AuditAction.USER_VIEW_SECRET,
+                                "orderId=" + orderId,
+                                httpRequest);
 
                 return response;
         }

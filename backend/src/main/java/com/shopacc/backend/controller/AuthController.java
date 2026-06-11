@@ -1,4 +1,5 @@
 package com.shopacc.backend.controller;
+
 import jakarta.validation.Valid;
 import com.shopacc.backend.dto.auth.AuthResponse;
 import com.shopacc.backend.dto.auth.LoginRequest;
@@ -11,21 +12,19 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    
+
     private final AuthService authService;
 
     @PostMapping("/register")
     public AuthResponse register(
-            @Valid @RequestBody RegisterRequest request
-    ) {
+            @Valid @RequestBody RegisterRequest request) {
 
         return authService.register(request);
     }
 
     @PostMapping("/login")
     public AuthResponse login(
-            @Valid @RequestBody LoginRequest request
-    ) {
+            @Valid @RequestBody LoginRequest request) {
         return authService.login(request);
     }
 }

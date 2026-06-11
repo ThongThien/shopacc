@@ -21,13 +21,19 @@ public class OrderResponse {
 
     private String username;
 
+    private String userEmail;
+
     private BigDecimal totalPrice;
 
     private OrderStatus status;
 
     private PaymentStatus paymentStatus;
 
+    private String paymentMethod;
+
     private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 
     private List<OrderItemResponse> items;
 }

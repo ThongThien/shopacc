@@ -14,101 +14,89 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    @Value("${jwt.secret}")
-    private String secretKey;
+        @Value("${jwt.secret}")
+        private String secretKey;
 
-    private SecretKey getSignInKey() {
+        private SecretKey getSignInKey() {
 
-        return Keys.hmacShaKeyFor(
-                secretKey.getBytes()
-        );
-    }
+                return Keys.hmacShaKeyFor(
+                                secretKey.getBytes());
+        }
 
-    public String generateAccessToken(
-            String email
-    ) {
+        public String generateAccessToken(
+                        String email) {
 
-        return Jwts.builder()
+                return Jwts.builder()
 
-                .subject(email)
+                                .subject(email)
 
-                .issuedAt(new Date())
+                                .issuedAt(new Date())
 
-                .expiration(
-                        new Date(
-                                System.currentTimeMillis()
-                                        + 1000L * 60 * 15
-                        )
-                )
+                                .expiration(
+                                                new Date(
+                                                                System.currentTimeMillis()
+                                                                                + 1000L * 60 * 15))
 
-                .signWith(getSignInKey())
+                                .signWith(getSignInKey())
 
-                .compact();
-    }
+                                .compact();
+        }
 
-    public String generateRefreshToken(
-            String email
-    ) {
+        public String generateRefreshToken(
+                        String email) {
 
-        return Jwts.builder()
+                return Jwts.builder()
 
-                .subject(email)
+                                .subject(email)
 
-                .issuedAt(new Date())
+                                .issuedAt(new Date())
 
-                .expiration(
-                        new Date(
-                                System.currentTimeMillis()
-                                        + 1000L * 60 * 60 * 24 * 7
-                        )
-                )
+                                .expiration(
+                                                new Date(
+                                                                System.currentTimeMillis()
+                                                                                + 1000L * 60 * 60 * 24 * 7))
 
-                .signWith(getSignInKey())
+                                .signWith(getSignInKey())
 
-                .compact();
-    }
+                                .compact();
+        }
 
-    public String extractUsername(
-            String token
-    ) {
+        public String extractUsername(
+                        String token) {
 
-        return extractAllClaims(token)
-                .getSubject();
-    }
+                return extractAllClaims(token)
+                                .getSubject();
+        }
 
-    public boolean isTokenValid(
-            String token,
-            String email
-    ) {
+        public boolean isTokenValid(
+                        String token,
+                        String email) {
 
-        final String username =
-                extractUsername(token);
+                final String username = extractUsername(token);
 
-        return username.equals(email)
-                && !isTokenExpired(token);
-    }
+                return username.equals(email)
+                                && !isTokenExpired(token);
+        }
 
-    private boolean isTokenExpired(
-            String token
-    ) {
+        private boolean isTokenExpired(
+                        String token) {
 
-        return extractAllClaims(token)
-                .getExpiration()
-                .before(new Date());
-    }
+                return extractAllClaims(token)
+                                .getExpiration()
+                                .before(new Date());
+        }
 
-    private Claims extractAllClaims(
-            String token
-    ) {
+        private Claims extractAllClaims(
+                        String token) {
 
-        return Jwts.parser()
+                return Jwts.parser()
 
-                .verifyWith(getSignInKey())
+                                .verifyWith(getSignInKey())
 
-                .build()
+                                .build()
 
-                .parseSignedClaims(token)
+                                .parseSignedClaims(token)
 
-                .getPayload();
-    }
+                                .getPayload();
+        }
 }

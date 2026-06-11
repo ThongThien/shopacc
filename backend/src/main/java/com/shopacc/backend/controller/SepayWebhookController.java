@@ -1,4 +1,5 @@
 package com.shopacc.backend.controller;
+
 import jakarta.validation.Valid;
 import com.shopacc.backend.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -12,27 +13,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SepayWebhookController {
 
-    private final PaymentService paymentService;
+        private final PaymentService paymentService;
 
-    @PostMapping("/sepay")
-    public ResponseEntity<Map<String, Boolean>> handleSepayWebhook(
-            @Valid @RequestBody String rawBody,
+        @PostMapping("/sepay")
+        public ResponseEntity<Map<String, Boolean>> handleSepayWebhook(
+                        @Valid @RequestBody String rawBody,
 
-            @RequestHeader("X-SePay-Signature")
-            String signature,
+                        @RequestHeader("X-SePay-Signature") String signature,
 
-            @RequestHeader("X-SePay-Timestamp")
-            String timestamp
-    ) {
+                        @RequestHeader("X-SePay-Timestamp") String timestamp) {
 
-        paymentService.handleSepayWebhook(
-                rawBody,
-                signature,
-                timestamp
-        );
+                paymentService.handleSepayWebhook(
+                                rawBody,
+                                signature,
+                                timestamp);
 
-        return ResponseEntity.ok(
-                Map.of("success", true)
-        );
-    }
+                return ResponseEntity.ok(
+                                Map.of("success", true));
+        }
 }

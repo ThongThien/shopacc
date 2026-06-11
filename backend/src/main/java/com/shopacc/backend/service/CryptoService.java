@@ -13,152 +13,133 @@ import java.util.Base64;
 @Service
 public class CryptoService {
 
-    private static final String AES = "AES";
-    private static final String AES_GCM = "AES/GCM/NoPadding";
-    private static final int GCM_TAG_LENGTH = 128;
-    private static final int IV_LENGTH = 12;
+        private static final String AES = "AES";
+        private static final String AES_GCM = "AES/GCM/NoPadding";
+        private static final int GCM_TAG_LENGTH = 128;
+        private static final int IV_LENGTH = 12;
 
-    @Value("${APP_AES_SECRET_KEY}")
-    private String secretKey;
+        @Value("${APP_AES_SECRET_KEY}")
+        private String secretKey;
 
-    public String encrypt(String plainText) {
+        public String encrypt(String plainText) {
 
-        if (plainText == null || plainText.isBlank()) {
-            return null;
+                if (plainText == null || plainText.isBlank()) {
+                        return null;
+                }
+
+                try {
+                        byte[] iv = new byte[IV_LENGTH];
+                        new SecureRandom().nextBytes(iv);
+
+                        Cipher cipher = Cipher.getInstance(AES_GCM);
+
+                        SecretKeySpec keySpec = new SecretKeySpec(
+                                        normalizeKey(),
+                                        AES);
+
+                        GCMParameterSpec gcmSpec = new GCMParameterSpec(
+                                        GCM_TAG_LENGTH,
+                                        iv);
+
+                        cipher.init(
+                                        Cipher.ENCRYPT_MODE,
+                                        keySpec,
+                                        gcmSpec);
+
+                        byte[] encrypted = cipher.doFinal(
+                                        plainText.getBytes(StandardCharsets.UTF_8));
+
+                        byte[] result = new byte[iv.length + encrypted.length];
+
+                        System.arraycopy(
+                                        iv,
+                                        0,
+                                        result,
+                                        0,
+                                        iv.length);
+
+                        System.arraycopy(
+                                        encrypted,
+                                        0,
+                                        result,
+                                        iv.length,
+                                        encrypted.length);
+
+                        return Base64.getEncoder()
+                                        .encodeToString(result);
+
+                } catch (Exception e) {
+                        throw new RuntimeException("Cannot encrypt secret data");
+                }
         }
 
-        try {
-            byte[] iv = new byte[IV_LENGTH];
-            new SecureRandom().nextBytes(iv);
+        public String decrypt(String encryptedText) {
 
-            Cipher cipher = Cipher.getInstance(AES_GCM);
+                if (encryptedText == null || encryptedText.isBlank()) {
+                        return null;
+                }
 
-            SecretKeySpec keySpec = new SecretKeySpec(
-                    normalizeKey(),
-                    AES
-            );
+                try {
+                        byte[] decoded = Base64.getDecoder()
+                                        .decode(encryptedText);
 
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(
-                    GCM_TAG_LENGTH,
-                    iv
-            );
+                        byte[] iv = new byte[IV_LENGTH];
 
-            cipher.init(
-                    Cipher.ENCRYPT_MODE,
-                    keySpec,
-                    gcmSpec
-            );
+                        byte[] encrypted = new byte[decoded.length - IV_LENGTH];
 
-            byte[] encrypted =
-                    cipher.doFinal(
-                            plainText.getBytes(StandardCharsets.UTF_8)
-                    );
+                        System.arraycopy(
+                                        decoded,
+                                        0,
+                                        iv,
+                                        0,
+                                        IV_LENGTH);
 
-            byte[] result =
-                    new byte[iv.length + encrypted.length];
+                        System.arraycopy(
+                                        decoded,
+                                        IV_LENGTH,
+                                        encrypted,
+                                        0,
+                                        encrypted.length);
 
-            System.arraycopy(
-                    iv,
-                    0,
-                    result,
-                    0,
-                    iv.length
-            );
+                        Cipher cipher = Cipher.getInstance(AES_GCM);
 
-            System.arraycopy(
-                    encrypted,
-                    0,
-                    result,
-                    iv.length,
-                    encrypted.length
-            );
+                        SecretKeySpec keySpec = new SecretKeySpec(
+                                        normalizeKey(),
+                                        AES);
 
-            return Base64.getEncoder()
-                    .encodeToString(result);
+                        GCMParameterSpec gcmSpec = new GCMParameterSpec(
+                                        GCM_TAG_LENGTH,
+                                        iv);
 
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot encrypt secret data");
-        }
-    }
+                        cipher.init(
+                                        Cipher.DECRYPT_MODE,
+                                        keySpec,
+                                        gcmSpec);
 
-    public String decrypt(String encryptedText) {
+                        byte[] decrypted = cipher.doFinal(encrypted);
 
-        if (encryptedText == null || encryptedText.isBlank()) {
-            return null;
+                        return new String(
+                                        decrypted,
+                                        StandardCharsets.UTF_8);
+
+                } catch (Exception e) {
+                        throw new RuntimeException("Cannot decrypt secret data");
+                }
         }
 
-        try {
-            byte[] decoded =
-                    Base64.getDecoder()
-                            .decode(encryptedText);
+        private byte[] normalizeKey() {
 
-            byte[] iv = new byte[IV_LENGTH];
+                byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
 
-            byte[] encrypted =
-                    new byte[decoded.length - IV_LENGTH];
+                byte[] normalized = new byte[32];
 
-            System.arraycopy(
-                    decoded,
-                    0,
-                    iv,
-                    0,
-                    IV_LENGTH
-            );
+                System.arraycopy(
+                                keyBytes,
+                                0,
+                                normalized,
+                                0,
+                                Math.min(keyBytes.length, normalized.length));
 
-            System.arraycopy(
-                    decoded,
-                    IV_LENGTH,
-                    encrypted,
-                    0,
-                    encrypted.length
-            );
-
-            Cipher cipher = Cipher.getInstance(AES_GCM);
-
-            SecretKeySpec keySpec = new SecretKeySpec(
-                    normalizeKey(),
-                    AES
-            );
-
-            GCMParameterSpec gcmSpec = new GCMParameterSpec(
-                    GCM_TAG_LENGTH,
-                    iv
-            );
-
-            cipher.init(
-                    Cipher.DECRYPT_MODE,
-                    keySpec,
-                    gcmSpec
-            );
-
-            byte[] decrypted =
-                    cipher.doFinal(encrypted);
-
-            return new String(
-                    decrypted,
-                    StandardCharsets.UTF_8
-            );
-
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot decrypt secret data");
+                return normalized;
         }
-    }
-
-    private byte[] normalizeKey() {
-
-        byte[] keyBytes =
-                secretKey.getBytes(StandardCharsets.UTF_8);
-
-        byte[] normalized = new byte[32];
-
-        System.arraycopy(
-                keyBytes,
-                0,
-                normalized,
-                0,
-                Math.min(keyBytes.length, normalized.length)
-        );
-
-        return normalized;
-    }
 }

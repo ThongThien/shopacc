@@ -1,4 +1,5 @@
 package com.shopacc.backend.controller;
+
 import jakarta.validation.Valid;
 import com.shopacc.backend.dto.payment.CreateDepositRequest;
 import com.shopacc.backend.dto.payment.DepositResponse;
@@ -16,27 +17,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PaymentController {
 
-    private final PaymentService paymentService;
+        private final PaymentService paymentService;
 
-    @PostMapping("/deposits")
-    public DepositResponse createDeposit(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody CreateDepositRequest request
-    ) {
+        @PostMapping("/deposits")
+        public DepositResponse createDeposit(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @Valid @RequestBody CreateDepositRequest request) {
 
-        return paymentService.createDeposit(
-                userDetails.getId(),
-                request
-        );
-    }
+                return paymentService.createDeposit(
+                                userDetails.getId(),
+                                request);
+        }
 
-    @GetMapping("/deposits")
-    public List<TransactionResponse> getMyDeposits(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+        @GetMapping("/deposits")
+        public List<TransactionResponse> getMyDeposits(
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-        return paymentService.getMyDeposits(
-                userDetails.getId()
-        );
-    }
+                return paymentService.getMyDeposits(
+                                userDetails.getId());
+        }
 }

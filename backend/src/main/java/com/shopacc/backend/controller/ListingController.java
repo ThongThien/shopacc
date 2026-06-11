@@ -1,4 +1,5 @@
 package com.shopacc.backend.controller;
+
 import jakarta.validation.Valid;
 import com.shopacc.backend.dto.listing.CreateListingRequest;
 import com.shopacc.backend.dto.listing.ListingDetailResponse;
@@ -41,16 +42,12 @@ public class ListingController {
         return listingService.createListing(request);
     }
 
-    @PostMapping(
-            value = "/{listingId}/images",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping(value = "/{listingId}/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Map<String, String> uploadListingImage(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable Long listingId,
             @RequestParam("file") MultipartFile file,
-            HttpServletRequest httpRequest
-    ) throws IOException {
+            HttpServletRequest httpRequest) throws IOException {
 
         String imageUrl = listingService.uploadListingImage(listingId, file);
 
@@ -58,8 +55,7 @@ public class ListingController {
                 userDetails.getId(),
                 AuditAction.ADMIN_UPLOAD_LISTING_IMAGE,
                 "listingId=" + listingId + ", imageUrl=" + imageUrl,
-                httpRequest
-        );
+                httpRequest);
 
         return Map.of("url", imageUrl);
     }

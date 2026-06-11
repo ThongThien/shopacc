@@ -1,9 +1,9 @@
 package com.shopacc.backend.controller;
+
 import com.shopacc.backend.dto.order.OrderResponse;
 import com.shopacc.backend.dto.admin.*;
 import com.shopacc.backend.dto.listing.CreateListingRequest;
 import com.shopacc.backend.dto.listing.ListingResponse;
-import com.shopacc.backend.entity.ProductCategory;
 import com.shopacc.backend.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,253 +25,327 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final AdminService adminService;
+        private final AdminService adminService;
 
-    private final PaymentService paymentService;
+        private final PaymentService paymentService;
 
-    private final AuditLogService auditLogService;
+        private final AuditLogService auditLogService;
 
-    @GetMapping("/categories")
-    public List<ProductCategory> getAllCategories() {
+        @GetMapping("/categories")
+        public List<CategoryResponse> getAllCategories() {
+                return adminService.getAllCategories();
+        }
 
-        return adminService.getAllCategories();
-    }
+        @GetMapping("/categories/{id}")
+        public AdminCategoryDetailResponse getCategoryDetail(
+                        @PathVariable Long id) {
+                return adminService.getCategoryDetail(id);
+        }
+
+        @PostMapping("/categories")
+        public CategoryResponse createCategory(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @Valid @RequestBody CreateCategoryRequest request,
+                        HttpServletRequest httpRequest) {
+                CategoryResponse category = adminService.createCategory(request);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_CREATE_CATEGORY,
+                                "categoryId=" + category.getId(),
+                                httpRequest);
+
+                return category;
+        }
+
+        @PutMapping("/categories/{id}")
+        public CategoryResponse updateCategory(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        @Valid @RequestBody UpdateCategoryRequest request,
+                        HttpServletRequest httpRequest) {
+                CategoryResponse category = adminService.updateCategory(id, request);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_UPDATE_CATEGORY,
+                                "categoryId=" + id,
+                                httpRequest);
+
+                return category;
+        }
+
+        @DeleteMapping("/categories/{id}")
+        public Map<String, String> deleteCategory(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        HttpServletRequest httpRequest) {
+                adminService.deleteCategory(id);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_DELETE_CATEGORY,
+                                "categoryId=" + id,
+                                httpRequest);
+
+                return Map.of("message", "Category deleted successfully");
+        }
 
         @GetMapping("/listings/{id:\\d+}")
         public AdminListingDetailResponse getListingDetail(
-                @PathVariable Long id
-        ) {
-        return adminService.getListingDetail(id);
+                        @PathVariable Long id) {
+                return adminService.getListingDetail(id);
         }
-    @PostMapping("/categories")
-    public ProductCategory createCategory(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody CreateCategoryRequest request,
-            HttpServletRequest httpRequest
-    ) {
 
-        ProductCategory category = adminService.createCategory(request);
+        @GetMapping("/listings")
+        public List<ListingResponse> getAllListings() {
 
-        auditLogService.log(
-                userDetails.getId(),
-                AuditAction.ADMIN_CREATE_CATEGORY,
-                "categoryId=" + category.getId(),
-                httpRequest
-        );
+                return adminService.getAllListings();
+        }
 
-        return category;
-    }
+        @PutMapping("/listings/{id}")
+        public ListingResponse updateListing(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        @Valid @RequestBody UpdateListingRequest request,
+                        HttpServletRequest httpRequest) {
 
-    @PutMapping("/categories/{id}")
-    public ProductCategory updateCategory(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateCategoryRequest request
-    ) {
+                ListingResponse response = adminService.updateListing(id, request);
 
-        return adminService.updateCategory(id, request);
-    }
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_UPDATE_LISTING,
+                                "listingId=" + id,
+                                httpRequest);
 
-    @DeleteMapping("/categories/{id}")
-    public Map<String, String> deleteCategory(
-            @PathVariable Long id
-    ) {
+                return response;
+        }
 
-        adminService.deleteCategory(id);
+        @PatchMapping("/listings/{id}/status")
+        public ListingResponse updateListingStatus(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        @Valid @RequestBody UpdateListingStatusRequest request,
+                        HttpServletRequest httpRequest) {
 
-        return Map.of("message", "Category deleted successfully");
-    }
+                ListingResponse response = adminService.updateListingStatus(id, request);
 
-    @GetMapping("/listings")
-    public List<ListingResponse> getAllListings() {
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_UPDATE_LISTING_STATUS,
+                                "listingId=" + id + ", status=" + request.getStatus(),
+                                httpRequest);
 
-        return adminService.getAllListings();
-    }
+                return response;
+        }
 
-    @PutMapping("/listings/{id}")
-    public ListingResponse updateListing(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateListingRequest request,
-            HttpServletRequest httpRequest
-    ) {
+        @PatchMapping("/listings/{id}/featured")
+        public ListingResponse updateListingFeatured(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        @Valid @RequestBody UpdateFeaturedRequest request,
+                        HttpServletRequest httpRequest) {
 
-        ListingResponse response = adminService.updateListing(id, request);
+                ListingResponse response = adminService.updateListingFeatured(id, request);
 
-        auditLogService.log(
-                userDetails.getId(),
-                AuditAction.ADMIN_UPDATE_LISTING,
-                "listingId=" + id,
-                httpRequest
-        );
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_UPDATE_LISTING_FEATURED,
+                                "listingId=" + id + ", featured=" + request.getFeatured(),
+                                httpRequest);
 
-        return response;
-    }
+                return response;
+        }
 
-    @PatchMapping("/listings/{id}/status")
-    public ListingResponse updateListingStatus(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateListingStatusRequest request
-    ) {
+        @DeleteMapping("/listings/{id}")
+        public Map<String, String> deleteListing(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        HttpServletRequest httpRequest) {
 
-        return adminService.updateListingStatus(id, request);
-    }
+                adminService.deleteListing(id);
 
-    @PatchMapping("/listings/{id}/featured")
-    public ListingResponse updateListingFeatured(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateFeaturedRequest request
-    ) {
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_DELETE_LISTING,
+                                "listingId=" + id,
+                                httpRequest);
 
-        return adminService.updateListingFeatured(id, request);
-    }
+                return Map.of("message", "Listing deleted successfully");
+        }
 
-    @DeleteMapping("/listings/{id}")
-    public Map<String, String> deleteListing(
-            @PathVariable Long id
-    ) {
+        @GetMapping("/orders")
+        public List<OrderResponse> getAllOrders() {
+                adminService.cancelExpiredPendingOrders();
 
-        adminService.deleteListing(id);
+                return adminService.getAllOrders();
+        }
 
-        return Map.of("message", "Listing deleted successfully");
-    }
+        @GetMapping("/orders/{orderId}")
+        public OrderResponse getOrderDetail(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long orderId,
+                        HttpServletRequest httpRequest) {
+                OrderResponse response = adminService.getOrderDetail(orderId);
 
-    @GetMapping("/orders")
-    public List<OrderResponse> getAllOrders() {
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_VIEW_ORDER_DETAIL,
+                                "orderId=" + orderId,
+                                httpRequest);
 
-        return adminService.getAllOrders();
-    }
+                return response;
+        }
 
-    @GetMapping("/orders/{orderId}")
-    public OrderResponse getOrderDetail(
-            @PathVariable Long orderId
-    ) {
+        @PatchMapping("/orders/{orderId}/refund")
+        public OrderResponse refundOrder(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long orderId,
+                        HttpServletRequest httpRequest) {
+                OrderResponse response = adminService.refundOrder(orderId);
 
-        return adminService.getOrderDetail(orderId);
-    }
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_REFUND_ORDER,
+                                "orderId=" + orderId,
+                                httpRequest);
 
-    @GetMapping("/users")
-    public List<UserResponse> getAllUsers() {
+                return response;
+        }
 
-        return adminService.getAllUsers();
-    }
+        @GetMapping("/users")
+        public List<UserResponse> getAllUsers() {
 
-    @PatchMapping("/users/{id}/balance")
-    public UserBalanceResponse adjustUserBalance(
-            @PathVariable Long id,
-            @Valid @RequestBody AdjustBalanceRequest request
-    ) {
+                return adminService.getAllUsers();
+        }
 
-        return adminService.adjustUserBalance(id, request);
-    }
+        @PatchMapping("/users/{id}/balance")
+        public UserBalanceResponse adjustUserBalance(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        @Valid @RequestBody AdjustBalanceRequest request,
+                        HttpServletRequest httpRequest) {
 
-    @GetMapping("/users/{id}/transactions")
-    public List<TransactionResponse> getUserTransactions(
-            @PathVariable Long id
-    ) {
+                UserBalanceResponse response = adminService.adjustUserBalance(id, request);
 
-        return adminService.getUserTransactions(id);
-    }
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_ADJUST_BALANCE,
+                                "userId=" + id + ", amount=" + request.getAmount(),
+                                httpRequest);
 
-    @DeleteMapping("/listings/images/{imageId}")
-    public Map<String, String> deleteListingImage(
-            @PathVariable Long imageId
-    ) {
+                return response;
+        }
 
-        adminService.deleteListingImage(imageId);
+        @GetMapping("/users/{id}/transactions")
+        public List<TransactionResponse> getUserTransactions(
+                        @PathVariable Long id) {
 
-        return Map.of(
-                "message",
-                "Listing image deleted successfully"
-        );
-    }
+                return adminService.getUserTransactions(id);
+        }
 
-    @PatchMapping("/listings/{id}/thumbnail")
-    public ListingResponse updateThumbnail(
-            @PathVariable Long id,
-            @Valid @RequestBody UpdateThumbnailRequest request
-    ) {
+        @DeleteMapping("/listings/images/{imageId}")
+        public Map<String, String> deleteListingImage(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long imageId,
+                        HttpServletRequest httpRequest) {
 
-        return adminService.updateThumbnail(
-                id,
-                request
-        );
-    }
+                adminService.deleteListingImage(imageId);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_DELETE_LISTING_IMAGE,
+                                "imageId=" + imageId,
+                                httpRequest);
+
+                return Map.of(
+                                "message",
+                                "Listing image deleted successfully");
+        }
+
+        @PatchMapping("/listings/{id}/thumbnail")
+        public ListingResponse updateThumbnail(
+                        @PathVariable Long id,
+                        @Valid @RequestBody UpdateThumbnailRequest request) {
+
+                return adminService.updateThumbnail(
+                                id,
+                                request);
+        }
 
         @GetMapping("/listings/filter")
         public List<ListingResponse> filterListings(
-                @RequestParam(required = false) ListingStatus status,
-                @RequestParam(required = false) Long categoryId,
-                @RequestParam(required = false) ListingType listingType,
-                @RequestParam(required = false) String gameName
-        ) {
-        return adminService.filterListings(status, categoryId, listingType, gameName);
+                        @RequestParam(required = false) ListingStatus status,
+                        @RequestParam(required = false) Long categoryId,
+                        @RequestParam(required = false) ListingType listingType,
+                        @RequestParam(required = false) String gameName) {
+                return adminService.filterListings(status, categoryId, listingType, gameName);
         }
 
-    @GetMapping("/transactions")
-    public List<TransactionResponse> getAllTransactions() {
+        @GetMapping("/transactions")
+        public List<TransactionResponse> getAllTransactions() {
 
-        return paymentService.getAllTransactionsForAdmin();
-    }
+                return paymentService.getAllTransactionsForAdmin();
+        }
 
-    @PatchMapping("/transactions/{id}/approve")
-    public TransactionResponse approveTransaction(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long id,
-            HttpServletRequest httpRequest
-    ) {
+        @PatchMapping("/transactions/{id}/approve")
+        public TransactionResponse approveTransaction(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        HttpServletRequest httpRequest) {
 
-        TransactionResponse response = paymentService.approveTransaction(id);
+                TransactionResponse response = paymentService.approveTransaction(id);
 
-        auditLogService.log(
-                userDetails.getId(),
-                AuditAction.ADMIN_APPROVE_TRANSACTION,
-                "transactionId=" + id,
-                httpRequest
-        );
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_APPROVE_TRANSACTION,
+                                "transactionId=" + id,
+                                httpRequest);
 
-        return response;
-    }
+                return response;
+        }
 
-    @PatchMapping("/transactions/{id}/reject")
-    public TransactionResponse rejectTransaction(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @PathVariable Long id,
-            HttpServletRequest httpRequest
-    ) {
+        @PatchMapping("/transactions/{id}/reject")
+        public TransactionResponse rejectTransaction(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        HttpServletRequest httpRequest) {
 
-        TransactionResponse response = paymentService.rejectTransaction(id);
+                TransactionResponse response = paymentService.rejectTransaction(id);
 
-        auditLogService.log(
-                userDetails.getId(),
-                AuditAction.ADMIN_REJECT_TRANSACTION,
-                "transactionId=" + id,
-                httpRequest
-        );
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_REJECT_TRANSACTION,
+                                "transactionId=" + id,
+                                httpRequest);
 
-        return response;
-    }
-    @GetMapping("/dashboard")
-    public AdminDashboardResponse dashboard(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
-        return adminService.getDashboard(userDetails);
-    }
+                return response;
+        }
 
-    @PostMapping("/listings")
-    public ListingResponse createListing(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody CreateListingRequest request,
-            HttpServletRequest httpRequest
-    ) {
-        ListingResponse response = adminService.createListing(request);
+        @GetMapping("/dashboard")
+        public AdminDashboardResponse dashboard(
+                        @AuthenticationPrincipal CustomUserDetails userDetails) {
+                return adminService.getDashboard(userDetails);
+        }
 
-        auditLogService.log(
-                userDetails.getId(),
-                AuditAction.ADMIN_CREATE_LISTING,
-                "listingId=" + response.getId(),
-                httpRequest
-        );
+        @PostMapping("/listings")
+        public ListingResponse createListing(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @Valid @RequestBody CreateListingRequest request,
+                        HttpServletRequest httpRequest) {
+                ListingResponse response = adminService.createListing(request);
 
-        return response;
-    }
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_CREATE_LISTING,
+                                "listingId=" + response.getId(),
+                                httpRequest);
+
+                return response;
+        }
+
+        @GetMapping("/audit-logs")
+        public List<AuditLogResponse> getAuditLogs() {
+                return adminService.getAuditLogs();
+        }
 }

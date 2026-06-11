@@ -1,4 +1,5 @@
 package com.shopacc.backend.service;
+
 import com.shopacc.backend.security.CustomUserDetails;
 import java.time.LocalDate;
 import com.shopacc.backend.repository.OrderRepository;
@@ -30,6 +31,7 @@ import com.shopacc.backend.entity.OrderItem;
 import com.shopacc.backend.enums.ListingType;
 import com.shopacc.backend.enums.OrderStatus;
 import com.shopacc.backend.enums.ListingStatus;
+import com.shopacc.backend.repository.AuditLogRepository;
 import com.shopacc.backend.repository.ListingImageRepository;
 import com.shopacc.backend.dto.listing.CreateListingRequest;
 import java.math.BigDecimal;
@@ -43,523 +45,602 @@ import java.util.List;
 public class AdminService {
         private final OrderRepository orderRepository;
 
-    private final ProductCategoryRepository categoryRepository;
+        private final ProductCategoryRepository categoryRepository;
 
-    private final ListingRepository listingRepository;
+        private final ListingRepository listingRepository;
 
-    private final OrderService orderService;
+        private final OrderService orderService;
 
-    private final UserRepository userRepository;
+        private final UserRepository userRepository;
 
-    private final TransactionRepository transactionRepository;
+        private final AuditLogRepository auditLogRepository;
 
-    private final UserBalanceLogRepository userBalanceLogRepository;
+        private final TransactionRepository transactionRepository;
 
-    private final ListingImageRepository listingImageRepository;
+        private final UserBalanceLogRepository userBalanceLogRepository;
 
-    private final CryptoService cryptoService;
+        private final ListingImageRepository listingImageRepository;
 
-    private final OrderItemRepository orderItemRepository;
+        private final CryptoService cryptoService;
 
-    public List<ProductCategory> getAllCategories() {
+        private final OrderItemRepository orderItemRepository;
 
-        return categoryRepository.findAll();
-    }
-
-    public ProductCategory createCategory(CreateCategoryRequest request) {
-
-        ProductCategory parent = null;
-
-        if (request.getParentId() != null) {
-            parent = categoryRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new RuntimeException("Parent category not found"));
+        public List<CategoryResponse> getAllCategories() {
+                return categoryRepository.findAll()
+                                .stream()
+                                .map(this::mapToCategoryResponse)
+                                .toList();
         }
 
-        ProductCategory category = ProductCategory.builder()
-                .name(request.getName())
-                .slug(request.getSlug())
-                .description(request.getDescription())
-                .parent(parent)
-                .sortOrder(request.getSortOrder())
-                .isActive(request.getIsActive() != null ? request.getIsActive() : true)
-                .build();
+        public AdminCategoryDetailResponse getCategoryDetail(Long id) {
+                ProductCategory category = categoryRepository.findById(id)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Category not found"));
 
-        return categoryRepository.save(category);
-    }
+                List<ListingResponse> listings = listingRepository
+                                .findByCategoryIdOrderByCreatedAtDesc(id)
+                                .stream()
+                                .map(this::mapToListingResponse)
+                                .toList();
 
-    @Transactional
-    public ProductCategory updateCategory(Long id, UpdateCategoryRequest request) {
-
-        ProductCategory category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-
-        ProductCategory parent = null;
-
-        if (request.getParentId() != null) {
-            parent = categoryRepository.findById(request.getParentId())
-                    .orElseThrow(() -> new RuntimeException("Parent category not found"));
+                return AdminCategoryDetailResponse.builder()
+                                .id(category.getId())
+                                .name(category.getName())
+                                .slug(category.getSlug())
+                                .description(category.getDescription())
+                                .isActive(category.getIsActive())
+                                .sortOrder(category.getSortOrder())
+                                .parentId(category.getParent() != null ? category.getParent().getId() : null)
+                                .parentName(category.getParent() != null ? category.getParent().getName() : null)
+                                .createdAt(category.getCreatedAt())
+                                .updatedAt(category.getUpdatedAt())
+                                .listingCount((long) listings.size())
+                                .listings(listings)
+                                .build();
         }
 
-        category.setName(request.getName());
-        category.setSlug(request.getSlug());
-        category.setDescription(request.getDescription());
-        category.setParent(parent);
-        category.setSortOrder(request.getSortOrder());
-        category.setIsActive(request.getIsActive());
+        @Transactional
+        public void deleteCategory(Long id) {
+                ProductCategory category = categoryRepository.findById(id)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Category not found"));
 
-        return category;
-    }
+                long listingCount = listingRepository.countByCategoryId(id);
 
-    public void deleteCategory(Long id) {
+                if (listingCount > 0) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Không thể xóa danh mục vì vẫn còn listing thuộc danh mục này");
+                }
 
-        ProductCategory category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                categoryRepository.delete(category);
+        }
 
-        categoryRepository.delete(category);
-    }
+        private CategoryResponse mapToCategoryResponse(ProductCategory category) {
+                return CategoryResponse.builder()
+                                .id(category.getId())
+                                .name(category.getName())
+                                .slug(category.getSlug())
+                                .description(category.getDescription())
+                                .isActive(category.getIsActive())
+                                .sortOrder(category.getSortOrder())
+                                .parentId(category.getParent() != null ? category.getParent().getId() : null)
+                                .parentName(category.getParent() != null ? category.getParent().getName() : null)
+                                .createdAt(category.getCreatedAt())
+                                .updatedAt(category.getUpdatedAt())
+                                .listingCount(listingRepository.countByCategoryId(category.getId()))
+                                .build();
+        }
 
-    public List<ListingResponse> getAllListings() {
+        @Transactional
+        public CategoryResponse createCategory(
+                        CreateCategoryRequest request) {
 
-        return listingRepository.findAll()
-                .stream()
-                .map(this::mapToListingResponse)
-                .toList();
-    }
+                ProductCategory parent = null;
 
-    @Transactional
-    public ListingResponse updateListing(Long id, UpdateListingRequest request) {
+                if (request.getParentId() != null) {
+                        parent = categoryRepository.findById(request.getParentId())
+                                        .orElseThrow(() -> new ResponseStatusException(
+                                                        HttpStatus.NOT_FOUND,
+                                                        "Parent category not found"));
+                }
 
-        Listing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
+                ProductCategory category = ProductCategory.builder()
+                                .name(request.getName())
+                                .slug(request.getSlug())
+                                .description(request.getDescription())
+                                .parent(parent)
+                                .sortOrder(request.getSortOrder())
+                                .isActive(
+                                                request.getIsActive() != null
+                                                                ? request.getIsActive()
+                                                                : true)
+                                .build();
 
-        ProductCategory category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                ProductCategory saved = categoryRepository.save(category);
 
-        listing.setCategory(category);
-        listing.setListingType(request.getListingType());
-        listing.setGameName(request.getGameName());
-        listing.setServerName(request.getServerName());
-        listing.setTitle(request.getTitle());
-        listing.setSlug(request.getSlug());
-        listing.setDescription(request.getDescription());
-        listing.setPrice(request.getPrice());
-        listing.setThumbnail(request.getThumbnail());
-        listing.setSecretDataEncrypted(
-                cryptoService.encrypt(
-                        request.getSecretDataEncrypted()
-                )
-        );
+                return mapToCategoryResponse(saved);
+        }
 
-        return mapToListingResponse(listing);
-    }
+        @Transactional
+        public CategoryResponse updateCategory(
+                        Long id,
+                        UpdateCategoryRequest request) {
 
-    @Transactional
-    public ListingResponse updateListingStatus(Long id, UpdateListingStatusRequest request) {
+                ProductCategory category = categoryRepository.findById(id)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Category not found"));
 
-        Listing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
+                ProductCategory parent = null;
 
-        listing.setStatus(request.getStatus());
+                if (request.getParentId() != null) {
 
-        return mapToListingResponse(listing);
-    }
+                        if (request.getParentId().equals(id)) {
+                                throw new ResponseStatusException(
+                                                HttpStatus.BAD_REQUEST,
+                                                "Category cannot be its own parent");
+                        }
 
-    @Transactional
-    public ListingResponse updateListingFeatured(Long id, UpdateFeaturedRequest request) {
+                        parent = categoryRepository.findById(
+                                        request.getParentId()).orElseThrow(
+                                                        () -> new ResponseStatusException(
+                                                                        HttpStatus.NOT_FOUND,
+                                                                        "Parent category not found"));
+                }
 
-        Listing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
+                category.setName(request.getName());
+                category.setSlug(request.getSlug());
+                category.setDescription(request.getDescription());
+                category.setParent(parent);
+                category.setSortOrder(request.getSortOrder());
+                category.setIsActive(request.getIsActive());
 
-        listing.setIsFeatured(request.getFeatured());
+                ProductCategory updated = categoryRepository.save(category);
 
-        return mapToListingResponse(listing);
-    }
+                return mapToCategoryResponse(updated);
+        }
+
+        public List<ListingResponse> getAllListings() {
+
+                return listingRepository.findAll()
+                                .stream()
+                                .map(this::mapToListingResponse)
+                                .toList();
+        }
+
+        @Transactional
+        public ListingResponse updateListing(Long id, UpdateListingRequest request) {
+
+                Listing listing = listingRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+                ProductCategory category = categoryRepository.findById(request.getCategoryId())
+                                .orElseThrow(() -> new RuntimeException("Category not found"));
+
+                listing.setCategory(category);
+                listing.setListingType(request.getListingType());
+                listing.setGameName(request.getGameName());
+                listing.setServerName(request.getServerName());
+                listing.setTitle(request.getTitle());
+                listing.setSlug(request.getSlug());
+                listing.setDescription(request.getDescription());
+                listing.setPrice(request.getPrice());
+                listing.setThumbnail(request.getThumbnail());
+                listing.setSecretDataEncrypted(
+                                cryptoService.encrypt(
+                                                request.getSecretDataEncrypted()));
+
+                return mapToListingResponse(listing);
+        }
+
+        @Transactional
+        public ListingResponse updateListingStatus(Long id, UpdateListingStatusRequest request) {
+
+                Listing listing = listingRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+                listing.setStatus(request.getStatus());
+
+                return mapToListingResponse(listing);
+        }
+
+        @Transactional
+        public ListingResponse updateListingFeatured(Long id, UpdateFeaturedRequest request) {
+
+                Listing listing = listingRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+                listing.setIsFeatured(request.getFeatured());
+
+                return mapToListingResponse(listing);
+        }
 
         private ListingResponse mapToListingResponse(Listing listing) {
 
-        return ListingResponse.builder()
-                .id(listing.getId())
-                .categoryId(
-                        listing.getCategory() != null
-                                ? listing.getCategory().getId()
-                                : null
-                )
-                .categoryName(
-                        listing.getCategory() != null
-                                ? listing.getCategory().getName()
-                                : null
-                )
-                .listingType(listing.getListingType())
-                .gameName(listing.getGameName())
-                .serverName(listing.getServerName())
-                .title(listing.getTitle())
-                .slug(listing.getSlug())
-                .description(listing.getDescription())
-                .price(listing.getPrice())
-                .thumbnail(listing.getThumbnail())
-                .status(listing.getStatus())
-                .isFeatured(listing.getIsFeatured())
-                .viewCount(
-                        listing.getViewCount() == null
-                                ? 0L
-                                : listing.getViewCount()
-                )
-                .createdAt(listing.getCreatedAt())
-                .updatedAt(listing.getUpdatedAt())
-                .build();
+                return ListingResponse.builder()
+                                .id(listing.getId())
+                                .categoryId(
+                                                listing.getCategory() != null
+                                                                ? listing.getCategory().getId()
+                                                                : null)
+                                .categoryName(
+                                                listing.getCategory() != null
+                                                                ? listing.getCategory().getName()
+                                                                : null)
+                                .listingType(listing.getListingType())
+                                .gameName(listing.getGameName())
+                                .serverName(listing.getServerName())
+                                .title(listing.getTitle())
+                                .slug(listing.getSlug())
+                                .description(listing.getDescription())
+                                .price(listing.getPrice())
+                                .thumbnail(listing.getThumbnail())
+                                .status(listing.getStatus())
+                                .isFeatured(listing.getIsFeatured())
+                                .viewCount(
+                                                listing.getViewCount() == null
+                                                                ? 0L
+                                                                : listing.getViewCount())
+                                .createdAt(listing.getCreatedAt())
+                                .updatedAt(listing.getUpdatedAt())
+                                .build();
         }
 
-    public List<OrderResponse> getAllOrders() {
+        public List<OrderResponse> getAllOrders() {
 
-        return orderService.getAllOrdersForAdmin();
-    }
+                return orderService.getAllOrdersForAdmin();
+        }
 
-    public OrderResponse getOrderDetail(Long orderId) {
+        public OrderResponse getOrderDetail(Long orderId) {
 
-        return orderService.getOrderDetailForAdmin(orderId);
-    }
+                return orderService.getOrderDetailForAdmin(orderId);
+        }
 
-    public List<UserResponse> getAllUsers() {
+        public List<UserResponse> getAllUsers() {
 
-    return userRepository.findAll()
-            .stream()
-            .map(this::mapUser)
-            .toList();
-    }
+                return userRepository.findAll()
+                                .stream()
+                                .map(this::mapUser)
+                                .toList();
+        }
 
-    public List<TransactionResponse> getUserTransactions(Long userId) {
+        public List<TransactionResponse> getUserTransactions(Long userId) {
 
-        return transactionRepository.findByUserIdOrderByCreatedAtDesc(userId)
-                .stream()
-                .map(this::mapTransaction)
-                .toList();
-    }
+                return transactionRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                                .stream()
+                                .map(this::mapTransaction)
+                                .toList();
+        }
 
-    @jakarta.transaction.Transactional
-    public UserBalanceResponse adjustUserBalance(
-            Long userId,
-            AdjustBalanceRequest request
-    ) {
+        @jakarta.transaction.Transactional
+        public UserBalanceResponse adjustUserBalance(
+                        Long userId,
+                        AdjustBalanceRequest request) {
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        BigDecimal amountBefore = user.getBalance();
-        BigDecimal amountChange = request.getAmount();
-        BigDecimal amountAfter = amountBefore.add(amountChange);
+                BigDecimal amountBefore = user.getBalance();
+                BigDecimal amountChange = request.getAmount();
+                BigDecimal amountAfter = amountBefore.add(amountChange);
 
-        user.setBalance(amountAfter);
-        userRepository.save(user);
+                user.setBalance(amountAfter);
+                userRepository.save(user);
 
-        Transaction transaction = Transaction.builder()
-                .user(user)
-                .transactionCode("TXN-" + UUID.randomUUID())
-                .providerTransactionId(null)
-                .type(amountChange.compareTo(BigDecimal.ZERO) >= 0
-                        ? TransactionType.DEPOSIT
-                        : TransactionType.WITHDRAW)
-                .amount(amountChange.abs())
-                .status(TransactionStatus.SUCCESS)
-                .provider("MANUAL")
-                .description(request.getDescription())
-                .build();
+                Transaction transaction = Transaction.builder()
+                                .user(user)
+                                .transactionCode("TXN-" + UUID.randomUUID())
+                                .providerTransactionId(null)
+                                .type(amountChange.compareTo(BigDecimal.ZERO) >= 0
+                                                ? TransactionType.DEPOSIT
+                                                : TransactionType.WITHDRAW)
+                                .amount(amountChange.abs())
+                                .status(TransactionStatus.SUCCESS)
+                                .provider("MANUAL")
+                                .description(request.getDescription())
+                                .build();
 
-        transactionRepository.save(transaction);
+                transactionRepository.save(transaction);
 
-        UserBalanceLog balanceLog = UserBalanceLog.builder()
-                .user(user)
-                .amountBefore(amountBefore)
-                .amountChange(amountChange)
-                .amountAfter(amountAfter)
-                .type("ADMIN_ADJUST")
-                .description(request.getDescription())
-                .build();
+                UserBalanceLog balanceLog = UserBalanceLog.builder()
+                                .user(user)
+                                .amountBefore(amountBefore)
+                                .amountChange(amountChange)
+                                .amountAfter(amountAfter)
+                                .type("ADMIN_ADJUST")
+                                .description(request.getDescription())
+                                .build();
 
-        userBalanceLogRepository.save(balanceLog);
+                userBalanceLogRepository.save(balanceLog);
 
-        return UserBalanceResponse.builder()
-                .userId(user.getId())
-                .username(user.getUsername())
-                .balance(user.getBalance())
-                .build();
-    }
+                return UserBalanceResponse.builder()
+                                .userId(user.getId())
+                                .username(user.getUsername())
+                                .balance(user.getBalance())
+                                .build();
+        }
 
-    private UserResponse mapUser(User user) {
+        private UserResponse mapUser(User user) {
 
-        return UserResponse.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .role(user.getRole())
-                .status(user.getStatus())
-                .balance(user.getBalance())
-                .build();
-    }
+                return UserResponse.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .email(user.getEmail())
+                                .role(user.getRole())
+                                .status(user.getStatus())
+                                .balance(user.getBalance())
+                                .build();
+        }
 
         private TransactionResponse mapTransaction(Transaction transaction) {
 
-        return TransactionResponse.builder()
-                .id(transaction.getId())
-                .transactionCode(transaction.getTransactionCode())
-                .type(transaction.getType())
-                .amount(transaction.getAmount())
-                .status(transaction.getStatus())
-                .provider(transaction.getProvider())
-                .description(transaction.getDescription())
-                .createdAt(transaction.getCreatedAt())
-                .userId(transaction.getUser().getId())
-                .username(transaction.getUser().getUsername())
-                .email(transaction.getUser().getEmail())
-                .build();
+                return TransactionResponse.builder()
+                                .id(transaction.getId())
+                                .transactionCode(transaction.getTransactionCode())
+                                .type(transaction.getType())
+                                .amount(transaction.getAmount())
+                                .status(transaction.getStatus())
+                                .provider(transaction.getProvider())
+                                .description(transaction.getDescription())
+                                .createdAt(transaction.getCreatedAt())
+                                .userId(transaction.getUser().getId())
+                                .username(transaction.getUser().getUsername())
+                                .email(transaction.getUser().getEmail())
+                                .build();
         }
-    public void deleteListingImage(Long imageId) {
 
-        ListingImage image = listingImageRepository.findById(imageId)
-                .orElseThrow(() -> new RuntimeException("Image not found"));
+        public void deleteListingImage(Long imageId) {
 
-        listingImageRepository.delete(image);
-    }
+                ListingImage image = listingImageRepository.findById(imageId)
+                                .orElseThrow(() -> new RuntimeException("Image not found"));
 
-    public ListingResponse updateThumbnail(
-            Long listingId,
-            UpdateThumbnailRequest request
-    ) {
+                listingImageRepository.delete(image);
+        }
 
-        Listing listing = listingRepository.findById(listingId)
-                .orElseThrow(() -> new RuntimeException("Listing not found"));
+        public ListingResponse updateThumbnail(
+                        Long listingId,
+                        UpdateThumbnailRequest request) {
 
-        listing.setThumbnail(request.getThumbnail());
+                Listing listing = listingRepository.findById(listingId)
+                                .orElseThrow(() -> new RuntimeException("Listing not found"));
 
-        listingRepository.save(listing);
+                listing.setThumbnail(request.getThumbnail());
 
-        return mapToListingResponse(listing);
-    }
+                listingRepository.save(listing);
 
-    public List<ListingResponse> filterListings(
-            ListingStatus status,
-            Long categoryId,
-            ListingType listingType,
-            String gameName
-    ) {
+                return mapToListingResponse(listing);
+        }
 
-        return listingRepository.filterListings(
-                        status,
-                        categoryId,
-                        listingType,
-                        gameName
-                )
-                .stream()
-                .map(this::mapToListingResponse)
-                .toList();
-    }
+        public List<ListingResponse> filterListings(
+                        ListingStatus status,
+                        Long categoryId,
+                        ListingType listingType,
+                        String gameName) {
+
+                return listingRepository.filterListings(
+                                status,
+                                categoryId,
+                                listingType,
+                                gameName)
+                                .stream()
+                                .map(this::mapToListingResponse)
+                                .toList();
+        }
+
         public AdminDashboardResponse getDashboard(
-                CustomUserDetails userDetails
-        ) {
+                        CustomUserDetails userDetails) {
 
-        User admin = userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Admin not found"
-                ));
+                User admin = userRepository.findById(userDetails.getId())
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Admin not found"));
 
-        LocalDate now = LocalDate.now();
+                LocalDate now = LocalDate.now();
 
-        LocalDateTime startOfMonth = now.withDayOfMonth(1).atStartOfDay();
+                LocalDateTime startOfMonth = now.withDayOfMonth(1).atStartOfDay();
 
-        LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusNanos(1);
+                LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusNanos(1);
 
-        List<AdminDashboardResponse.TopOrderItem> topOrders =
-                orderRepository.findTop5ByOrderByTotalPriceDesc()
-                        .stream()
-                        .map(order -> AdminDashboardResponse.TopOrderItem.builder()
-                                .orderId(order.getId())
-                                .orderCode(order.getOrderCode())
-                                .username(order.getUser().getUsername())
-                                .totalPrice(order.getTotalPrice())
-                                .createdAt(String.valueOf(order.getCreatedAt()))
-                                .build())
-                        .toList();
+                List<AdminDashboardResponse.TopOrderItem> topOrders = orderRepository.findTop5ByOrderByTotalPriceDesc()
+                                .stream()
+                                .map(order -> AdminDashboardResponse.TopOrderItem.builder()
+                                                .orderId(order.getId())
+                                                .orderCode(order.getOrderCode())
+                                                .username(order.getUser().getUsername())
+                                                .totalPrice(order.getTotalPrice())
+                                                .createdAt(String.valueOf(order.getCreatedAt()))
+                                                .build())
+                                .toList();
 
-        return AdminDashboardResponse.builder()
-                .adminBalance(admin.getBalance())
-                .revenueThisMonth(
-                        orderRepository.sumCompletedRevenueBetween(
-                                startOfMonth,
-                                endOfMonth
-                        )
-                )
-                .revenueAllTime(orderRepository.sumCompletedRevenueAllTime())
-                .totalUsers(userRepository.count())
-                .totalListings(listingRepository.count())
-                .publishedListings(
-                        listingRepository.countByStatus(
-                                ListingStatus.PUBLISHED
-                        )
-                )
-                .soldListings(
-                        listingRepository.countByStatus(
-                                ListingStatus.SOLD_OUT
-                        )
-                )
-                .totalOrders(orderRepository.count())
-                .ordersThisMonth(
-                        orderRepository.countByCreatedAtBetween(
-                                startOfMonth,
-                                endOfMonth
-                        )
-                )
-                .topOrders(topOrders)
-                .build();
+                return AdminDashboardResponse.builder()
+                                .adminBalance(admin.getBalance())
+                                .revenueThisMonth(
+                                                orderRepository.sumCompletedRevenueBetween(
+                                                                startOfMonth,
+                                                                endOfMonth))
+                                .revenueAllTime(orderRepository.sumCompletedRevenueAllTime())
+                                .totalUsers(userRepository.count())
+                                .totalListings(listingRepository.count())
+                                .publishedListings(
+                                                listingRepository.countByStatus(
+                                                                ListingStatus.PUBLISHED))
+                                .soldListings(
+                                                listingRepository.countByStatus(
+                                                                ListingStatus.SOLD_OUT))
+                                .totalOrders(orderRepository.count())
+                                .ordersThisMonth(
+                                                orderRepository.countByCreatedAtBetween(
+                                                                startOfMonth,
+                                                                endOfMonth))
+                                .topOrders(topOrders)
+                                .build();
         }
+
         @Transactional
         public ListingResponse createListing(CreateListingRequest request) {
 
-        ProductCategory category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Category not found"
-                ));
+                ProductCategory category = categoryRepository.findById(request.getCategoryId())
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Category not found"));
 
-        Listing listing = Listing.builder()
-                .category(category)
-                .listingType(request.getListingType())
-                .gameName(request.getGameName())
-                .serverName(request.getServerName())
-                .title(request.getTitle())
-                .slug(request.getSlug())
-                .description(request.getDescription())
-                .price(request.getPrice())
-                .thumbnail(request.getThumbnail())
-                .secretDataEncrypted(
-                        cryptoService.encrypt(request.getSecretDataEncrypted())
-                )
-                .status(ListingStatus.PUBLISHED)
-                .isFeatured(false)
-                .viewCount(0L)
-                .build();
+                Listing listing = Listing.builder()
+                                .category(category)
+                                .listingType(request.getListingType())
+                                .gameName(request.getGameName())
+                                .serverName(request.getServerName())
+                                .title(request.getTitle())
+                                .slug(request.getSlug())
+                                .description(request.getDescription())
+                                .price(request.getPrice())
+                                .thumbnail(request.getThumbnail())
+                                .secretDataEncrypted(
+                                                cryptoService.encrypt(request.getSecretDataEncrypted()))
+                                .status(ListingStatus.PUBLISHED)
+                                .isFeatured(false)
+                                .viewCount(0L)
+                                .build();
 
-        listingRepository.save(listing);
+                listingRepository.save(listing);
 
-        return mapToListingResponse(listing);
+                return mapToListingResponse(listing);
         }
 
         public AdminListingDetailResponse getListingDetail(Long id) {
 
-        Listing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Listing not found"
-                ));
+                Listing listing = listingRepository.findById(id)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Listing not found"));
 
-        List<String> images = listingImageRepository.findByListingIdOrderBySortOrderAsc(id)
-                .stream()
-                .map(ListingImage::getImageUrl)
-                .toList();
+                List<String> images = listingImageRepository.findByListingIdOrderBySortOrderAsc(id)
+                                .stream()
+                                .map(ListingImage::getImageUrl)
+                                .toList();
 
-        OrderItem soldItem = orderItemRepository.findByListingId(id)
-                .stream()
-                .filter(item -> item.getOrder() != null)
-                .filter(item -> item.getOrder().getStatus() == OrderStatus.COMPLETED)
-                .findFirst()
-                .orElse(null);
+                OrderItem soldItem = orderItemRepository.findByListingId(id)
+                                .stream()
+                                .filter(item -> item.getOrder() != null)
+                                .filter(item -> item.getOrder().getStatus() == OrderStatus.COMPLETED)
+                                .findFirst()
+                                .orElse(null);
 
-        boolean sold = soldItem != null;
+                boolean sold = soldItem != null;
 
-        Long buyerUserId = null;
-        String buyerUsername = null;
-        String buyerEmail = null;
-        Long orderId = null;
-        String orderCode = null;
-        LocalDateTime soldAt = null;
+                Long buyerUserId = null;
+                String buyerUsername = null;
+                String buyerEmail = null;
+                Long orderId = null;
+                String orderCode = null;
+                LocalDateTime soldAt = null;
 
-        if (soldItem != null) {
-                Order order = soldItem.getOrder();
+                if (soldItem != null) {
+                        Order order = soldItem.getOrder();
 
-                orderId = order.getId();
-                orderCode = order.getOrderCode();
-                soldAt = order.getCreatedAt();
+                        orderId = order.getId();
+                        orderCode = order.getOrderCode();
+                        soldAt = order.getCreatedAt();
 
-                if (order.getUser() != null) {
-                buyerUserId = order.getUser().getId();
-                buyerUsername = order.getUser().getUsername();
-                buyerEmail = order.getUser().getEmail();
+                        if (order.getUser() != null) {
+                                buyerUserId = order.getUser().getId();
+                                buyerUsername = order.getUser().getUsername();
+                                buyerEmail = order.getUser().getEmail();
+                        }
                 }
-        }
 
-        String secretData = null;
+                String secretData = null;
 
-        try {
-                secretData = cryptoService.decrypt(listing.getSecretDataEncrypted());
-        } catch (Exception ex) {
-                secretData = "Cannot decrypt secret data";
-        }
+                try {
+                        secretData = cryptoService.decrypt(listing.getSecretDataEncrypted());
+                } catch (Exception ex) {
+                        secretData = "Cannot decrypt secret data";
+                }
 
-        return AdminListingDetailResponse.builder()
-                .id(listing.getId())
-                .categoryId(
-                        listing.getCategory() != null
-                                ? listing.getCategory().getId()
-                                : null
-                )
-                .categoryName(
-                        listing.getCategory() != null
-                                ? listing.getCategory().getName()
-                                : null
-                )
-                .listingType(listing.getListingType())
-                .gameName(listing.getGameName())
-                .serverName(listing.getServerName())
-                .title(listing.getTitle())
-                .slug(listing.getSlug())
-                .description(listing.getDescription())
-                .price(listing.getPrice())
-                .thumbnail(listing.getThumbnail())
-                .status(listing.getStatus())
-                .isFeatured(listing.getIsFeatured())
-                .viewCount(
-                        listing.getViewCount() == null
-                                ? 0L
-                                : listing.getViewCount()
-                )
-                .secretData(secretData)
-                .images(images)
-                .sold(sold)
-                .buyerUserId(buyerUserId)
-                .buyerUsername(buyerUsername)
-                .buyerEmail(buyerEmail)
-                .orderId(orderId)
-                .orderCode(orderCode)
-                .soldAt(soldAt)
-                .createdAt(listing.getCreatedAt())
-                .updatedAt(listing.getUpdatedAt())
-                .build();
+                return AdminListingDetailResponse.builder()
+                                .id(listing.getId())
+                                .categoryId(
+                                                listing.getCategory() != null
+                                                                ? listing.getCategory().getId()
+                                                                : null)
+                                .categoryName(
+                                                listing.getCategory() != null
+                                                                ? listing.getCategory().getName()
+                                                                : null)
+                                .listingType(listing.getListingType())
+                                .gameName(listing.getGameName())
+                                .serverName(listing.getServerName())
+                                .title(listing.getTitle())
+                                .slug(listing.getSlug())
+                                .description(listing.getDescription())
+                                .price(listing.getPrice())
+                                .thumbnail(listing.getThumbnail())
+                                .status(listing.getStatus())
+                                .isFeatured(listing.getIsFeatured())
+                                .viewCount(
+                                                listing.getViewCount() == null
+                                                                ? 0L
+                                                                : listing.getViewCount())
+                                .secretData(secretData)
+                                .images(images)
+                                .sold(sold)
+                                .buyerUserId(buyerUserId)
+                                .buyerUsername(buyerUsername)
+                                .buyerEmail(buyerEmail)
+                                .orderId(orderId)
+                                .orderCode(orderCode)
+                                .soldAt(soldAt)
+                                .createdAt(listing.getCreatedAt())
+                                .updatedAt(listing.getUpdatedAt())
+                                .build();
         }
 
         @Transactional
         public void deleteListing(Long id) {
 
-        Listing listing = listingRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Listing not found"
-                ));
+                Listing listing = listingRepository.findById(id)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Listing not found"));
 
-        boolean hasCompletedOrder = orderItemRepository.findByListingId(id)
-                .stream()
-                .anyMatch(item ->
-                        item.getOrder() != null &&
-                                item.getOrder().getStatus() == OrderStatus.COMPLETED
-                );
+                boolean hasCompletedOrder = orderItemRepository.findByListingId(id)
+                                .stream()
+                                .anyMatch(item -> item.getOrder() != null &&
+                                                item.getOrder().getStatus() == OrderStatus.COMPLETED);
 
-        if (hasCompletedOrder) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Cannot delete listing that already has completed order"
-                );
+                if (hasCompletedOrder) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Cannot delete listing that already has completed order");
+                }
+
+                listingImageRepository.deleteByListingId(id);
+
+                listingRepository.delete(listing);
         }
 
-        listingImageRepository.deleteByListingId(id);
+        public void cancelExpiredPendingOrders() {
+                orderService.cancelExpiredPendingOrders();
+        }
 
-        listingRepository.delete(listing);
+        public OrderResponse refundOrder(Long orderId) {
+                return orderService.refundOrderForAdmin(orderId);
+        }
+
+        public List<AuditLogResponse> getAuditLogs() {
+                return auditLogRepository.findAllWithUserOrderByCreatedAtDesc()
+                                .stream()
+                                .map(log -> AuditLogResponse.builder()
+                                                .id(log.getId())
+                                                .userId(log.getUser() != null ? log.getUser().getId() : null)
+                                                .username(log.getUser() != null ? log.getUser().getUsername() : null)
+                                                .action(log.getAction())
+                                                .metadata(log.getMetadata())
+                                                .ipAddress(log.getIpAddress())
+                                                .createdAt(log.getCreatedAt())
+                                                .build())
+                                .toList();
         }
 }

@@ -1,4 +1,5 @@
 package com.shopacc.backend.controller;
+
 import java.util.Map;
 import jakarta.validation.Valid;
 import com.shopacc.backend.dto.user.ChangePasswordRequest;
@@ -22,37 +23,32 @@ public class UserController {
 
     @GetMapping("/balance")
     public UserBalanceResponse getMyBalance(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return userService.getMyBalance(userDetails.getId());
     }
 
     @GetMapping("/transactions")
     public List<TransactionResponse> getMyTransactions(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         return userService.getMyTransactions(userDetails.getId());
     }
 
     @GetMapping("/profile")
     public UserProfileResponse profile(
-            @AuthenticationPrincipal CustomUserDetails userDetails
-    ) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         return userService.getProfile(userDetails);
     }
 
     @PutMapping("/password")
     public Map<String, String> changePassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @Valid @RequestBody ChangePasswordRequest request
-    ) {
+            @Valid @RequestBody ChangePasswordRequest request) {
         userService.changePassword(userDetails, request);
 
         return Map.of(
                 "message",
-                "Password changed successfully"
-        );
+                "Password changed successfully");
     }
 }

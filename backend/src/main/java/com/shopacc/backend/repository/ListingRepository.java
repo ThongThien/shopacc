@@ -11,30 +11,33 @@ import java.util.List;
 
 public interface ListingRepository extends JpaRepository<Listing, Long> {
 
-    long countByStatus(ListingStatus status);
+        long countByStatus(ListingStatus status);
 
-    @Query("""
-            SELECT l
-            FROM Listing l
-            LEFT JOIN FETCH l.category
-            ORDER BY l.createdAt DESC
-            """)
-    List<Listing> findAllWithCategory();
+        long countByCategoryId(Long categoryId);
 
-    @Query("""
-            SELECT l
-            FROM Listing l
-            LEFT JOIN FETCH l.category
-            WHERE (:status IS NULL OR l.status = :status)
-            AND (:categoryId IS NULL OR l.category.id = :categoryId)
-            AND (:listingType IS NULL OR l.listingType = :listingType)
-            AND (:gameName IS NULL OR LOWER(l.gameName) LIKE LOWER(CONCAT('%', :gameName, '%')))
-            ORDER BY l.createdAt DESC
-            """)
-    List<Listing> filterListings(
-            @Param("status") ListingStatus status,
-            @Param("categoryId") Long categoryId,
-            @Param("listingType") ListingType listingType,
-            @Param("gameName") String gameName
-    );
+        List<Listing> findByCategoryIdOrderByCreatedAtDesc(Long categoryId);
+
+        @Query("""
+                        SELECT l
+                        FROM Listing l
+                        LEFT JOIN FETCH l.category
+                        ORDER BY l.createdAt DESC
+                        """)
+        List<Listing> findAllWithCategory();
+
+        @Query("""
+                        SELECT l
+                        FROM Listing l
+                        LEFT JOIN FETCH l.category
+                        WHERE (:status IS NULL OR l.status = :status)
+                        AND (:categoryId IS NULL OR l.category.id = :categoryId)
+                        AND (:listingType IS NULL OR l.listingType = :listingType)
+                        AND (:gameName IS NULL OR LOWER(l.gameName) LIKE LOWER(CONCAT('%', :gameName, '%')))
+                        ORDER BY l.createdAt DESC
+                        """)
+        List<Listing> filterListings(
+                        @Param("status") ListingStatus status,
+                        @Param("categoryId") Long categoryId,
+                        @Param("listingType") ListingType listingType,
+                        @Param("gameName") String gameName);
 }
