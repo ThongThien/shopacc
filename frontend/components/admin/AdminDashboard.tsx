@@ -14,14 +14,14 @@ export default function AdminDashboard() {
   }, []);
 
   if (!dashboard) {
-    return <p>Đang tải dashboard...</p>;
+    return <p>Đang tải bảng điều khiển...</p>;
   }
 
   return (
     <section className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1>Admin Dashboard</h1>
+          <h1>Bảng điều khiển quản trị</h1>
           <p>Tổng quan shop, doanh thu, đơn hàng và tài khoản.</p>
         </div>
       </div>
@@ -43,17 +43,17 @@ export default function AdminDashboard() {
         </Link>
 
         <Link href="/admin/users" className="card admin-stat-card">
-          <span>Tổng user</span>
+          <span>Tổng người dùng</span>
           <b>{dashboard.totalUsers}</b>
         </Link>
 
         <Link href="/admin/listings" className="card admin-stat-card">
-          <span>Listing đang bán</span>
+          <span>Sản phẩm đang bán</span>
           <b>{dashboard.publishedListings}</b>
         </Link>
 
         <Link href="/admin/listings" className="card admin-stat-card">
-          <span>Listing đã bán</span>
+          <span>Sản phẩm đã bán</span>
           <b>{dashboard.soldListings}</b>
         </Link>
 
@@ -63,7 +63,7 @@ export default function AdminDashboard() {
         </Link>
 
         <Link href="/admin/orders" className="card admin-stat-card">
-          <span>Toàn bộ hóa đơn</span>
+          <span>Tổng đơn hàng</span>
           <b>{dashboard.totalOrders}</b>
         </Link>
       </div>
@@ -71,8 +71,8 @@ export default function AdminDashboard() {
       <div className="card table-card admin-dashboard-table">
         <div className="table-heading">
           <div>
-            <h2>Top đơn giá trị cao</h2>
-            <p>Các đơn hàng có giá trị lớn nhất.</p>
+            <h2>Đơn hàng giá trị cao</h2>
+            <p>Các đơn hàng có tổng giá trị cao nhất.</p>
           </div>
 
           <Link href="/admin/orders" className="table-link">
@@ -85,9 +85,9 @@ export default function AdminDashboard() {
             <thead>
               <tr>
                 <th>Mã đơn</th>
-                <th>User</th>
-                <th>Giá trị</th>
-                <th>Ngày</th>
+                <th>Người mua</th>
+                <th>Tổng tiền</th>
+                <th>Thời gian</th>
                 <th></th>
               </tr>
             </thead>

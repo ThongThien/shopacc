@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { AdminListingDetail as AdminListingDetailType } from "@/types/admin-listing";
 import { formatCurrency, formatDateTime } from "@/lib/format";
+import { useState } from "react";
+import { getAdminListingSecret } from "@/services/admin.service";
+import { useNotify } from "@/components/shared/NotificationProvider";
+
 import {
   booleanSoldLabel,
   listingStatusLabel,
@@ -14,12 +18,48 @@ interface Props {
 }
 
 export default function AdminListingDetail({ listing }: Props) {
+  const { notify, confirmAction } = useNotify();
+
+  const [secretData, setSecretData] = useState("");
+  const [secretLoading, setSecretLoading] = useState(false);
+  const [secretVisible, setSecretVisible] = useState(false);
+  async function handleViewSecret() {
+    const ok = await confirmAction(
+      "Hành động xem thông tin tài khoản sẽ được ghi vào audit log. Bạn muốn tiếp tục?",
+      "Xem thông tin tài khoản",
+    );
+
+    if (!ok) return;
+
+    try {
+      setSecretLoading(true);
+
+      const data = await getAdminListingSecret(listing.id);
+
+      setSecretData(data.secretData || "-");
+      setSecretVisible(true);
+
+      notify("success", "Đã tải thông tin tài khoản");
+    } catch (error) {
+      notify(
+        "error",
+        error instanceof Error
+          ? error.message
+          : "Không thể xem thông tin tài khoản",
+      );
+    } finally {
+      setSecretLoading(false);
+    }
+  }
   return (
     <section className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1>Xem chi tiết listing</h1>
-          <p>Thông tin đầy đủ của listing, chỉ đọc, không chỉnh sửa.</p>
+          <h1>Chi tiết sản phẩm</h1>
+          <p>
+            Xem đầy đủ thông tin sản phẩm. Trang này chỉ dùng để xem, không
+            chỉnh sửa.
+          </p>
         </div>
 
         <div className="admin-actions">
@@ -31,14 +71,14 @@ export default function AdminListingDetail({ listing }: Props) {
             href={`/admin/listings/${listing.id}/edit`}
             className="btn-primary"
           >
-            Sửa listing
+            Sửa sản phẩm
           </Link>
         </div>
       </div>
 
       <div className="admin-detail-grid">
         <div className="card admin-detail-card">
-          <h2>Thông tin listing</h2>
+          <h2>Thông tin sản phẩm</h2>
 
           <img
             className="admin-detail-image"
@@ -97,7 +137,7 @@ export default function AdminListingDetail({ listing }: Props) {
             {listing.sold ? (
               <>
                 <p>
-                  <b>User ID:</b> #{listing.buyerUserId}
+                  <b>ID người mua:</b> #{listing.buyerUserId}
                 </p>
                 <p>
                   <b>Người mua:</b> {listing.buyerUsername}
@@ -106,7 +146,7 @@ export default function AdminListingDetail({ listing }: Props) {
                   <b>Email:</b> {listing.buyerEmail}
                 </p>
                 <p>
-                  <b>Order ID:</b> #{listing.orderId}
+                  <b>ID đơn hàng:</b> #{listing.orderId}
                 </p>
                 <p>
                   <b>Mã đơn:</b> {listing.orderCode}
@@ -126,7 +166,9 @@ export default function AdminListingDetail({ listing }: Props) {
                 )}
               </>
             ) : (
-              <p className="muted-text">Listing này chưa có đơn hoàn tất.</p>
+              <p className="muted-text">
+                Sản phẩm này chưa có đơn hàng hoàn tất.
+              </p>
             )}
           </div>
         </div>
@@ -137,12 +179,31 @@ export default function AdminListingDetail({ listing }: Props) {
         </div>
 
         <div className="card admin-detail-card">
-          <h2>Secret data</h2>
-          <pre className="secret-content">{listing.secretData || "-"}</pre>
+          <h2>Thông tin tài khoản</h2>
+
+          {!secretVisible ? (
+            <div className="secret-locked-box">
+              <p className="muted-text">
+                Thông tin tài khoản được mã hóa. Admin cần bấm xem để giải mã và
+                hệ thống sẽ ghi lại audit log.
+              </p>
+
+              <button
+                className="btn-primary"
+                type="button"
+                disabled={secretLoading}
+                onClick={handleViewSecret}
+              >
+                {secretLoading ? "Đang tải..." : "Xem thông tin tài khoản"}
+              </button>
+            </div>
+          ) : (
+            <pre className="secret-content">{secretData}</pre>
+          )}
         </div>
 
         <div className="card admin-detail-card admin-detail-gallery-card">
-          <h2>Ảnh listing</h2>
+          <h2>Ảnh sản phẩm</h2>
 
           {listing.images.length === 0 ? (
             <p className="muted-text">Chưa có ảnh phụ.</p>

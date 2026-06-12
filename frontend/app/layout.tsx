@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NotificationProvider } from "@/components/shared/NotificationProvider";
 import "./globals.css";
+import AuthExpiredModal from "@/components/shared/AuthExpiredModal";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="vi">
       <body className={inter.className}>
         <NotificationProvider>{children}</NotificationProvider>
+        <AuthExpiredModal />
       </body>
     </html>
   );

@@ -112,7 +112,7 @@ export default function AdminOrderDetail({ order: initialOrder }: Props) {
           <div>
             <h3>Người mua</h3>
             <p>
-              <b>User ID:</b> #{order.userId}
+              <b>ID người mua:</b> #{order.userId}
             </p>
             <p>
               <b>Username:</b> {order.username}
@@ -161,7 +161,7 @@ export default function AdminOrderDetail({ order: initialOrder }: Props) {
                           className="table-link"
                           href={`/admin/listings/${item.listingId}`}
                         >
-                          Xem listing
+                          Xem sản phẩm
                         </Link>
                       )}
                     </td>

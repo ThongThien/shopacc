@@ -69,7 +69,7 @@ export default function AdminCategories() {
 
   async function handleDelete(category: Category) {
     const ok = await confirmAction(
-      `Bạn chắc chắn muốn xóa danh mục "${category.name}"? Nếu danh mục còn listing, hệ thống sẽ không cho xóa.`,
+      `Bạn chắc chắn muốn xóa danh mục "${category.name}"? Nếu danh mục này đang có sản phẩm, hệ thống sẽ không cho xóa.`,
       "Xóa danh mục",
     );
 
@@ -93,8 +93,8 @@ export default function AdminCategories() {
         <div>
           <h1>Quản lý danh mục</h1>
           <p>
-            Quản lý các danh mục bán hàng cụ thể như acc sơ sinh, acc bông tai,
-            dịch vụ săn đệ.
+            Quản lý các danh mục bán hàng như acc sơ sinh, acc bông tai, dịch vụ
+            săn đệ.
           </p>
         </div>
 
@@ -139,8 +139,8 @@ export default function AdminCategories() {
                     <th>ID</th>
                     <th>Tên danh mục</th>
                     <th>Slug</th>
-                    <th>Thuộc nhóm game</th>
-                    <th>Số listing</th>
+                    <th>Nhóm game</th>
+                    <th>Số sản phẩm</th>
                     <th>Trạng thái</th>
                     <th></th>
                   </tr>
@@ -154,7 +154,7 @@ export default function AdminCategories() {
                       <td>{category.slug}</td>
                       <td>{category.parentName || "-"}</td>
                       <td>{category.listingCount ?? 0}</td>
-                      <td>{category.isActive ? "Đang hoạt động" : "Đã tắt"}</td>
+                      <td>{category.isActive ? "Đang hiển thị" : "Đã ẩn"}</td>
                       <td className="admin-actions">
                         <Link href={`/admin/categories/${Number(category.id)}`}>
                           Xem

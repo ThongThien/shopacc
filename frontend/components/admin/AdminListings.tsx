@@ -161,15 +161,15 @@ export default function AdminListings() {
 
   async function handleDelete(id: number) {
     const ok = await confirmAction(
-      "Nếu listing đã có đơn hoàn tất thì hệ thống sẽ không cho xóa. Bạn chắc chắn muốn xóa?",
-      "Xóa listing",
+      "Nếu sản phẩm đã có đơn hàng hoàn tất thì hệ thống sẽ không cho xóa. Bạn chắc chắn muốn xóa?",
+      "Xóa sản phẩm",
     );
 
     if (!ok) return;
 
     try {
       await deleteAdminListing(id);
-      notify("success", "Đã xóa listing");
+      notify("success", "Đã xóa sản phẩm");
       await loadData();
     } catch (error) {
       notify("error", error instanceof Error ? error.message : "Xóa thất bại");
@@ -180,19 +180,19 @@ export default function AdminListings() {
     <section className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1>Quản lý Listings</h1>
+          <h1>Quản lý sản phẩm</h1>
           <p>Quản lý acc, dịch vụ, vật phẩm và các sản phẩm số.</p>
         </div>
 
         <Link href="/admin/listings/create" className="btn-primary">
-          Tạo listing
+          Tạo sản phẩm
         </Link>
       </div>
 
       <div className="card admin-toolbar">
         <input
           className="input"
-          placeholder="Tìm tiêu đề, mô tả, server..."
+          placeholder="Tìm tiêu đề, mô tả, máy chủ..."
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
@@ -215,7 +215,7 @@ export default function AdminListings() {
           value={listingType}
           onChange={(e) => setListingType(e.target.value as ListingType | "")}
         >
-          <option value="">Tất cả loại</option>
+          <option value="">TTất cả loại sản phẩm</option>
           <option value="ACCOUNT">Tài khoản</option>
           <option value="ITEM">Vật phẩm</option>
           <option value="SERVICE">Dịch vụ</option>
@@ -261,7 +261,7 @@ export default function AdminListings() {
 
       <div className="card table-card">
         {loading ? (
-          <LoadingSpinner text="Đang tải listings..." />
+          <LoadingSpinner text="Đang tải sản phẩm..." />
         ) : (
           <>
             <div className="responsive-table">
@@ -272,7 +272,7 @@ export default function AdminListings() {
                     <th>Tiêu đề</th>
                     <th>Loại</th>
                     <th>Game</th>
-                    <th>Server</th>
+                    <th>Máy chủ</th>
                     <th onClick={() => toggleSort("viewCount")}>
                       Lượt xem{sortLabel("viewCount")}
                     </th>
@@ -284,7 +284,7 @@ export default function AdminListings() {
                       Ngày tạo{sortLabel("createdAt")}
                     </th>
                     <th onClick={() => toggleSort("updatedAt")}>
-                      Cập nhật{sortLabel("updatedAt")}
+                      Cập nhật lần cuối{sortLabel("updatedAt")}
                     </th>
                     <th></th>
                   </tr>
@@ -323,7 +323,7 @@ export default function AdminListings() {
                   {visibleListings.length === 0 && (
                     <tr>
                       <td colSpan={11} className="empty-cell">
-                        Không có listing nào.
+                        Không có sản phẩm nào.
                       </td>
                     </tr>
                   )}

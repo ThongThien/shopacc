@@ -71,7 +71,7 @@ export default function AdminCategoryForm({ mode, category }: Props) {
     event.preventDefault();
 
     const ok = await confirmAction(
-      mode === "create" ? "Tạo category mới?" : "Cập nhật category này?",
+      mode === "create" ? "Tạo danh mục mới?" : "Cập nhật danh mục này?",
     );
     if (!ok) return;
 
@@ -80,10 +80,10 @@ export default function AdminCategoryForm({ mode, category }: Props) {
 
       if (mode === "create") {
         await createAdminCategory(payload);
-        notify("success", "Tạo category thành công");
+        notify("success", "Tạo danh mục thành công");
       } else if (category) {
         await updateAdminCategory(category.id, payload);
-        notify("success", "Cập nhật category thành công");
+        notify("success", "Cập nhật danh mục thành công");
       }
 
       router.push("/admin/categories");
@@ -97,11 +97,11 @@ export default function AdminCategoryForm({ mode, category }: Props) {
 
   return (
     <form className="card admin-form" onSubmit={handleSubmit}>
-      <h1>{mode === "create" ? "Tạo category" : "Sửa category"}</h1>
+      <h1>{mode === "create" ? "Tạo danh mục" : "Sửa danh mục"}</h1>
 
       <div className="form-grid">
         <div>
-          <label>Tên category</label>
+          <label>Tên danh mục</label>
           <input
             className="input"
             value={payload.name}
@@ -124,7 +124,7 @@ export default function AdminCategoryForm({ mode, category }: Props) {
         </div>
 
         <div>
-          <label>Parent category</label>
+          <label>Danh mục cha</label>
           <select
             className="input"
             value={payload.parentId || ""}
@@ -147,7 +147,7 @@ export default function AdminCategoryForm({ mode, category }: Props) {
         </div>
 
         <div>
-          <label>Sort order</label>
+          <label>Thứ tự hiển thị</label>
           <input
             className="input"
             type="number"
@@ -171,7 +171,7 @@ export default function AdminCategoryForm({ mode, category }: Props) {
             checked={payload.isActive}
             onChange={(e) => updateField("isActive", e.target.checked)}
           />
-          Đang hoạt động
+          Đang hiển thị
         </label>
       </div>
 
@@ -185,7 +185,7 @@ export default function AdminCategoryForm({ mode, category }: Props) {
         </button>
 
         <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "Đang lưu..." : "Lưu category"}
+          {loading ? "Đang lưu..." : "Lưu danh mục"}
         </button>
       </div>
     </form>

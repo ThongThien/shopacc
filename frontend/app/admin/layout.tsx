@@ -1,15 +1,14 @@
+import { ReactNode } from "react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="admin-shell">
-      <AdminSidebar />
-
-      <main className="admin-content">{children}</main>
-    </div>
+    <ProtectedRoute role="ADMIN">
+      <div className="admin-shell">
+        <AdminSidebar />
+        <main className="admin-content">{children}</main>
+      </div>
+    </ProtectedRoute>
   );
 }

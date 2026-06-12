@@ -29,7 +29,9 @@ export default function AdminListingEditClient({ id }: Props) {
   if (loading) return <section className="admin-page">Đang tải...</section>;
 
   if (!listing) {
-    return <section className="admin-page">Không tìm thấy listing.</section>;
+    return (
+      <section className="admin-page">Không tìm thấy sản phẩm nào.</section>
+    );
   }
 
   return <AdminListingForm mode="edit" listing={listing} />;

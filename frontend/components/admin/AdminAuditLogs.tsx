@@ -50,15 +50,17 @@ export default function AdminAuditLogs() {
     <section className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1>Audit Logs</h1>
-          <p>Theo dõi các thao tác quan trọng của admin và user.</p>
+          <h1>Nhật ký hệ thống</h1>
+          <p>
+            Theo dõi các thao tác quan trọng của quản trị viên và người dùng.
+          </p>
         </div>
       </div>
 
       <div className="card admin-toolbar">
         <input
           className="input"
-          placeholder="Tìm admin, action, metadata, IP..."
+          placeholder="Tìm người thao tác, hành động, dữ liệu, IP..."
           value={keyword}
           onChange={(e) => {
             setKeyword(e.target.value);
@@ -69,7 +71,7 @@ export default function AdminAuditLogs() {
 
       <div className="card table-card">
         {loading ? (
-          <LoadingSpinner text="Đang tải audit logs..." />
+          <LoadingSpinner text="Đang tải nhật ký hệ thống..." />
         ) : (
           <>
             <div className="responsive-table">
@@ -79,7 +81,7 @@ export default function AdminAuditLogs() {
                     <th>ID</th>
                     <th>Người thao tác</th>
                     <th>Hành động</th>
-                    <th>Metadata</th>
+                    <th>Dữ liệu</th>
                     <th>IP</th>
                     <th>Thời gian</th>
                   </tr>
@@ -106,7 +108,7 @@ export default function AdminAuditLogs() {
                     <tr>
                       <td colSpan={6}>
                         <p className="empty-text">
-                          Không có audit log phù hợp.
+                          Không có nhật ký nào phù hợp.
                         </p>
                       </td>
                     </tr>

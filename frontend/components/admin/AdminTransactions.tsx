@@ -54,7 +54,7 @@ export default function AdminTransactions() {
     <section className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1>Quản lý Transactions</h1>
+          <h1>Quản lý giao dịch</h1>
           <p>Theo dõi nạp tiền, mua hàng và các biến động giao dịch.</p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function AdminTransactions() {
       <div className="card admin-toolbar">
         <input
           className="input"
-          placeholder="Tìm mã giao dịch, mô tả, provider..."
+          placeholder="Tìm mã giao dịch, mô tả, cổng thanh toán..."
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
@@ -73,9 +73,9 @@ export default function AdminTransactions() {
           onChange={(e) => setType(e.target.value)}
         >
           <option value="">Tất cả loại</option>
-          <option value="DEPOSIT">DEPOSIT</option>
-          <option value="PURCHASE">PURCHASE</option>
-          <option value="REFUND">REFUND</option>
+          <option value="DEPOSIT">Nạp tiền</option>
+          <option value="PURCHASE">Mua hàng</option>
+          <option value="REFUND">Hoàn tiền</option>
         </select>
 
         <select
@@ -84,15 +84,15 @@ export default function AdminTransactions() {
           onChange={(e) => setStatus(e.target.value)}
         >
           <option value="">Tất cả trạng thái</option>
-          <option value="PENDING">PENDING</option>
-          <option value="SUCCESS">SUCCESS</option>
-          <option value="FAILED">FAILED</option>
+          <option value="PENDING">Đang chờ</option>
+          <option value="SUCCESS">Thành công</option>
+          <option value="FAILED">Thất bại</option>
         </select>
       </div>
 
       <div className="card table-card">
         {loading ? (
-          <LoadingSpinner text="Đang tải transactions..." />
+          <LoadingSpinner text="Đang tải giao dịch......" />
         ) : (
           <div className="responsive-table">
             <table className="data-table">
@@ -102,9 +102,9 @@ export default function AdminTransactions() {
                   <th>Loại</th>
                   <th>Số tiền</th>
                   <th>Trạng thái</th>
-                  <th>Provider</th>
+                  <th>Cổng thanh toán</th>
                   <th>Mô tả</th>
-                  <th>Ngày</th>
+                  <th>Thời gian</th>
                 </tr>
               </thead>
 

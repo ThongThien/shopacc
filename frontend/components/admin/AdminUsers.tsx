@@ -51,15 +51,15 @@ export default function AdminUsers() {
     <section className="admin-page">
       <div className="admin-page-header">
         <div>
-          <h1>Quản lý Users</h1>
-          <p>Tra cứu tài khoản, số dư, role và trạng thái người dùng.</p>
+          <h1>Quản lý người dùng</h1>
+          <p>Tra cứu tài khoản, số dư, quyền hạn và trạng thái người dùng..</p>
         </div>
       </div>
 
       <div className="card admin-toolbar">
         <input
           className="input"
-          placeholder="Tìm username hoặc email..."
+          placeholder="Tìm tên đăng nhập hoặc email..."
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
         />
@@ -69,9 +69,9 @@ export default function AdminUsers() {
           value={role}
           onChange={(e) => setRole(e.target.value)}
         >
-          <option value="">Tất cả role</option>
-          <option value="USER">USER</option>
-          <option value="ADMIN">ADMIN</option>
+          <option value="">Tất cả quyền</option>
+          <option value="USER">Người dùng</option>
+          <option value="ADMIN">Quản trị viên</option>
         </select>
 
         <select
@@ -80,24 +80,24 @@ export default function AdminUsers() {
           onChange={(e) => setStatus(e.target.value)}
         >
           <option value="">Tất cả trạng thái</option>
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="LOCKED">LOCKED</option>
+          <option value="ACTIVE">Hoạt động</option>
+          <option value="LOCKED">Đã khóa</option>
         </select>
       </div>
 
       <div className="card table-card">
         {loading ? (
-          <LoadingSpinner text="Đang tải users..." />
+          <LoadingSpinner text="Đang tải người dùng...  " />
         ) : (
           <div className="responsive-table">
             <table className="data-table">
               <thead>
                 <tr>
                   <th>ID</th>
-                  <th>Username</th>
+                  <th>Tên đăng nhập</th>
                   <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
+                  <th>Quyền</th>
+                  <th>Trạng thái</th>
                   <th>Số dư</th>
                   <th>Ngày tạo</th>
                 </tr>

@@ -101,8 +101,8 @@ export default function AdminListingForm({ mode, listing }: Props) {
     event.preventDefault();
 
     const ok = await confirmAction(
-      mode === "create" ? "Tạo listing mới?" : "Cập nhật listing này?",
-      mode === "create" ? "Tạo listing" : "Cập nhật listing",
+      mode === "create" ? "Tạo sản phẩm mới?" : "Cập nhật sản phẩm này?",
+      mode === "create" ? "Tạo sản phẩm" : "Cập nhật sản phẩm",
     );
 
     if (!ok) return;
@@ -112,7 +112,10 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
       if (mode === "create") {
         if (!payload.secretDataEncrypted.trim()) {
-          notify("error", "Secret data là bắt buộc khi tạo listing");
+          notify(
+            "error",
+            "Thông tin tài khoản là bắt buộc khi tạo acc game, nếu là dịch vụ khác thì điền 0",
+          );
           return;
         }
 
@@ -121,7 +124,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
         await uploadThumbnailIfNeeded(created.id);
         await uploadGalleryIfNeeded(created.id);
 
-        notify("success", "Tạo listing thành công");
+        notify("success", "Tạo sản phẩm thành công");
       }
 
       if (mode === "edit") {
@@ -132,13 +135,16 @@ export default function AdminListingForm({ mode, listing }: Props) {
         await uploadThumbnailIfNeeded(listing.id);
         await uploadGalleryIfNeeded(listing.id);
 
-        notify("success", "Cập nhật listing thành công");
+        notify("success", "Cập nhật sản phẩm thành công");
       }
 
       router.push("/admin/listings");
       router.refresh();
     } catch (error) {
-      notify("error", error instanceof Error ? error.message : "Lưu thất bại");
+      notify(
+        "error",
+        error instanceof Error ? error.message : "Lưu sản phẩm thất bại",
+      );
     } finally {
       setLoading(false);
     }
@@ -148,11 +154,11 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
   return (
     <form className="card admin-form" onSubmit={handleSubmit}>
-      <h1>{mode === "create" ? "Tạo listing" : "Sửa listing"}</h1>
+      <h1>{mode === "create" ? "Tạo sản phẩm" : "Sửa sản phẩm"}</h1>
 
       <div className="form-grid">
         <div>
-          <label>Loại listing</label>
+          <label>Loại sản phẩm</label>
           <select
             className="input"
             value={payload.listingType}
@@ -194,7 +200,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
         </div>
 
         <div>
-          <label>{isService ? "Gói dịch vụ / Server" : "Server"}</label>
+          <label>{isService ? "Gói dịch vụ / Máy chủ" : "Máy chủ"}</label>
           <input
             className="input"
             value={payload.serverName}
@@ -266,7 +272,8 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
         <div className="form-col-span-2">
           <label>
-            Secret data {mode === "edit" && "(để trống nếu không đổi)"}
+            Thông tin giao cho khách{" "}
+            {mode === "edit" && "(để trống nếu không thay đổi)"}
           </label>
           <textarea
             className="input textarea"
@@ -274,14 +281,14 @@ export default function AdminListingForm({ mode, listing }: Props) {
             onChange={(e) => updateField("secretDataEncrypted", e.target.value)}
             placeholder={
               isService
-                ? "Ví dụ: Sau khi mua, inbox Zalo shop để cung cấp thông tin acc cần làm dịch vụ."
-                : "TK: abc | MK: 123456"
+                ? "Ví dụ: Sau khi mua, vui lòng liên hệ Zalo shop để cung cấp thông tin tài khoản cần làm dịch vụ."
+                : "Tài khoản: abc | Mật khẩu: 123456"
             }
           />
         </div>
 
         <div>
-          <label>Upload thumbnail</label>
+          <label>Ảnh chính</label>
           <input
             className="input"
             type="file"
@@ -291,7 +298,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
         </div>
 
         <div>
-          <label>Upload ảnh phụ</label>
+          <label>Ảnh phụ</label>
           <input
             className="input"
             type="file"
@@ -312,7 +319,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
         </button>
 
         <button className="btn-primary" type="submit" disabled={loading}>
-          {loading ? "Đang lưu..." : "Lưu listing"}
+          {loading ? "Đang lưu..." : "Lưu sản phẩm"}
         </button>
       </div>
     </form>

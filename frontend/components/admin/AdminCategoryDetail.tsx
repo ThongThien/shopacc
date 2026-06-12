@@ -37,14 +37,13 @@ export default function AdminCategoryDetail({ category }: Props) {
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,
   );
-  console.log("category detail:", category);
-  console.log("listings:", category.listings);
+
   return (
     <section className="admin-page">
       <div className="admin-page-header">
         <div>
           <h1>Chi tiết danh mục</h1>
-          <p>Xem thông tin danh mục và toàn bộ listing thuộc danh mục này.</p>
+          <p>Xem thông tin danh mục và toàn bộ sản phẩm thuộc danh mục này.</p>
         </div>
 
         <div className="admin-actions">
@@ -70,7 +69,7 @@ export default function AdminCategoryDetail({ category }: Props) {
               <b>ID:</b> #{category.id}
             </p>
             <p>
-              <b>Tên:</b> {category.name}
+              <b>Tên danh mục:</b> {category.name}
             </p>
             <p>
               <b>Slug:</b> {category.slug}
@@ -79,31 +78,30 @@ export default function AdminCategoryDetail({ category }: Props) {
               <b>Mô tả:</b> {category.description || "-"}
             </p>
             <p>
-              <b>Thuộc nhóm game:</b> {category.parentName || "-"}
+              <b>Nhóm game:</b> {category.parentName || "-"}
             </p>
             <p>
-              <b>Số listing:</b> {category.listingCount ?? 0}
+              <b>Số sản phẩm:</b> {category.listingCount ?? 0}
             </p>
             <p>
-              <b>Trạng thái:</b>{" "}
-              {category.isActive ? "Đang hoạt động" : "Đã tắt"}
+              <b>Trạng thái:</b> {category.isActive ? "Đang hiển thị" : "Đã ẩn"}
             </p>
             <p>
               <b>Ngày tạo:</b>{" "}
               {category.createdAt ? formatDateTime(category.createdAt) : "-"}
             </p>
             <p>
-              <b>Cập nhật:</b>{" "}
+              <b>Cập nhật lần cuối:</b>{" "}
               {category.updatedAt ? formatDateTime(category.updatedAt) : "-"}
             </p>
           </div>
         </div>
 
         <div className="card admin-detail-card">
-          <h2>Ghi chú logic</h2>
+          <h2>Ghi chú quản lý</h2>
           <p className="admin-description">
-            Listing luôn nên thuộc một danh mục cụ thể. Nếu muốn chuyển listing
-            sang danh mục khác, hãy vào trang sửa listing và đổi danh mục.
+            Sản phẩm nên thuộc một danh mục bán hàng cụ thể. Nếu muốn chuyển sản
+            phẩm sang danh mục khác, hãy vào trang sửa sản phẩm và đổi danh mục.
           </p>
         </div>
       </div>
@@ -111,13 +109,13 @@ export default function AdminCategoryDetail({ category }: Props) {
       <div className="card table-card admin-section-gap">
         <div className="table-heading">
           <div>
-            <h2>Listings thuộc danh mục</h2>
+            <h2>Sản phẩm thuộc danh mục</h2>
             <p>Danh sách sản phẩm đang được gắn vào danh mục này.</p>
           </div>
 
           <input
             className="input admin-table-search"
-            placeholder="Tìm listing trong danh mục..."
+            placeholder="Tìm sản phẩm trong danh mục..."
             value={keyword}
             onChange={(e) => {
               setKeyword(e.target.value);
@@ -161,7 +159,9 @@ export default function AdminCategoryDetail({ category }: Props) {
               {visibleListings.length === 0 && (
                 <tr>
                   <td colSpan={8}>
-                    <p className="empty-text">Danh mục này chưa có listing.</p>
+                    <p className="empty-text">
+                      Danh mục này chưa có sản phẩm nào.
+                    </p>
                   </td>
                 </tr>
               )}

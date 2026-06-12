@@ -157,3 +157,9 @@ export async function updateAdminListingThumbnail(
     body: JSON.stringify(payload),
   });
 }
+
+export async function getAdminListingSecret(
+  id: number,
+): Promise<{ secretData: string }> {
+  return apiFetch<{ secretData: string }>(`/api/admin/listings/${id}/secret`);
+}

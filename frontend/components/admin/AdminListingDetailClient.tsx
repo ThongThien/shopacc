@@ -20,7 +20,9 @@ export default function AdminListingDetailClient({ id }: Props) {
         const data = await getAdminListing(id);
         setListing(data);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Không tải được listing");
+        setError(
+          err instanceof Error ? err.message : "Không tải được sản phẩm",
+        );
       } finally {
         setLoading(false);
       }
@@ -38,7 +40,9 @@ export default function AdminListingDetailClient({ id }: Props) {
   }
 
   if (!listing) {
-    return <section className="admin-page">Không tìm thấy listing.</section>;
+    return (
+      <section className="admin-page">Không tìm thấy sản phẩm nào.</section>
+    );
   }
 
   return <AdminListingDetail listing={listing} />;

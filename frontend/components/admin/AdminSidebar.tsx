@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/admin", label: "Dashboard", exact: true },
-  { href: "/admin/listings", label: "Listings" },
-  { href: "/admin/categories", label: "Categories" },
-  { href: "/admin/orders", label: "Orders" },
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/transactions", label: "Transactions" },
+  { href: "/admin", label: "Tổng quan", exact: true },
+  { href: "/admin/listings", label: "Danh sách sản phẩm" },
+  { href: "/admin/categories", label: "Danh mục" },
+  { href: "/admin/orders", label: "Đơn hàng" },
+  { href: "/admin/users", label: "Người dùng" },
+  { href: "/admin/transactions", label: "Giao dịch" },
+  { href: "/admin/audit", label: "Nhật ký hệ thống" },
 ];
 
 export default function AdminSidebar() {
@@ -22,7 +23,8 @@ export default function AdminSidebar() {
 
   return (
     <aside className="admin-sidebar">
-      <h2>ShopAcc Admin</h2>
+      <h2>Xin chào QTV</h2>
+      <h4>THIENNGOCRONG.SHOP</h4>
 
       <nav>
         {links.map((link) => (
@@ -37,7 +39,7 @@ export default function AdminSidebar() {
       </nav>
 
       <Link href="/" className="admin-back-shop">
-        Quay về shop
+        Quay lại cửa hàng
       </Link>
     </aside>
   );
