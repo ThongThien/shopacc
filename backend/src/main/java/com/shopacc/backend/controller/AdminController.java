@@ -16,6 +16,7 @@ import com.shopacc.backend.enums.AuditAction;
 import com.shopacc.backend.security.CustomUserDetails;
 import com.shopacc.backend.service.AuditLogService;
 import jakarta.servlet.http.HttpServletRequest;
+import com.shopacc.backend.dto.common.SecretResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import java.util.List;
 import java.util.Map;
@@ -347,5 +348,21 @@ public class AdminController {
         @GetMapping("/audit-logs")
         public List<AuditLogResponse> getAuditLogs() {
                 return adminService.getAuditLogs();
+        }
+
+        @GetMapping("/listings/{id}/secret")
+        public SecretResponse viewListingSecret(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        HttpServletRequest httpRequest) {
+                String secretData = adminService.getListingSecret(id);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_VIEW_LISTING_SECRET,
+                                "listingId=" + id,
+                                httpRequest);
+
+                return new SecretResponse(secretData);
         }
 }

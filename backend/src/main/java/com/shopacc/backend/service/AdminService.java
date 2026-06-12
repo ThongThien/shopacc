@@ -551,14 +551,6 @@ public class AdminService {
                         }
                 }
 
-                String secretData = null;
-
-                try {
-                        secretData = cryptoService.decrypt(listing.getSecretDataEncrypted());
-                } catch (Exception ex) {
-                        secretData = "Cannot decrypt secret data";
-                }
-
                 return AdminListingDetailResponse.builder()
                                 .id(listing.getId())
                                 .categoryId(
@@ -583,7 +575,7 @@ public class AdminService {
                                                 listing.getViewCount() == null
                                                                 ? 0L
                                                                 : listing.getViewCount())
-                                .secretData(secretData)
+                                .secretData(null)
                                 .images(images)
                                 .sold(sold)
                                 .buyerUserId(buyerUserId)
@@ -595,6 +587,21 @@ public class AdminService {
                                 .createdAt(listing.getCreatedAt())
                                 .updatedAt(listing.getUpdatedAt())
                                 .build();
+        }
+
+        public String getListingSecret(Long listingId) {
+                Listing listing = listingRepository.findById(listingId)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "Listing not found"));
+
+                try {
+                        return cryptoService.decrypt(listing.getSecretDataEncrypted());
+                } catch (Exception ex) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Cannot decrypt secret data");
+                }
         }
 
         @Transactional
