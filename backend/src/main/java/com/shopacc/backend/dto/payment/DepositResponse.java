@@ -17,4 +17,13 @@ public class DepositResponse {
     private TransactionStatus status;
 
     private String transferContent;
+
+    private String qrUrl;
+
+    private String bankName;
+
+    private String bankAccount;
+
+    private String accountName;
+
 }

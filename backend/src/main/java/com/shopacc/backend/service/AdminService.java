@@ -4,6 +4,7 @@ import com.shopacc.backend.security.CustomUserDetails;
 import java.time.LocalDate;
 import com.shopacc.backend.repository.OrderRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 import com.shopacc.backend.dto.order.OrderResponse;
 import com.shopacc.backend.dto.admin.*;
@@ -21,8 +22,6 @@ import com.shopacc.backend.dto.user.*;
 import com.shopacc.backend.entity.Transaction;
 import com.shopacc.backend.entity.User;
 import com.shopacc.backend.entity.UserBalanceLog;
-import com.shopacc.backend.enums.TransactionStatus;
-import com.shopacc.backend.enums.TransactionType;
 import com.shopacc.backend.repository.TransactionRepository;
 import com.shopacc.backend.repository.UserBalanceLogRepository;
 import com.shopacc.backend.repository.UserRepository;
@@ -34,10 +33,10 @@ import com.shopacc.backend.enums.ListingStatus;
 import com.shopacc.backend.repository.AuditLogRepository;
 import com.shopacc.backend.repository.ListingImageRepository;
 import com.shopacc.backend.dto.listing.CreateListingRequest;
+import com.shopacc.backend.dto.admin.AdjustBalanceRequest;
+import java.security.SecureRandom;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.UUID;
-
 import java.util.List;
 
 @Service
@@ -64,6 +63,8 @@ public class AdminService {
         private final CryptoService cryptoService;
 
         private final OrderItemRepository orderItemRepository;
+
+        private final PasswordEncoder passwordEncoder;
 
         public List<CategoryResponse> getAllCategories() {
                 return categoryRepository.findAll()
@@ -131,6 +132,7 @@ public class AdminService {
                                 .createdAt(category.getCreatedAt())
                                 .updatedAt(category.getUpdatedAt())
                                 .listingCount(listingRepository.countByCategoryId(category.getId()))
+
                                 .build();
         }
 
@@ -313,54 +315,6 @@ public class AdminService {
                                 .stream()
                                 .map(this::mapTransaction)
                                 .toList();
-        }
-
-        @jakarta.transaction.Transactional
-        public UserBalanceResponse adjustUserBalance(
-                        Long userId,
-                        AdjustBalanceRequest request) {
-
-                User user = userRepository.findById(userId)
-                                .orElseThrow(() -> new RuntimeException("User not found"));
-
-                BigDecimal amountBefore = user.getBalance();
-                BigDecimal amountChange = request.getAmount();
-                BigDecimal amountAfter = amountBefore.add(amountChange);
-
-                user.setBalance(amountAfter);
-                userRepository.save(user);
-
-                Transaction transaction = Transaction.builder()
-                                .user(user)
-                                .transactionCode("TXN-" + UUID.randomUUID())
-                                .providerTransactionId(null)
-                                .type(amountChange.compareTo(BigDecimal.ZERO) >= 0
-                                                ? TransactionType.DEPOSIT
-                                                : TransactionType.WITHDRAW)
-                                .amount(amountChange.abs())
-                                .status(TransactionStatus.SUCCESS)
-                                .provider("MANUAL")
-                                .description(request.getDescription())
-                                .build();
-
-                transactionRepository.save(transaction);
-
-                UserBalanceLog balanceLog = UserBalanceLog.builder()
-                                .user(user)
-                                .amountBefore(amountBefore)
-                                .amountChange(amountChange)
-                                .amountAfter(amountAfter)
-                                .type("ADMIN_ADJUST")
-                                .description(request.getDescription())
-                                .build();
-
-                userBalanceLogRepository.save(balanceLog);
-
-                return UserBalanceResponse.builder()
-                                .userId(user.getId())
-                                .username(user.getUsername())
-                                .balance(user.getBalance())
-                                .build();
         }
 
         private UserResponse mapUser(User user) {
@@ -649,5 +603,130 @@ public class AdminService {
                                                 .createdAt(log.getCreatedAt())
                                                 .build())
                                 .toList();
+        }
+
+        private OrderResponse mapToOrderResponse(Order order) {
+                return OrderResponse.builder()
+                                .id(order.getId())
+                                .orderCode(order.getOrderCode())
+                                .userId(order.getUser() != null ? order.getUser().getId() : null)
+                                .username(order.getUser() != null ? order.getUser().getUsername() : null)
+                                .userEmail(order.getUser() != null ? order.getUser().getEmail() : null)
+                                .totalPrice(order.getTotalPrice())
+                                .status(order.getStatus())
+                                .paymentStatus(order.getPaymentStatus())
+                                .paymentMethod(null)
+                                .createdAt(order.getCreatedAt())
+                                .updatedAt(order.getUpdatedAt())
+                                .items(List.of())
+                                .build();
+        }
+
+        public AdminUserDetailResponse getUserDetail(Long userId) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "User not found"));
+
+                List<OrderResponse> orders = orderRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                                .stream()
+                                .map(this::mapToOrderResponse)
+                                .toList();
+
+                return AdminUserDetailResponse.builder()
+                                .id(user.getId())
+                                .username(user.getUsername())
+                                .email(user.getEmail())
+                                .role(user.getRole())
+                                .status(user.getStatus())
+                                .balance(user.getBalance())
+                                .createdAt(user.getCreatedAt())
+                                .updatedAt(user.getUpdatedAt())
+                                .orders(orders)
+                                .build();
+        }
+
+        @Transactional
+        public UserResponse adjustUserBalance(
+                        Long userId,
+                        AdjustBalanceRequest request) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "User not found"));
+
+                BigDecimal before = user.getBalance();
+                BigDecimal change = request.getAmount();
+                BigDecimal after = before.add(change);
+
+                if (after.compareTo(BigDecimal.ZERO) < 0) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Balance cannot be negative");
+                }
+
+                user.setBalance(after);
+                userRepository.save(user);
+
+                UserBalanceLog balanceLog = UserBalanceLog.builder()
+                                .user(user)
+                                .amountBefore(before)
+                                .amountChange(change)
+                                .amountAfter(after)
+                                .type("ADMIN_ADJUST")
+                                .description(
+                                                request.getNote() == null || request.getNote().isBlank()
+                                                                ? "Admin adjusted balance"
+                                                                : request.getNote())
+                                .build();
+
+                userBalanceLogRepository.save(balanceLog);
+
+                return mapUser(user);
+        }
+
+        @Transactional
+        public ResetPasswordResponse resetUserPassword(Long userId) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "User not found"));
+
+                String newPassword = generateTemporaryPassword();
+
+                user.setPasswordHash(passwordEncoder.encode(newPassword));
+
+                userRepository.save(user);
+
+                return new ResetPasswordResponse(newPassword);
+        }
+
+        @Transactional
+        public UserResponse updateUserStatus(
+                        Long userId,
+                        UpdateUserStatusRequest request) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "User not found"));
+
+                user.setStatus(request.getStatus());
+
+                userRepository.save(user);
+
+                return mapUser(user);
+        }
+
+        private String generateTemporaryPassword() {
+                String chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$";
+                SecureRandom random = new SecureRandom();
+
+                StringBuilder builder = new StringBuilder();
+
+                for (int i = 0; i < 10; i++) {
+                        builder.append(chars.charAt(random.nextInt(chars.length())));
+                }
+
+                return builder.toString();
         }
 }

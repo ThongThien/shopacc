@@ -30,4 +30,5 @@ public class CategoryResponse {
     private LocalDateTime updatedAt;
 
     private Long listingCount;
+
 }

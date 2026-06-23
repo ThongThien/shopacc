@@ -2,6 +2,7 @@ package com.shopacc.backend.controller;
 
 import com.shopacc.backend.dto.order.OrderResponse;
 import com.shopacc.backend.dto.admin.*;
+import com.shopacc.backend.dto.admin.AdjustBalanceRequest;
 import com.shopacc.backend.dto.listing.CreateListingRequest;
 import com.shopacc.backend.dto.listing.ListingResponse;
 import com.shopacc.backend.service.AdminService;
@@ -220,19 +221,57 @@ public class AdminController {
                 return adminService.getAllUsers();
         }
 
-        @PatchMapping("/users/{id}/balance")
-        public UserBalanceResponse adjustUserBalance(
+        @GetMapping("/users/{id}")
+        public AdminUserDetailResponse getUserDetail(
+                        @PathVariable Long id) {
+                return adminService.getUserDetail(id);
+        }
+
+        @PostMapping("/users/{id}/adjust-balance")
+        public UserResponse adjustUserBalance(
                         @AuthenticationPrincipal CustomUserDetails userDetails,
                         @PathVariable Long id,
                         @Valid @RequestBody AdjustBalanceRequest request,
                         HttpServletRequest httpRequest) {
-
-                UserBalanceResponse response = adminService.adjustUserBalance(id, request);
+                UserResponse response = adminService.adjustUserBalance(id, request);
 
                 auditLogService.log(
                                 userDetails.getId(),
                                 AuditAction.ADMIN_ADJUST_BALANCE,
-                                "userId=" + id + ", amount=" + request.getAmount(),
+                                "targetUserId=" + id + ", amount=" + request.getAmount(),
+                                httpRequest);
+
+                return response;
+        }
+
+        @PostMapping("/users/{id}/reset-password")
+        public ResetPasswordResponse resetUserPassword(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        HttpServletRequest httpRequest) {
+                ResetPasswordResponse response = adminService.resetUserPassword(id);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_RESET_USER_PASSWORD,
+                                "targetUserId=" + id,
+                                httpRequest);
+
+                return response;
+        }
+
+        @PatchMapping("/users/{id}/status")
+        public UserResponse updateUserStatus(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        @Valid @RequestBody UpdateUserStatusRequest request,
+                        HttpServletRequest httpRequest) {
+                UserResponse response = adminService.updateUserStatus(id, request);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_UPDATE_USER_STATUS,
+                                "targetUserId=" + id + ", status=" + request.getStatus(),
                                 httpRequest);
 
                 return response;

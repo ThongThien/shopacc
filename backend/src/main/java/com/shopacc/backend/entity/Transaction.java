@@ -5,7 +5,7 @@ import com.shopacc.backend.enums.TransactionStatus;
 import com.shopacc.backend.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
-
+import java.time.LocalDateTime;
 import java.math.BigDecimal;
 
 @Getter
@@ -28,7 +28,7 @@ public class Transaction extends BaseEntity {
     @Column(name = "transaction_code", nullable = false, unique = true)
     private String transactionCode;
 
-    @Column(name = "provider_transaction_id")
+    @Column(name = "provider_transaction_id", unique = true)
     private String providerTransactionId;
 
     @Enumerated(EnumType.STRING)
@@ -46,4 +46,13 @@ public class Transaction extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "expired_at")
+    private LocalDateTime expiredAt;
+
+    @Column(name = "bank_account")
+    private String bankAccount;
+
+    @Column(name = "gateway")
+    private String gateway;
 }

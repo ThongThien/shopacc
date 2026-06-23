@@ -15,8 +15,10 @@ import com.shopacc.backend.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -90,6 +92,11 @@ public class AuthService {
 
                         throw new RuntimeException(
                                         "Invalid password");
+                }
+                if (user.getStatus() == UserStatus.BANNED) {
+                        throw new ResponseStatusException(
+                                        HttpStatus.FORBIDDEN,
+                                        "Tài khoản đã bị khóa");
                 }
 
                 String accessToken = jwtService.generateAccessToken(

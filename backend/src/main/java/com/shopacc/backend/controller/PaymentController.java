@@ -36,4 +36,13 @@ public class PaymentController {
                 return paymentService.getMyDeposits(
                                 userDetails.getId());
         }
+
+        @GetMapping("/deposits/{transactionCode}")
+        public TransactionResponse getDepositByCode(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable String transactionCode) {
+                return paymentService.getDepositByCode(
+                                userDetails.getId(),
+                                transactionCode);
+        }
 }
