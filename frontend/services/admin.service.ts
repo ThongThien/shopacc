@@ -5,12 +5,12 @@ import {
   UpdateListingStatusRequest,
   UpdateUserBalanceRequest,
 } from "@/types/admin";
+import { AdminUserDetail, User, UserStatus } from "@/types/user";
 import { AdminDashboard } from "@/types/admin-dashboard";
 import { AdminListingDetail } from "@/types/admin-listing";
 import { Listing } from "@/types/listing";
 import { Order } from "@/types/order";
 import { Transaction } from "@/types/transaction";
-import { User } from "@/types/user";
 import { AdminCategoryDetail, Category } from "@/types/category";
 import { AuditLog } from "@/types/audit-log";
 
@@ -162,4 +162,39 @@ export async function getAdminListingSecret(
   id: number,
 ): Promise<{ secretData: string }> {
   return apiFetch<{ secretData: string }>(`/api/admin/listings/${id}/secret`);
+}
+
+export async function getAdminUser(id: number): Promise<AdminUserDetail> {
+  return apiFetch<AdminUserDetail>(`/api/admin/users/${id}`);
+}
+
+export async function adjustAdminUserBalance(
+  id: number,
+  payload: { amount: number; note?: string },
+): Promise<User> {
+  return apiFetch<User>(`/api/admin/users/${id}/adjust-balance`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function resetAdminUserPassword(
+  id: number,
+): Promise<{ newPassword: string }> {
+  return apiFetch<{ newPassword: string }>(
+    `/api/admin/users/${id}/reset-password`,
+    {
+      method: "POST",
+    },
+  );
+}
+
+export async function updateAdminUserStatus(
+  id: number,
+  payload: { status: UserStatus },
+): Promise<User> {
+  return apiFetch<User>(`/api/admin/users/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
 }

@@ -1,46 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { login } from "@/services/auth.service";
-import { saveAuth } from "@/lib/auth";
+import { register } from "@/services/auth.service";
 import { useRouter } from "next/navigation";
 import { useNotify } from "@/components/shared/NotificationProvider";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const router = useRouter();
   const { notify } = useNotify();
 
-  const [email, setEmail] = useState("admin@gmail.com");
-  const [password, setPassword] = useState("123456");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
+    if (password !== confirmPassword) {
+      notify("error", "Mật khẩu xác nhận không khớp");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      const response = await login({
+      await register({
+        username,
         email,
         password,
       });
 
-      saveAuth(response);
+      notify("success", "Đăng ký thành công");
 
-      notify("success", "Đăng nhập thành công. Chào mừng bạn quay lại!");
-
-      if (response.role === "ADMIN") {
-        router.push("/admin");
-      } else {
-        router.push("/");
-      }
-
-      router.refresh();
+      router.push("/login");
     } catch (err) {
-      notify(
-        "error",
-        err instanceof Error ? err.message : "Đăng nhập thất bại",
-      );
+      notify("error", err instanceof Error ? err.message : "Đăng ký thất bại");
     } finally {
       setLoading(false);
     }
@@ -48,15 +44,20 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="auth-card card">
-      <h1>Đăng nhập</h1>
+      <h1>Đăng ký</h1>
 
-      <p className="auth-subtitle">
-        Đăng nhập để mua acc, xem lịch sử mua và quản lý số dư.
-      </p>
+      <input
+        className="input"
+        placeholder="Tên đăng nhập"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        autoComplete="username"
+      />
 
       <input
         className="input"
         placeholder="Email"
+        type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         autoComplete="email"
@@ -68,11 +69,20 @@ export default function LoginForm() {
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        autoComplete="current-password"
+        autoComplete="new-password"
+      />
+
+      <input
+        className="input"
+        placeholder="Xác nhận mật khẩu"
+        type="password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        autoComplete="new-password"
       />
 
       <button className="btn-primary" type="submit" disabled={loading}>
-        {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+        {loading ? "Đang đăng ký..." : "Đăng ký"}
       </button>
     </form>
   );

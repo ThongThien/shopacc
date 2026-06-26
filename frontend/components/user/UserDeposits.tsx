@@ -7,10 +7,6 @@ import { formatCurrency, formatDateTime } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
 import NoticeBox from "@/components/layout/NoticeBox";
 
-const BANK_NAME = "MB Bank";
-const BANK_ACCOUNT = "0772438318";
-const BANK_OWNER = "THIEN NGOC RONG SHOP";
-
 export default function UserDeposits() {
   const { notify, confirmAction } = useNotify();
 
@@ -24,6 +20,10 @@ export default function UserDeposits() {
   const [cardValue, setCardValue] = useState("10000");
   const [cardSerial, setCardSerial] = useState("");
   const [cardCode, setCardCode] = useState("");
+  const [qrUrl, setQrUrl] = useState("");
+  const [bankName, setBankName] = useState("");
+  const [bankAccount, setBankAccount] = useState("");
+  const [accountName, setAccountName] = useState("");
 
   async function loadDeposits() {
     const data = await getMyDeposits();
@@ -46,7 +46,11 @@ export default function UserDeposits() {
 
       const response = await createDeposit(amount);
       setDepositContent(response.transferContent);
-
+      setQrUrl(response.qrUrl);
+      setBankName(response.bankName);
+      setAccountName(response.accountName);
+      setBankAccount(response.bankAccount);
+      setAccountName(response.accountName);
       notify(
         "success",
         "Đã tạo lệnh nạp ATM. Vui lòng chuyển khoản đúng nội dung.",
@@ -76,13 +80,6 @@ export default function UserDeposits() {
     await navigator.clipboard.writeText(depositContent);
     notify("success", "Đã copy nội dung chuyển khoản");
   }
-
-  const qrUrl =
-    depositContent && amount
-      ? `https://img.vietqr.io/image/MB-${BANK_ACCOUNT}-compact2.png?amount=${amount}&addInfo=${encodeURIComponent(
-          depositContent,
-        )}&accountName=${encodeURIComponent(BANK_OWNER)}`
-      : "";
 
   return (
     <section>
@@ -136,13 +133,13 @@ export default function UserDeposits() {
 
                   <div>
                     <p>
-                      <b>Ngân hàng:</b> {BANK_NAME}
+                      <b>Ngân hàng:</b> {bankName}
                     </p>
                     <p>
-                      <b>Số tài khoản:</b> {BANK_ACCOUNT}
+                      <b>Số tài khoản:</b> {bankAccount}
                     </p>
                     <p>
-                      <b>Chủ tài khoản:</b> {BANK_OWNER}
+                      <b>Chủ tài khoản:</b> {accountName}
                     </p>
                     <p>
                       <b>Nội dung:</b> {depositContent}

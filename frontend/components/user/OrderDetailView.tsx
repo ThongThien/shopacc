@@ -15,9 +15,9 @@ export default function OrderDetailView({ orderId }: Props) {
   const { notify } = useNotify();
 
   const [order, setOrder] = useState<Order | null>(null);
-  const [secret, setSecret] = useState("");
   const [loadingSecret, setLoadingSecret] = useState(false);
-
+  const [secret, setSecret] = useState("");
+  const [secretVisible, setSecretVisible] = useState(false);
   useEffect(() => {
     async function fetchOrder() {
       try {
@@ -37,7 +37,9 @@ export default function OrderDetailView({ orderId }: Props) {
       setLoadingSecret(true);
 
       const response = await getOrderSecret(orderId);
+
       setSecret(response.secretData);
+      setSecretVisible(true);
 
       notify("success", "Đã tải thông tin acc đã mua");
     } catch (error) {
@@ -49,7 +51,6 @@ export default function OrderDetailView({ orderId }: Props) {
       setLoadingSecret(false);
     }
   }
-
   async function handleCopySecret() {
     if (!secret) return;
 
@@ -107,10 +108,11 @@ export default function OrderDetailView({ orderId }: Props) {
         <div className="card order-detail-card">
           <h2>Thông tin acc</h2>
 
-          {!secret ? (
-            <>
+          {!secretVisible ? (
+            <div className="secret-locked-box">
               <p className="muted-text">
-                Bấm nút bên dưới để xem thông tin tài khoản đã mua.
+                Thông tin tài khoản được mã hóa. Bấm xem để giải mã thông tin
+                acc đã mua.
               </p>
 
               <button
@@ -119,9 +121,9 @@ export default function OrderDetailView({ orderId }: Props) {
                 onClick={handleViewSecret}
                 disabled={loadingSecret}
               >
-                {loadingSecret ? "Đang tải..." : "Hiện tài khoản"}
+                {loadingSecret ? "Đang tải..." : "Xem thông tin tài khoản"}
               </button>
-            </>
+            </div>
           ) : (
             <>
               <pre className="secret-content">{secret}</pre>

@@ -1,10 +1,16 @@
+import { Order } from "@/types/order";
+
+export type UserRole = "USER" | "ADMIN";
+
+export type UserStatus = "ACTIVE" | "BANNED" | "PENDING";
+
 export interface User {
   id: number;
   username: string;
   email: string;
   balance: number;
-  role: string;
-  status?: string;
+  role: UserRole;
+  status: UserStatus;
   createdAt: string;
   updatedAt?: string;
   lastLoginAt?: string | null;
@@ -25,6 +31,10 @@ export interface UserProfile {
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
+}
+
+export interface AdminUserDetail extends User {
+  orders: Order[];
 }
 
 export interface ChangePasswordRequest {

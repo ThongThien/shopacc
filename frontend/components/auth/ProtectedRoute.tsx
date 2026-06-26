@@ -1,9 +1,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { getAccessToken, getUserRole } from "@/lib/auth";
-import { useNotify } from "@/components/shared/NotificationProvider";
 
 interface Props {
   children: ReactNode;
@@ -11,34 +9,79 @@ interface Props {
 }
 
 export default function ProtectedRoute({ children, role }: Props) {
-  const router = useRouter();
-  const { notify } = useNotify();
-
+  console.log("ProtectedRoute render", role);
+  const [message, setMessage] = useState("Đang xác thực quyền truy cập...");
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
+    console.log("ProtectedRoute useEffect run", role);
+    setAllowed(false);
+    setCountdown(null);
+    setMessage("Đang xác thực quyền truy cập...");
+
     const token = getAccessToken();
 
+    let redirectPath = "";
+    let redirectMessage = "";
+
     if (!token) {
-      notify("warning", "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-      router.replace("/login");
-      return;
+      redirectPath = "/login";
+      redirectMessage =
+        "Phiên đăng nhập đã hết hạn. Tự chuyển về trang đăng nhập sau";
+    } else {
+      const currentRole = getUserRole();
+
+      if (role && currentRole !== role) {
+        redirectPath = "/login";
+        redirectMessage =
+          "Bạn không có quyền truy cập. Tự chuyển về trang chủ sau";
+      }
     }
 
-    const currentRole = getUserRole();
+    if (redirectPath) {
+      setMessage(redirectMessage);
+      setCountdown(5);
 
-    if (role && currentRole !== role) {
-      notify("error", "Bạn không có quyền truy cập trang này.");
-      router.replace("/");
-      return;
+      window.dispatchEvent(
+        new CustomEvent("auth-expired", {
+          detail: {
+            message: redirectMessage,
+          },
+        }),
+      );
+
+      const intervalId = window.setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === null || prev <= 1) {
+            window.clearInterval(intervalId);
+            return 0;
+          }
+
+          return prev - 1;
+        });
+      }, 1000);
+
+      const timeoutId = window.setTimeout(() => {
+        console.log("REDIRECT TO:", redirectPath);
+        window.location.href = redirectPath;
+      }, 5000);
+
+      return () => {
+        window.clearInterval(intervalId);
+        window.clearTimeout(timeoutId);
+      };
     }
 
     setAllowed(true);
-  }, [router, notify, role]);
+  }, [role]);
 
   if (!allowed) {
     return (
-      <section className="page-container">Đang kiểm tra đăng nhập...</section>
+      <section className="page-container">
+        {message}
+        {countdown !== null ? ` ${countdown}s...` : ""}
+      </section>
     );
   }
 

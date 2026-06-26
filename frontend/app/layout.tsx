@@ -25,8 +25,10 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={inter.className}>
-        <NotificationProvider>{children}</NotificationProvider>
-        <AuthExpiredModal />
+        <NotificationProvider>
+          {children}
+          <AuthExpiredModal />
+        </NotificationProvider>
       </body>
     </html>
   );

@@ -215,7 +215,7 @@ export default function AdminListings() {
           value={listingType}
           onChange={(e) => setListingType(e.target.value as ListingType | "")}
         >
-          <option value="">TTất cả loại sản phẩm</option>
+          <option value="">Tất cả</option>
           <option value="ACCOUNT">Tài khoản</option>
           <option value="ITEM">Vật phẩm</option>
           <option value="SERVICE">Dịch vụ</option>
@@ -259,6 +259,19 @@ export default function AdminListings() {
         </div>
       </div>
 
+      <div className="admin-summary-row">
+        <span>Tổng sản phẩm: {listings.length}</span>
+
+        <span>
+          Đang bán:{" "}
+          {listings.filter((listing) => listing.status === "PUBLISHED").length}
+        </span>
+
+        <span>
+          Đã bán:{" "}
+          {listings.filter((listing) => listing.status === "SOLD_OUT").length}
+        </span>
+      </div>
       <div className="card table-card">
         {loading ? (
           <LoadingSpinner text="Đang tải sản phẩm..." />

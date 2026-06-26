@@ -33,22 +33,35 @@ export default function AuthExpiredModal() {
   if (!open) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-card">
-        <h2>Phiên đăng nhập đã hết hạn</h2>
+    <div className="auth-card card auth-expired-card">
+      <div className="auth-card card">
+        <h1>Thông báo</h1>
 
-        <p>{message}</p>
+        <p className="auth-expired-message">{message}</p>
 
-        <button
-          className="btn-primary"
-          type="button"
-          onClick={() => {
-            setOpen(false);
-            router.push("/login");
-          }}
-        >
-          Đăng nhập lại
-        </button>
+        <div className="auth-expired-actions">
+          <button
+            className="btn-secondary"
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              router.push("/");
+            }}
+          >
+            Về trang chủ
+          </button>
+
+          <button
+            className="btn-primary"
+            type="button"
+            onClick={() => {
+              setOpen(false);
+              router.push("/");
+            }}
+          >
+            Đăng nhập lại
+          </button>
+        </div>
       </div>
     </div>
   );

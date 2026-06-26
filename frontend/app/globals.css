@@ -1595,3 +1595,18 @@ button:disabled {
     display: grid;
   }
 }
+.admin-summary-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.admin-summary-row span {
+  padding: 9px 13px;
+  border-radius: 999px;
+  background: white;
+  border: 1px solid var(--border);
+  font-weight: 800;
+  color: var(--muted);
+}

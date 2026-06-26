@@ -82,3 +82,22 @@ export function paymentMethodLabel(method?: string) {
 
   return method ? labels[method] || method : "-";
 }
+
+export function userRoleLabel(role: string) {
+  const labels: Record<string, string> = {
+    ADMIN: "Quản trị viên",
+    USER: "Người dùng",
+  };
+
+  return labels[role] || role;
+}
+
+export function userStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    ACTIVE: "Đang hoạt động",
+    BANNED: "Đã khóa",
+    PENDING: "Chờ kích hoạt",
+  };
+
+  return labels[status] || status;
+}

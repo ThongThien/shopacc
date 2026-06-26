@@ -10,7 +10,7 @@ export default function LoginForm() {
   const router = useRouter();
   const { notify } = useNotify();
 
-  const [email, setEmail] = useState("c1@gmail.com");
+  const [email, setEmail] = useState("ad1@gmail.com");
   const [password, setPassword] = useState("123456");
   const [loading, setLoading] = useState(false);
 
@@ -49,11 +49,6 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="auth-card card">
       <h1>Đăng nhập</h1>
-
-      <p className="auth-subtitle">
-        Đăng nhập để mua acc, xem lịch sử mua và quản lý số dư.
-      </p>
-
       <input
         className="input"
         placeholder="Email"
