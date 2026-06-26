@@ -46,18 +46,4 @@ public class PaymentController {
                                 userDetails.getId(),
                                 transactionCode);
         }
-
-        @PostMapping("/sepay/webhook")
-        public ResponseEntity<Void> sepayWebhook(
-                        @RequestBody String rawBody,
-                        @RequestHeader(value = "SePay-Signature", required = false) String signature,
-                        @RequestHeader(value = "SePay-Timestamp", required = false) String timestamp) {
-
-                paymentService.handleSepayWebhook(
-                                rawBody,
-                                signature,
-                                timestamp);
-
-                return ResponseEntity.ok().build();
-        }
 }

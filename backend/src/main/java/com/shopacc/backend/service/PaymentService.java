@@ -334,45 +334,52 @@ public class PaymentService {
                         String signature,
                         String timestamp) {
 
-                if (signature == null ||
-                                signature.isBlank() ||
-                                timestamp == null ||
-                                timestamp.isBlank()) {
-
+                if (signature == null || timestamp == null) {
                         throw new ResponseStatusException(
                                         HttpStatus.UNAUTHORIZED,
-                                        "Missing SePay signature");
+                                        "Missing signature");
                 }
 
                 long requestTime;
-
                 try {
                         requestTime = Long.parseLong(timestamp);
                 } catch (NumberFormatException e) {
                         throw new ResponseStatusException(
                                         HttpStatus.UNAUTHORIZED,
-                                        "Invalid SePay timestamp");
+                                        "Invalid timestamp");
                 }
 
                 long now = System.currentTimeMillis() / 1000;
 
+                if (timestamp.length() == 13) {
+                        requestTime = requestTime / 1000;
+                }
+
                 if (Math.abs(now - requestTime) > 300) {
                         throw new ResponseStatusException(
                                         HttpStatus.UNAUTHORIZED,
-                                        "Expired SePay webhook");
+                                        "Expired webhook");
                 }
 
-                String expectedSignature = "sha256=" + hmacSha256Hex(
+                String expected = hmacSha256Hex(
                                 timestamp + "." + rawBody,
                                 sepaySecretKey);
 
+                // normalize signature (IMPORTANT)
+                String cleanSignature = signature
+                                .replace("sha256=", "")
+                                .trim();
+
                 if (!MessageDigest.isEqual(
-                                expectedSignature.getBytes(StandardCharsets.UTF_8),
-                                signature.getBytes(StandardCharsets.UTF_8))) {
+                                expected.getBytes(StandardCharsets.UTF_8),
+                                cleanSignature.getBytes(StandardCharsets.UTF_8))) {
+
+                        System.out.println("EXPECTED = " + expected);
+                        System.out.println("RECEIVED = " + cleanSignature);
 
                         throw new ResponseStatusException(
                                         HttpStatus.UNAUTHORIZED,
-                                        "Invalid SePay signature");
+                                        "Invalid signature");
                 }
         }
 
