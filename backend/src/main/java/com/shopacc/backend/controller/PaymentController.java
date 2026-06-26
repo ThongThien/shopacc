@@ -9,6 +9,7 @@ import com.shopacc.backend.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -44,5 +45,19 @@ public class PaymentController {
                 return paymentService.getDepositByCode(
                                 userDetails.getId(),
                                 transactionCode);
+        }
+
+        @PostMapping("/sepay/webhook")
+        public ResponseEntity<Void> sepayWebhook(
+                        @RequestBody String rawBody,
+                        @RequestHeader(value = "X-SePay-Signature", required = false) String signature,
+                        @RequestHeader(value = "X-SePay-Timestamp", required = false) String timestamp) {
+
+                paymentService.handleSepayWebhook(
+                                rawBody,
+                                signature,
+                                timestamp);
+
+                return ResponseEntity.ok().build();
         }
 }
