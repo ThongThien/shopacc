@@ -17,11 +17,6 @@ public class SepayWebhookController {
 
         @PostMapping("/sepay")
         public ResponseEntity<Map<String, Boolean>> handleSepayWebhook(
-                        // @Valid @RequestBody String rawBody,
-
-                        // @RequestHeader("X-SePay-Signature") String signature,
-
-                        // @RequestHeader("X-SePay-Timestamp") String timestamp) {
                         @Valid @RequestBody String rawBody,
                         @RequestHeader(value = "SePay-Signature", required = false) String signature,
                         @RequestHeader(value = "SePay-Timestamp", required = false) String timestamp) {

@@ -50,8 +50,8 @@ public class PaymentController {
         @PostMapping("/sepay/webhook")
         public ResponseEntity<Void> sepayWebhook(
                         @RequestBody String rawBody,
-                        @RequestHeader(value = "X-SePay-Signature", required = false) String signature,
-                        @RequestHeader(value = "X-SePay-Timestamp", required = false) String timestamp) {
+                        @RequestHeader(value = "SePay-Signature", required = false) String signature,
+                        @RequestHeader(value = "SePay-Timestamp", required = false) String timestamp) {
 
                 paymentService.handleSepayWebhook(
                                 rawBody,
