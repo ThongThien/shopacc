@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class PaymentService {
 
-        private static final Pattern DEPOSIT_CODE_PATTERN = Pattern.compile("DEP-[a-fA-F0-9\\-]{36}");
+        private static final Pattern DEPOSIT_CODE_PATTERN = Pattern.compile("DH[a-fA-F0-9]+");
 
         private final UserRepository userRepository;
 
@@ -99,8 +99,7 @@ public class PaymentService {
                                 .orElseThrow(() -> new ResponseStatusException(
                                                 HttpStatus.NOT_FOUND,
                                                 "User not found"));
-
-                String transactionCode = "DH-" + java.util.UUID.randomUUID();
+                String transactionCode = "DH" + java.util.UUID.randomUUID().toString().replace("-", "");
 
                 String qrUrl = buildVietQrUrl(request.getAmount(), transactionCode);
 
@@ -402,8 +401,7 @@ public class PaymentService {
                 }
         }
 
-        private String extractDepositCode(
-                        String content) {
+        private String extractDepositCode(String content) {
 
                 if (content == null || content.isBlank()) {
                         throw new ResponseStatusException(
@@ -419,7 +417,7 @@ public class PaymentService {
                                         "Deposit code not found");
                 }
 
-                return matcher.group();
+                return matcher.group().replace("-", "");
         }
 
         public List<TransactionResponse> getMyDeposits(Long userId) {
