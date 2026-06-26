@@ -16,7 +16,6 @@ import com.shopacc.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.shopacc.backend.entity.PaymentWebhookLog;
-import com.shopacc.backend.repository.PaymentWebhookLogRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -101,7 +100,7 @@ public class PaymentService {
                                                 HttpStatus.NOT_FOUND,
                                                 "User not found"));
 
-                String transactionCode = "DEP-" + java.util.UUID.randomUUID();
+                String transactionCode = "DH-" + java.util.UUID.randomUUID();
 
                 String qrUrl = buildVietQrUrl(request.getAmount(), transactionCode);
 
@@ -137,10 +136,10 @@ public class PaymentService {
                         String signature,
                         String timestamp) {
 
-                // verifySepaySignature(
-                // rawBody,
-                // signature,
-                // timestamp);
+                verifySepaySignature(
+                                rawBody,
+                                signature,
+                                timestamp);
                 SepayWebhookRequest request;
                 PaymentWebhookLog webhookLog;
 
@@ -154,7 +153,31 @@ public class PaymentService {
                                         HttpStatus.BAD_REQUEST,
                                         "Invalid SePay payload");
                 }
+                // Validate required fields
+                if (request.getTransferAmount() == null ||
+                                request.getTransferAmount().compareTo(BigDecimal.ZERO) <= 0) {
 
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Invalid transfer amount");
+                }
+
+                if (request.getCurrency() != null &&
+                                !"VND".equalsIgnoreCase(request.getCurrency())) {
+
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Unsupported currency");
+                }
+
+                if (request.getGateway() != null &&
+                                !("VietinBank".equalsIgnoreCase(request.getGateway())
+                                                || "ICB".equalsIgnoreCase(request.getGateway()))) {
+
+                        throw new ResponseStatusException(
+                                        HttpStatus.BAD_REQUEST,
+                                        "Unsupported gateway");
+                }
                 webhookLog = PaymentWebhookLog.builder()
                                 .provider("SEPAY")
                                 .referenceCode(request.getReferenceCode())
@@ -185,7 +208,7 @@ public class PaymentService {
                                 request.getContent());
 
                 Transaction transaction = transactionRepository
-                                .findByTransactionCode(transactionCode)
+                                .findByTransactionCodeForUpdate(transactionCode)
                                 .orElseThrow(() -> new ResponseStatusException(
                                                 HttpStatus.NOT_FOUND,
                                                 "Deposit transaction not found"));
@@ -283,16 +306,11 @@ public class PaymentService {
                 webhookLogRepository.save(webhookLog);
         }
 
-        // EXPIRED → webhookLog FAILED
-        // Sai tiền → webhookLog NEED_REVIEW
-        // Thành công → webhookLog PROCESSED
-        // Sai account → webhookLog FAILED
-        // Không phải tiền vào → webhookLog IGNORED
         public TransactionResponse getDepositByCode(
                         Long userId,
                         String transactionCode) {
                 Transaction transaction = transactionRepository
-                                .findByTransactionCode(transactionCode)
+                                .findByTransactionCodeForUpdate(transactionCode)
                                 .orElseThrow(() -> new ResponseStatusException(
                                                 HttpStatus.NOT_FOUND,
                                                 "Deposit transaction not found"));

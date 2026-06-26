@@ -1,4 +1,5 @@
 package com.shopacc.backend.dto.payment;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -31,4 +32,6 @@ public class SepayWebhookRequest {
     private BigDecimal accumulated;
 
     private String referenceCode;
+
+    private String currency;
 }
