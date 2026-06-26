@@ -66,7 +66,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/users/me/**")
                                                 .authenticated()
 
-                                                .requestMatchers("/api/webhooks/sepay")
+                                                .requestMatchers(HttpMethod.POST, "/api/payments/sepay/webhook")
                                                 .permitAll()
 
                                                 .requestMatchers("/api/payments/**")
