@@ -20,6 +20,9 @@ public class SepayWebhookController {
         @PostMapping("/sepay")
         public ResponseEntity<Map<String, Boolean>> handleSepayWebhook(
                         HttpServletRequest request) throws Exception {
+                if ("HEAD".equals(request.getMethod())) {
+                        return ResponseEntity.ok().build();
+                }
 
                 String rawBody = new String(request.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 

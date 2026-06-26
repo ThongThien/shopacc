@@ -147,6 +147,14 @@ public class PaymentService {
                                         rawBody,
                                         SepayWebhookRequest.class);
 
+                        // ===== DEBUG HERE =====
+                        System.out.println("===== SEPAY DEBUG =====");
+                        System.out.println("RAW BODY = " + rawBody);
+                        System.out.println("TRANSFER AMOUNT = " + request.getTransferAmount());
+                        System.out.println("CONTENT = " + request.getContent());
+                        System.out.println("REFERENCE = " + request.getReferenceCode());
+                        System.out.println("=======================");
+
                 } catch (Exception e) {
                         throw new ResponseStatusException(
                                         HttpStatus.BAD_REQUEST,

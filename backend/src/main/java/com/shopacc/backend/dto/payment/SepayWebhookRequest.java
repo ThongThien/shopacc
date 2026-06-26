@@ -5,6 +5,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Getter
 @Setter
 public class SepayWebhookRequest {
@@ -27,6 +29,7 @@ public class SepayWebhookRequest {
 
     private String description;
 
+    @JsonProperty("transfer_amount")
     private BigDecimal transferAmount;
 
     private BigDecimal accumulated;
