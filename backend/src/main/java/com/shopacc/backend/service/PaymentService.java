@@ -101,7 +101,7 @@ public class PaymentService {
                                 .orElseThrow(() -> new ResponseStatusException(
                                                 HttpStatus.NOT_FOUND,
                                                 "User not found"));
-                String transactionCode = "DH" + java.util.UUID.randomUUID().toString().replace("-", "");
+                String transactionCode = "SEVQR " + java.util.UUID.randomUUID().toString().replace("-", "");
 
                 String qrUrl = buildVietQrUrl(request.getAmount(), transactionCode);
 
