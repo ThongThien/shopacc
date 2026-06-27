@@ -32,7 +32,7 @@ public class SepayWebhookController {
                 System.out.println("RAW BODY = " + rawBody);
                 System.out.println("SIGNATURE = " + signature);
                 System.out.println("TIMESTAMP = " + timestamp);
-
+                System.out.println("🔥 SEPAY WEBHOOK HIT");
                 paymentService.handleSepayWebhook(rawBody, signature, timestamp);
 
                 return ResponseEntity.ok(Map.of("success", true));

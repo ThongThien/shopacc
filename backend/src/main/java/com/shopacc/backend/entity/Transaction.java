@@ -28,7 +28,7 @@ public class Transaction extends BaseEntity {
     @Column(name = "transaction_code", nullable = false, unique = true)
     private String transactionCode;
 
-    @Column(name = "provider_transaction_id", unique = true)
+    @Column(name = "provider_transaction_id")
     private String providerTransactionId;
 
     @Enumerated(EnumType.STRING)

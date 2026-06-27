@@ -22,24 +22,18 @@ public class PaymentScheduler {
     private final TransactionRepository transactionRepository;
 
     @Transactional
-    @Scheduled(fixedRate = 300000) // 5 phút
+    @Scheduled(fixedRate = 300000)
     public void expirePendingTransactions() {
 
         List<Transaction> transactions = transactionRepository.findByStatusAndExpiredAtBefore(
                 TransactionStatus.PENDING,
                 LocalDateTime.now());
 
-        if (transactions.isEmpty()) {
-            return;
-        }
-
-        for (Transaction transaction : transactions) {
-            transaction.setStatus(TransactionStatus.EXPIRED);
-            transaction.setDescription("Deposit expired automatically");
+        for (Transaction t : transactions) {
+            t.setStatus(TransactionStatus.EXPIRED);
+            t.setDescription("Auto expired");
         }
 
         transactionRepository.saveAll(transactions);
-
-        log.info("Expired {} pending transactions.", transactions.size());
     }
 }

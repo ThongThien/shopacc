@@ -21,17 +21,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import com.shopacc.backend.dto.user.TransactionResponse;
-
+import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.LocalDateTime;
 import java.util.HexFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -135,56 +137,44 @@ public class PaymentService {
                         String signature,
                         String timestamp) {
 
-                verifySepaySignature(
-                                rawBody,
-                                signature,
-                                timestamp);
+                verifySepaySignature(rawBody, signature, timestamp);
+
                 SepayWebhookRequest request;
                 PaymentWebhookLog webhookLog;
 
                 try {
-                        request = objectMapper.readValue(
-                                        rawBody,
-                                        SepayWebhookRequest.class);
+                        request = objectMapper.readValue(rawBody, SepayWebhookRequest.class);
 
-                        // ===== DEBUG HERE =====
-                        System.out.println("===== SEPAY DEBUG =====");
-                        System.out.println("RAW BODY = " + rawBody);
-                        System.out.println("TRANSFER AMOUNT = " + request.getTransferAmount());
-                        System.out.println("CONTENT = " + request.getContent());
-                        System.out.println("REFERENCE = " + request.getReferenceCode());
-                        System.out.println("=======================");
+                        log.info("[SEPAY] RAW_BODY: {}", rawBody);
+                        log.info("[SEPAY] AMOUNT: {}", request.getTransferAmount());
+                        log.info("[SEPAY] CONTENT: {}", request.getContent());
+                        log.info("[SEPAY] REF: {}", request.getReferenceCode());
 
                 } catch (Exception e) {
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Invalid SePay payload");
+                        log.error("[SEPAY][ERROR] Invalid payload: {}", e.getMessage(), e);
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid SePay payload");
                 }
-                // Validate required fields
+
+                // ===================== VALIDATION =====================
+
                 if (request.getTransferAmount() == null ||
                                 request.getTransferAmount().compareTo(BigDecimal.ZERO) <= 0) {
-
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Invalid transfer amount");
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid transfer amount");
                 }
 
                 if (request.getCurrency() != null &&
                                 !"VND".equalsIgnoreCase(request.getCurrency())) {
-
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Unsupported currency");
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported currency");
                 }
 
                 if (request.getGateway() != null &&
                                 !("VietinBank".equalsIgnoreCase(request.getGateway())
                                                 || "ICB".equalsIgnoreCase(request.getGateway()))) {
-
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Unsupported gateway");
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported gateway");
                 }
+
+                // ===================== INIT WEBHOOK LOG =====================
+
                 webhookLog = PaymentWebhookLog.builder()
                                 .provider("SEPAY")
                                 .referenceCode(request.getReferenceCode())
@@ -197,22 +187,33 @@ public class PaymentService {
                                 .build();
 
                 webhookLogRepository.save(webhookLog);
+
+                // ===================== ACCOUNT CHECK =====================
+
                 if (request.getAccountNumber() == null ||
                                 !request.getAccountNumber().equals(vietqrAccountNo)) {
 
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Invalid receiving account");
+                        webhookLog.setStatus("FAILED");
+                        webhookLog.setErrorMessage("Invalid receiving account");
+                        webhookLogRepository.save(webhookLog);
+
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid receiving account");
                 }
+
+                // ===================== TRANSFER TYPE =====================
+
                 if (!"in".equalsIgnoreCase(request.getTransferType())) {
+
                         webhookLog.setStatus("IGNORED");
                         webhookLog.setErrorMessage("Transfer type is not IN");
                         webhookLogRepository.save(webhookLog);
+
                         return;
                 }
 
-                String transactionCode = extractDepositCode(
-                                request.getContent());
+                // ===================== FIND TRANSACTION =====================
+
+                String transactionCode = extractDepositCode(request.getContent());
 
                 Transaction transaction = transactionRepository
                                 .findByTransactionCodeForUpdate(transactionCode)
@@ -220,51 +221,62 @@ public class PaymentService {
                                                 HttpStatus.NOT_FOUND,
                                                 "Deposit transaction not found"));
 
+                // ===================== IDLE / STATE CHECK =====================
+
+                if (transaction.getStatus() != TransactionStatus.PENDING) {
+
+                        webhookLog.setStatus("IGNORED");
+                        webhookLog.setErrorMessage("Transaction not PENDING: " + transaction.getStatus());
+                        webhookLogRepository.save(webhookLog);
+
+                        return;
+                }
+
+                // ===================== EXPIRED CHECK =====================
+
                 if (transaction.getExpiredAt() != null &&
-                                transaction.getExpiredAt().isBefore(java.time.LocalDateTime.now())) {
+                                transaction.getExpiredAt().isBefore(LocalDateTime.now())) {
 
                         transaction.setStatus(TransactionStatus.EXPIRED);
-                        transaction.setDescription("Deposit expired before SePay webhook");
+                        transaction.setDescription("Expired before webhook");
                         transactionRepository.save(transaction);
 
                         webhookLog.setStatus("FAILED");
-                        webhookLog.setErrorMessage("Deposit transaction expired");
+                        webhookLog.setErrorMessage("Transaction expired");
                         webhookLogRepository.save(webhookLog);
 
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Deposit transaction expired");
+                        log.warn("[SEPAY][EXPIRED] txCode={} expiredAt={}",
+                                        transaction.getTransactionCode(),
+                                        transaction.getExpiredAt());
+
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Transaction expired");
                 }
 
-                if (transaction.getStatus() == TransactionStatus.SUCCESS) {
+                // ===================== DUPLICATE PROTECTION =====================
+                // (DB UNIQUE still required, this is just extra safety)
+
+                if (transaction.getProviderTransactionId() != null &&
+                                transaction.getProviderTransactionId().equals(request.getReferenceCode())) {
+
                         webhookLog.setStatus("IGNORED");
-                        webhookLog.setErrorMessage("Transaction already successful");
+                        webhookLog.setErrorMessage("Duplicate webhook");
                         webhookLogRepository.save(webhookLog);
+
                         return;
                 }
 
-                if (request.getReferenceCode() != null &&
-                                transactionRepository.existsByProviderTransactionId(
-                                                request.getReferenceCode())) {
+                transaction.setProviderTransactionId(request.getReferenceCode());
 
-                        webhookLog.setStatus("IGNORED");
-                        webhookLog.setErrorMessage("Duplicate provider transaction id");
-                        webhookLogRepository.save(webhookLog);
-                        return;
-                }
+                // ===================== AMOUNT CHECK =====================
 
                 if (transaction.getAmount().compareTo(request.getTransferAmount()) != 0) {
 
                         transaction.setStatus(TransactionStatus.NEED_REVIEW);
-                        transaction.setProviderTransactionId(request.getReferenceCode());
                         transaction.setGateway(request.getGateway());
                         transaction.setDescription(
-                                        "Need review: amount mismatch. Expected="
-                                                        + transaction.getAmount()
-                                                        + ", actual="
-                                                        + request.getTransferAmount()
-                                                        + ", content="
-                                                        + request.getContent());
+                                        "AMOUNT_MISMATCH expected=" + transaction.getAmount()
+                                                        + " actual=" + request.getTransferAmount()
+                                                        + " content=" + request.getContent());
 
                         transactionRepository.save(transaction);
 
@@ -272,19 +284,39 @@ public class PaymentService {
                         webhookLog.setErrorMessage("Amount mismatch");
                         webhookLogRepository.save(webhookLog);
 
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Invalid deposit amount");
+                        log.warn("[SEPAY][AMOUNT_MISMATCH] expected={} actual={} txCode={}",
+                                        transaction.getAmount(),
+                                        request.getTransferAmount(),
+                                        transaction.getTransactionCode());
+
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount mismatch");
                 }
 
-                User user = transaction.getUser();
+                // ===================== BALANCE UPDATE (ATOMIC) =====================
+
+                User user = userRepository.findByIdForUpdate(transaction.getUser().getId())
+                                .orElseThrow(() -> new ResponseStatusException(
+                                                HttpStatus.NOT_FOUND,
+                                                "User not found"));
 
                 BigDecimal amountBefore = user.getBalance();
 
-                BigDecimal amountAfter = amountBefore.add(transaction.getAmount());
+                BigDecimal amount = transaction.getAmount();
+
+                BigDecimal amountAfter = amountBefore.add(amount);
 
                 user.setBalance(amountAfter);
+
                 userRepository.save(user);
+
+                log.info("[SEPAY][SUCCESS] balance updated | userId={} | before={} | after={} | amount={} | txCode={}",
+                                user.getId(),
+                                amountBefore,
+                                amountAfter,
+                                amount,
+                                transaction.getTransactionCode());
+
+                // ===================== TRANSACTION UPDATE =====================
 
                 transaction.setStatus(TransactionStatus.SUCCESS);
                 transaction.setProviderTransactionId(request.getReferenceCode());
@@ -295,22 +327,34 @@ public class PaymentService {
                                                 (request.getDescription() != null
                                                                 ? request.getDescription()
                                                                 : request.getContent()));
+
                 transactionRepository.save(transaction);
+
+                log.info("[SEPAY][SUCCESS] transaction completed | txCode={} | ref={}",
+                                transaction.getTransactionCode(),
+                                request.getReferenceCode());
+
+                // ===================== BALANCE LOG =====================
 
                 UserBalanceLog balanceLog = UserBalanceLog.builder()
                                 .user(user)
                                 .amountBefore(amountBefore)
-                                .amountChange(transaction.getAmount())
+                                .amountChange(amount)
                                 .amountAfter(amountAfter)
                                 .type("DEPOSIT")
-                                .description(
-                                                "SePay deposit: " +
-                                                                transaction.getTransactionCode())
+                                .description("SePay deposit: " + transaction.getTransactionCode())
                                 .build();
 
                 balanceLogRepository.save(balanceLog);
+
+                // ===================== WEBHOOK FINAL =====================
+
                 webhookLog.setStatus("PROCESSED");
                 webhookLogRepository.save(webhookLog);
+
+                log.info("[SEPAY][DONE] webhook processed | ref={} | txCode={}",
+                                request.getReferenceCode(),
+                                transaction.getTransactionCode());
         }
 
         public TransactionResponse getDepositByCode(

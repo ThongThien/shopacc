@@ -17,27 +17,23 @@ import com.shopacc.backend.enums.TransactionStatus;
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    List<Transaction> findByUserIdOrderByCreatedAtDesc(Long userId);
+        List<Transaction> findByUserIdOrderByCreatedAtDesc(Long userId);
 
-    List<Transaction> findByUserIdAndTypeOrderByCreatedAtDesc(
-            Long userId,
-            TransactionType type);
+        List<Transaction> findByUserIdAndTypeOrderByCreatedAtDesc(
+                        Long userId,
+                        TransactionType type);
 
-    List<Transaction> findAllByOrderByCreatedAtDesc();
+        List<Transaction> findAllByOrderByCreatedAtDesc();
 
-    // Optional<Transaction> findByTransactionCode(String transactionCode);
+        @Lock(LockModeType.PESSIMISTIC_WRITE)
+        @Query("""
+                            select t
+                            from Transaction t
+                            where t.transactionCode = :transactionCode
+                        """)
+        Optional<Transaction> findByTransactionCodeForUpdate(String transactionCode);
 
-    boolean existsByProviderTransactionId(String providerTransactionId);
-
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("""
-                select t
-                from Transaction t
-                where t.transactionCode = :transactionCode
-            """)
-    Optional<Transaction> findByTransactionCodeForUpdate(String transactionCode);
-
-    List<Transaction> findByStatusAndExpiredAtBefore(
-            TransactionStatus status,
-            LocalDateTime expiredAt);
+        List<Transaction> findByStatusAndExpiredAtBefore(
+                        TransactionStatus status,
+                        LocalDateTime expiredAt);
 }
