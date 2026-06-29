@@ -29,8 +29,23 @@ public class SepayWebhookRequest {
 
     private String description;
 
-    @JsonProperty("transfer_amount")
+    // SePay docs dùng transferAmount (camelCase).
+    @JsonProperty("transferAmount")
     private BigDecimal transferAmount;
+
+    // Fallback nếu payload gửi transfer_amount (snake_case)
+    @JsonProperty("transfer_amount")
+    private BigDecimal transferAmountSnake;
+
+    // Note: lombok @Getter/@Setter đã tạo getter/setter cho fields.
+    // Ta override getter/setter cho transferAmount để fallback đúng snake_case.
+    public BigDecimal getTransferAmount() {
+        return transferAmount != null ? transferAmount : transferAmountSnake;
+    }
+
+    public void setTransferAmount(BigDecimal transferAmount) {
+        this.transferAmount = transferAmount;
+    }
 
     private BigDecimal accumulated;
 

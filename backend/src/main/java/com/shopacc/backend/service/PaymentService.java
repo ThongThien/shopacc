@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class PaymentService {
 
-        private static final Pattern DEPOSIT_CODE_PATTERN = Pattern.compile("DH[a-fA-F0-9]+");
+        private static final Pattern DEPOSIT_CODE_PATTERN = Pattern.compile("SEVQR [a-fA-F0-9]+");
 
         private final UserRepository userRepository;
 
