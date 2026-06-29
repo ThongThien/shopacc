@@ -85,7 +85,7 @@ public class PaymentService {
                                 .queryParam("template", "compact")
                                 .queryParam("showinfo", "true")
                                 .queryParam("holder", vietqrAccountName)
-                                .build(true)
+                                .build()
                                 .toUriString();
         }
 
