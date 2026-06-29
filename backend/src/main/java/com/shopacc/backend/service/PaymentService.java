@@ -43,9 +43,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class PaymentService {
 
-        // SePay content dạng: "SEVQR <token>" (token gồm cả chữ và số)
-        // DB transactionCode đang lưu nguyên cả: "SEVQR <token>" (có khoảng trắng)
-        private static final Pattern DEPOSIT_CODE_PATTERN = Pattern.compile("SEVQR\\s+([A-Za-z0-9]{3,64})");
+        // SePay VA content: "SEVQR <vaPrefix> <token>", e.g. "SEVQR TKP753 abc123..."
+        // DB lưu nguyên cả chuỗi "SEVQR TKP753 <token>"
+        private static final Pattern DEPOSIT_CODE_PATTERN = Pattern.compile("SEVQR\\s+\\S+\\s+([A-Za-z0-9]{3,64})");
 
         private final UserRepository userRepository;
 
@@ -71,6 +71,9 @@ public class PaymentService {
 
         @Value("${SEPAY_SECRET_KEY}")
         private String sepaySecretKey;
+
+        @Value("${SEPAY_VA_PREFIX}")
+        private String sepayVaPrefix;
 
         private String buildSepayQrUrl(
                         BigDecimal amount,
@@ -120,7 +123,7 @@ public class PaymentService {
                                 .toString()
                                 .replace("-", "");
 
-                String transactionCode = "SEVQR " + token;
+                String transactionCode = "SEVQR " + sepayVaPrefix + " " + token;
 
                 // =========================
                 // Build SePay QR URL
@@ -516,9 +519,9 @@ public class PaymentService {
                                         "Deposit code not found");
                 }
 
-                // Trả về đúng format đang lưu trong DB: "SEVQR <token>"
+                // Trả về đúng format đang lưu trong DB: "SEVQR <vaPrefix> <token>"
                 String token = matcher.group(1);
-                return "SEVQR " + token;
+                return "SEVQR " + sepayVaPrefix + " " + token;
         }
 
         public List<TransactionResponse> getMyDeposits(Long userId) {
