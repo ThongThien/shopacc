@@ -1337,6 +1337,21 @@ button:disabled {
   }
 }
 
+@keyframes loadingBarSlide {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-content,
+.page-container {
+  animation: pageFadeIn 0.3s ease-out;
+}
+
 @media (max-width: 1024px) {
   .admin-toolbar {
     grid-template-columns: repeat(2, 1fr);

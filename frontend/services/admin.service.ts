@@ -13,6 +13,7 @@ import { Order } from "@/types/order";
 import { Transaction } from "@/types/transaction";
 import { AdminCategoryDetail, Category } from "@/types/category";
 import { AuditLog } from "@/types/audit-log";
+import { PaymentWebhookLog } from "@/types/webhook-log";
 
 export async function getAdminAuditLogs(): Promise<AuditLog[]> {
   return apiFetch<AuditLog[]>("/api/admin/audit-logs");
@@ -197,4 +198,24 @@ export async function updateAdminUserStatus(
     method: "PATCH",
     body: JSON.stringify(payload),
   });
+}
+
+export async function approveAdminTransaction(
+  id: number,
+): Promise<Transaction> {
+  return apiFetch<Transaction>(`/api/admin/transactions/${id}/approve`, {
+    method: "PATCH",
+  });
+}
+
+export async function rejectAdminTransaction(
+  id: number,
+): Promise<Transaction> {
+  return apiFetch<Transaction>(`/api/admin/transactions/${id}/reject`, {
+    method: "PATCH",
+  });
+}
+
+export async function getAdminWebhookLogs(): Promise<PaymentWebhookLog[]> {
+  return apiFetch<PaymentWebhookLog[]>("/api/admin/webhook-logs");
 }

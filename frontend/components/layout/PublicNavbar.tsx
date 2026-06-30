@@ -65,13 +65,19 @@ export default function PublicNavbar() {
       void syncAuthState();
     }
 
+    function handleBalanceChanged() {
+      void syncAuthState();
+    }
+
     window.addEventListener("auth-changed", handleAuthChanged);
     window.addEventListener("focus", handleFocus);
+    window.addEventListener("balance-changed", handleBalanceChanged);
 
     return () => {
       window.clearTimeout(initTimer);
       window.removeEventListener("auth-changed", handleAuthChanged);
       window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("balance-changed", handleBalanceChanged);
     };
   }, []);
 
@@ -122,9 +128,14 @@ export default function PublicNavbar() {
         <Link href="/me/deposits">Nạp tiền</Link>
 
         {!loggedIn ? (
-          <Link href="/login" className="nav-login">
-            Đăng nhập
-          </Link>
+          <>
+            <Link href="/register" className="nav-login" style={{ background: "white", color: "var(--primary)" }}>
+              Đăng ký
+            </Link>
+            <Link href="/login" className="nav-login">
+              Đăng nhập
+            </Link>
+          </>
         ) : (
           <div className="user-menu">
             <button className="user-menu-button" type="button">

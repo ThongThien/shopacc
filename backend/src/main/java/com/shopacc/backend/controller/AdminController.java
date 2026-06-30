@@ -16,6 +16,10 @@ import jakarta.validation.Valid;
 import com.shopacc.backend.enums.AuditAction;
 import com.shopacc.backend.security.CustomUserDetails;
 import com.shopacc.backend.service.AuditLogService;
+import com.shopacc.backend.repository.PaymentWebhookLogRepository;
+import com.shopacc.backend.entity.PaymentWebhookLog;
+import org.springframework.data.domain.Sort;
+import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
 import com.shopacc.backend.dto.common.SecretResponse;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +29,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
+@Slf4j
 public class AdminController {
 
         private final AdminService adminService;
@@ -32,6 +37,8 @@ public class AdminController {
         private final PaymentService paymentService;
 
         private final AuditLogService auditLogService;
+
+        private final PaymentWebhookLogRepository webhookLogRepository;
 
         @GetMapping("/categories")
         public List<CategoryResponse> getAllCategories() {
@@ -360,6 +367,19 @@ public class AdminController {
                                 httpRequest);
 
                 return response;
+        }
+
+        @GetMapping("/webhook-logs")
+        public List<PaymentWebhookLog> getWebhookLogs() {
+                try {
+                        log.info("[ADMIN] Fetching webhook logs...");
+                        List<PaymentWebhookLog> logs = webhookLogRepository.findAllByOrderByCreatedAtDesc();
+                        log.info("[ADMIN] Webhook logs fetched: {} records", logs.size());
+                        return logs;
+                } catch (Exception e) {
+                        log.error("[ADMIN] Failed to fetch webhook logs", e);
+                        throw e;
+                }
         }
 
         @GetMapping("/dashboard")

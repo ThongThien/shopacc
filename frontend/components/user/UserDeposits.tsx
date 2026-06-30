@@ -5,7 +5,36 @@ import { createDeposit, getMyDeposits } from "@/services/payment.service";
 import { Transaction } from "@/types/transaction";
 import { formatCurrency, formatDateTime } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
+import { showLoading, hideLoading } from "@/components/shared/LoadingOverlay";
 import NoticeBox from "@/components/layout/NoticeBox";
+
+function statusBadge(status: string) {
+  const map: Record<string, { bg: string; color: string }> = {
+    PENDING: { bg: "#fef3c7", color: "#92400e" },
+    SUCCESS: { bg: "#dcfce7", color: "#166534" },
+    FAILED: { bg: "#fee2e2", color: "#991b1b" },
+    NEED_REVIEW: { bg: "#ffedd5", color: "#9a3412" },
+    EXPIRED: { bg: "#f3f4f6", color: "#6b7280" },
+  };
+
+  const style = map[status] || { bg: "#f3f4f6", color: "#374151" };
+
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        padding: "4px 10px",
+        borderRadius: "999px",
+        background: style.bg,
+        color: style.color,
+        fontWeight: 800,
+        fontSize: "13px",
+      }}
+    >
+      {status}
+    </span>
+  );
+}
 
 export default function UserDeposits() {
   const { notify, confirmAction } = useNotify();
@@ -43,6 +72,7 @@ export default function UserDeposits() {
 
     try {
       setLoading(true);
+      showLoading("Đang tạo lệnh nạp...");
 
       const response = await createDeposit(amount);
       setDepositContent(response.transferContent);
@@ -50,12 +80,12 @@ export default function UserDeposits() {
       setBankName(response.bankName);
       setAccountName(response.accountName);
       setBankAccount(response.bankAccount);
-      setAccountName(response.accountName);
       notify(
         "success",
         "Đã tạo lệnh nạp ATM. Vui lòng chuyển khoản đúng nội dung.",
       );
 
+      window.dispatchEvent(new Event("balance-changed"));
       await loadDeposits();
     } catch (error) {
       notify(
@@ -64,6 +94,7 @@ export default function UserDeposits() {
       );
     } finally {
       setLoading(false);
+      hideLoading();
     }
   }
 
@@ -246,7 +277,7 @@ export default function UserDeposits() {
                     <tr key={transaction.id}>
                       <td>{transaction.transactionCode}</td>
                       <td>{formatCurrency(transaction.amount)}</td>
-                      <td>{transaction.status}</td>
+                      <td>{statusBadge(transaction.status)}</td>
                       <td>{formatDateTime(transaction.createdAt)}</td>
                     </tr>
                   ))}

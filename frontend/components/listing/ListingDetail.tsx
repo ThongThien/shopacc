@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import PurchaseConfirmModal from "@/components/order/PurchaseConfirmModal";
 import { useNotify } from "@/components/shared/NotificationProvider";
+import { showLoading, hideLoading } from "@/components/shared/LoadingOverlay";
 
 import { purchaseListing } from "@/services/order.service";
 import { getMyBalance } from "@/services/user.service";
@@ -43,11 +44,13 @@ export default function ListingDetail({ listing }: Props) {
   async function handleConfirmPurchase() {
     try {
       setLoading(true);
+      showLoading("Đang xử lý thanh toán...");
 
       await purchaseListing(listing.id);
 
       notify("success", "Mua acc thành công. Vui lòng kiểm tra lịch sử mua.");
 
+      window.dispatchEvent(new Event("balance-changed"));
       setOpen(false);
       router.push("/me/orders");
       router.refresh();
@@ -55,6 +58,7 @@ export default function ListingDetail({ listing }: Props) {
       notify("error", err instanceof Error ? err.message : "Mua acc thất bại");
     } finally {
       setLoading(false);
+      hideLoading();
     }
   }
 

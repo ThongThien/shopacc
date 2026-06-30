@@ -7,7 +7,9 @@ export function formatCurrency(value: number | string | null | undefined) {
 export function formatDateTime(value: string | null | undefined) {
   if (!value) return "";
 
-  return new Date(value).toLocaleString("vi-VN");
+  const d = new Date(value);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 export function truncateText(text: string | null | undefined, max = 80) {

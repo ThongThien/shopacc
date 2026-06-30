@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { NotificationProvider } from "@/components/shared/NotificationProvider";
 import "./globals.css";
 import AuthExpiredModal from "@/components/shared/AuthExpiredModal";
+import LoadingOverlay from "@/components/shared/LoadingOverlay";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -28,6 +29,7 @@ export default function RootLayout({
         <NotificationProvider>
           {children}
           <AuthExpiredModal />
+          <LoadingOverlay />
         </NotificationProvider>
       </body>
     </html>

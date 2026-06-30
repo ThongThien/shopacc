@@ -7,6 +7,9 @@ export interface Transaction {
   provider?: string;
   description?: string;
   createdAt: string;
+  userId?: number;
+  username?: string;
+  email?: string;
 }
 
 export interface CreateDepositResponse {

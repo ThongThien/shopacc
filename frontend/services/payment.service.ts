@@ -13,19 +13,6 @@ export interface DepositResponse {
   accountName: string;
 }
 
-export interface DepositResponse {
-  transactionCode: string;
-  amount: number;
-  status: "PENDING" | "SUCCESS" | "FAILED";
-
-  transferContent: string;
-  qrUrl: string;
-
-  bankName: string;
-  bankAccount: string;
-  accountName: string;
-}
-
 export async function createDeposit(amount: number): Promise<DepositResponse> {
   return apiFetch<DepositResponse>("/api/payments/deposits", {
     method: "POST",
