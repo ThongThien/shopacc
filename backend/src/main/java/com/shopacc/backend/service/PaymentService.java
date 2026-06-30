@@ -282,7 +282,38 @@ public class PaymentService {
                                         transaction.getTransactionCode(),
                                         transaction.getStatus());
                         // ===================== IDLE / STATE CHECK =====================
-                        if (transaction.getStatus() != TransactionStatus.PENDING) {
+                        if (transaction.getStatus() == TransactionStatus.SUCCESS) {
+                                // Check duplicate first
+                                if (transaction.getProviderTransactionId() != null &&
+                                                transaction.getProviderTransactionId().equals(request.getReferenceCode())) {
+                                        webhookLog.setStatus("IGNORED");
+                                        webhookLog.setErrorMessage("Duplicate webhook");
+                                        webhookLogRepository.save(webhookLog);
+                                        return;
+                                }
+
+                                // New payment with same QR → create fresh transaction
+                                Transaction extraTx = Transaction.builder()
+                                                .user(transaction.getUser())
+                                                .transactionCode(transaction.getTransactionCode()
+                                                                + " #" + System.currentTimeMillis() / 1000)
+                                                .type(TransactionType.DEPOSIT)
+                                                .amount(request.getTransferAmount())
+                                                .status(TransactionStatus.PENDING)
+                                                .provider("SEPAY")
+                                                .bankAccount(vietqrAccountNo)
+                                                .expiredAt(LocalDateTime.now().plusMinutes(30))
+                                                .description("Extra payment via same QR | orig="
+                                                                + transaction.getTransactionCode())
+                                                .build();
+                                transaction = transactionRepository.save(extraTx);
+                                log.info(
+                                                "[SEPAY] Extra payment created | code={} | ref={} | amount={}",
+                                                transaction.getTransactionCode(),
+                                                request.getReferenceCode(),
+                                                request.getTransferAmount());
+                                // fall through to amount & balance update
+                        } else if (transaction.getStatus() != TransactionStatus.PENDING) {
                                 webhookLog.setStatus("IGNORED");
                                 webhookLog.setErrorMessage("Transaction not PENDING: " + transaction.getStatus());
                                 webhookLogRepository.save(webhookLog);
