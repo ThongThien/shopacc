@@ -27,7 +27,7 @@ export default function AdminSidebar() {
   return (
     <aside className="admin-sidebar">
       <h2>Xin chào QTV</h2>
-      <h4>THIENNGOCRONG.SHOP</h4>
+      <h4>SHOPTHIEN.XYZ</h4>
 
       <nav>
         {links.map((link) => (

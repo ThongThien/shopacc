@@ -27,12 +27,12 @@ export default function PublicFooter() {
 
         <div>
           <h4>Phát triển bởi</h4>
-          <p>thienngocrong.shop</p>
+          <p>Youtuber Nguyễn Thông Thiên</p>
         </div>
       </div>
 
       <div className="footer-bottom">
-        © 2026 thienngocrong.shop. Tất cả quyền được bảo lưu.
+        © 2026 shopthien.xyz. Tất cả quyền được bảo lưu.
       </div>
     </footer>
   );
