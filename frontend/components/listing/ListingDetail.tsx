@@ -11,6 +11,7 @@ import { getMyBalance } from "@/services/user.service";
 import { ListingDetail as ListingDetailType } from "@/types/listing";
 import { formatCurrency } from "@/lib/format";
 import { useCart } from "@/components/cart/CartContext";
+import Lightbox from "@/components/shared/Lightbox";
 
 interface Props {
   listing: ListingDetailType;
@@ -29,6 +30,7 @@ export default function ListingDetail({ listing }: Props) {
   const [open, setOpen] = useState(false);
   const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   async function handleBuyClick() {
     try {
@@ -70,6 +72,8 @@ export default function ListingDetail({ listing }: Props) {
             src={selectedImage}
             alt={listing.title || "Listing detail"}
             className="detail-main-image"
+            style={{ cursor: "pointer" }}
+            onClick={() => setLightboxIdx(images.indexOf(selectedImage))}
           />
 
           {images.length > 1 && (
@@ -95,6 +99,23 @@ export default function ListingDetail({ listing }: Props) {
 
         <div className="detail-right card">
           <h1>{listing.title}</h1>
+
+          {listing.listingType && listing.listingType !== "ACCOUNT" && (
+            <span
+              style={{
+                display: "inline-block",
+                padding: "4px 12px",
+                borderRadius: 999,
+                background: listing.listingType === "SERVICE" ? "#f3e8ff" : "#fef3c7",
+                color: listing.listingType === "SERVICE" ? "#6b21a8" : "#92400e",
+                fontWeight: 800,
+                fontSize: 13,
+                marginBottom: 10,
+              }}
+            >
+              {listing.listingType === "SERVICE" ? "Dịch vụ" : "Vật phẩm"}
+            </span>
+          )}
 
           <p className="detail-price">{formatCurrency(listing.price)}</p>
 
@@ -161,6 +182,24 @@ export default function ListingDetail({ listing }: Props) {
         onClose={() => setOpen(false)}
         onConfirm={handleConfirmPurchase}
       />
+
+      {lightboxIdx != null && (
+        <Lightbox
+          images={images}
+          currentIndex={lightboxIdx}
+          onClose={() => setLightboxIdx(null)}
+          onPrev={() =>
+            setLightboxIdx((i) =>
+              i != null ? (i - 1 + images.length) % images.length : 0,
+            )
+          }
+          onNext={() =>
+            setLightboxIdx((i) =>
+              i != null ? (i + 1) % images.length : 0,
+            )
+          }
+        />
+      )}
 
       {loading && <div className="page-loading">Đang xử lý đơn hàng...</div>}
     </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createAdminListing,
@@ -33,6 +33,13 @@ const initialPayload: AdminListingPayload = {
   secretDataEncrypted: "",
 };
 
+const TYPE_DESCRIPTIONS: Record<string, string> = {
+  ACCOUNT: "Bán tài khoản game. Khách mua sẽ nhận được thông tin đăng nhập.",
+  ITEM: "Bán vật phẩm trong game. Không phải tài khoản.",
+  SERVICE: "Cung cấp dịch vụ (cày thuê, săn đệ, up đệ...). Không phải mua bán acc.",
+  RANDOM: "Acc ngẫu nhiên. Khách nhận acc ngẫu nhiên trong kho.",
+};
+
 export default function AdminListingForm({ mode, listing }: Props) {
   const router = useRouter();
   const { notify, confirmAction } = useNotify();
@@ -42,9 +49,30 @@ export default function AdminListingForm({ mode, listing }: Props) {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [galleryFile, setGalleryFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [existingGames, setExistingGames] = useState<string[]>([]);
+  const [createNewGame, setCreateNewGame] = useState(false);
 
   useEffect(() => {
-    void getAdminCategories().then(setCategories).catch(console.error);
+    void getAdminCategories()
+      .then(setCategories)
+      .catch(console.error);
+
+    // Fetch existing game names from listings
+    import("@/services/listing.service")
+      .then((m) => m.getListings())
+      .then((listings) => {
+        const names = Array.from(
+          new Set(listings.map((l) => l.gameName).filter(Boolean)),
+        ) as string[];
+        setExistingGames(names);
+        // If current gameName is not in the list, switch to "Create New" mode
+        if (mode === "edit" && listing?.gameName && !names.includes(listing.gameName)) {
+          setCreateNewGame(true);
+        }
+      })
+      .catch(() => {
+        /* ignore */
+      });
   }, []);
 
   useEffect(() => {
@@ -64,6 +92,16 @@ export default function AdminListingForm({ mode, listing }: Props) {
     });
   }, [listing]);
 
+  // Leaf categories: have parentId AND are not parents themselves
+  const leafCategories = useMemo(() => {
+    const parentIds = new Set(
+      categories.filter((c) => c.parentId != null).map((c) => c.parentId),
+    );
+    return categories.filter(
+      (c) => c.parentId != null && !parentIds.has(c.id),
+    );
+  }, [categories]);
+
   function updateField<K extends keyof AdminListingPayload>(
     key: K,
     value: AdminListingPayload[K],
@@ -75,7 +113,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
     return title
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[̀-ͯ]/g, "")
       .replace(/đ/g, "d")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
@@ -83,17 +121,12 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
   async function uploadThumbnailIfNeeded(listingId: number) {
     if (!thumbnailFile) return;
-
     const uploaded = await uploadListingImage(listingId, thumbnailFile);
-
-    await updateAdminListingThumbnail(listingId, {
-      thumbnail: uploaded.url,
-    });
+    await updateAdminListingThumbnail(listingId, { thumbnail: uploaded.url });
   }
 
   async function uploadGalleryIfNeeded(listingId: number) {
     if (!galleryFile) return;
-
     await uploadListingImage(listingId, galleryFile);
   }
 
@@ -102,7 +135,6 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
     const ok = await confirmAction(
       mode === "create" ? "Tạo sản phẩm mới?" : "Cập nhật sản phẩm này?",
-      mode === "create" ? "Tạo sản phẩm" : "Cập nhật sản phẩm",
     );
 
     if (!ok) return;
@@ -111,30 +143,22 @@ export default function AdminListingForm({ mode, listing }: Props) {
       setLoading(true);
 
       if (mode === "create") {
-        if (!payload.secretDataEncrypted.trim()) {
-          notify(
-            "error",
-            "Thông tin tài khoản là bắt buộc khi tạo acc game, nếu là dịch vụ khác thì điền 0",
-          );
+        const data = { ...payload };
+        if (!data.secretDataEncrypted.trim()) {
+          notify("error", "Thông tin tài khoản là bắt buộc");
           return;
         }
-
-        const created = await createAdminListing(payload);
-
+        const created = await createAdminListing(data);
         await uploadThumbnailIfNeeded(created.id);
         await uploadGalleryIfNeeded(created.id);
-
         notify("success", "Tạo sản phẩm thành công");
       }
 
       if (mode === "edit") {
         if (!listing) return;
-
         await updateAdminListing(listing.id, payload);
-
         await uploadThumbnailIfNeeded(listing.id);
         await uploadGalleryIfNeeded(listing.id);
-
         notify("success", "Cập nhật sản phẩm thành công");
       }
 
@@ -150,13 +174,12 @@ export default function AdminListingForm({ mode, listing }: Props) {
     }
   }
 
-  const isService = payload.listingType === "SERVICE";
-
   return (
     <form className="card admin-form" onSubmit={handleSubmit}>
       <h1>{mode === "create" ? "Tạo sản phẩm" : "Sửa sản phẩm"}</h1>
 
       <div className="form-grid">
+        {/* Listing Type */}
         <div>
           <label>Loại sản phẩm</label>
           <select
@@ -166,49 +189,123 @@ export default function AdminListingForm({ mode, listing }: Props) {
               updateField("listingType", e.target.value as ListingType)
             }
           >
-            <option value="ACCOUNT">Tài khoản</option>
-            <option value="SERVICE">Dịch vụ</option>
-            <option value="ITEM">Vật phẩm</option>
-            <option value="RANDOM">Random</option>
+            <option value="ACCOUNT">Tài khoản (Account)</option>
+            <option value="ITEM">Vật phẩm (Item)</option>
+            <option value="SERVICE">Dịch vụ (Service)</option>
+            <option value="RANDOM">Ngẫu nhiên (Random)</option>
           </select>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--muted)" }}>
+            {TYPE_DESCRIPTIONS[payload.listingType]}
+          </p>
         </div>
 
+        {/* Category (leaf only) */}
         <div>
-          <label>Danh mục</label>
+          <label>Danh mục (chỉ chọn danh mục con)</label>
           <select
             className="input"
             value={payload.categoryId}
             onChange={(e) => updateField("categoryId", Number(e.target.value))}
           >
             <option value={0}>Chọn danh mục</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
+            {leafCategories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
               </option>
             ))}
           </select>
+          {leafCategories.length === 0 && (
+            <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--warning)" }}>
+              Chưa có danh mục con. Vui lòng tạo danh mục con trước.
+            </p>
+          )}
         </div>
 
+        {/* Game Name (dropdown + create new) */}
         <div>
           <label>Game</label>
-          <input
-            className="input"
-            value={payload.gameName}
-            onChange={(e) => updateField("gameName", e.target.value)}
-            placeholder="Ngọc Rồng Online"
-          />
+          {!createNewGame && existingGames.length > 0 && (
+            <div>
+              <select
+                className="input"
+                value={payload.gameName}
+                onChange={(e) => updateField("gameName", e.target.value)}
+              >
+                {existingGames.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn-secondary"
+                style={{ marginTop: 6, fontSize: 12, padding: "5px 10px" }}
+                onClick={() => setCreateNewGame(true)}
+              >
+                Tạo Game mới
+              </button>
+            </div>
+          )}
+          {(createNewGame || existingGames.length === 0) && (
+            <div>
+              <input
+                className="input"
+                value={payload.gameName}
+                onChange={(e) => updateField("gameName", e.target.value)}
+                placeholder="Nhập tên game mới..."
+              />
+              <div
+                style={{
+                  background: "#fef3c7",
+                  border: "1px solid #f59e0b",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  marginTop: 6,
+                  fontSize: 12,
+                  color: "#92400e",
+                  fontWeight: 700,
+                }}
+              >
+                ⚠️ Game Name sẽ quyết định việc tạo một Kho Acc Game mới. Nếu nhập
+                tên mới (hoặc sai chính tả), hệ thống sẽ tự động tạo thêm một kho
+                mới ngoài ý muốn.
+              </div>
+              {existingGames.length > 0 && (
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  style={{ marginTop: 6, fontSize: 12, padding: "5px 10px" }}
+                  onClick={() => {
+                    setCreateNewGame(false);
+                    updateField("gameName", existingGames[0]);
+                  }}
+                >
+                  ← Chọn game có sẵn
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
+        {/* Server */}
         <div>
-          <label>{isService ? "Gói dịch vụ / Máy chủ" : "Máy chủ"}</label>
+          <label>
+            {payload.listingType === "SERVICE"
+              ? "Gói dịch vụ / Máy chủ"
+              : "Máy chủ"}
+          </label>
           <input
             className="input"
             value={payload.serverName}
             onChange={(e) => updateField("serverName", e.target.value)}
-            placeholder={isService ? "Săn đệ / Up đệ / Nhiệm vụ" : "7"}
+            placeholder={
+              payload.listingType === "SERVICE" ? "Săn đệ / Up đệ" : "7"
+            }
           />
         </div>
 
+        {/* Title */}
         <div className="form-col-span-2">
           <label>Tiêu đề</label>
           <input
@@ -216,7 +313,6 @@ export default function AdminListingForm({ mode, listing }: Props) {
             value={payload.title}
             onChange={(e) => {
               updateField("title", e.target.value);
-
               if (mode === "create") {
                 updateField("slug", autoSlug(e.target.value));
               }
@@ -224,6 +320,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
           />
         </div>
 
+        {/* Slug */}
         <div className="form-col-span-2">
           <label>Slug</label>
           <input
@@ -233,6 +330,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
           />
         </div>
 
+        {/* Price + Status */}
         <div>
           <label>Giá</label>
           <input
@@ -261,6 +359,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
           </select>
         </div>
 
+        {/* Description */}
         <div className="form-col-span-2">
           <label>Mô tả</label>
           <textarea
@@ -270,6 +369,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
           />
         </div>
 
+        {/* Secret Data */}
         <div className="form-col-span-2">
           <label>
             Thông tin giao cho khách{" "}
@@ -280,13 +380,14 @@ export default function AdminListingForm({ mode, listing }: Props) {
             value={payload.secretDataEncrypted}
             onChange={(e) => updateField("secretDataEncrypted", e.target.value)}
             placeholder={
-              isService
-                ? "Ví dụ: Sau khi mua, vui lòng liên hệ Zalo shop để cung cấp thông tin tài khoản cần làm dịch vụ."
+              payload.listingType === "SERVICE"
+                ? "Liên hệ Zalo shop để cung cấp thông tin cần làm dịch vụ."
                 : "Tài khoản: abc | Mật khẩu: 123456"
             }
           />
         </div>
 
+        {/* Images */}
         <div>
           <label>Ảnh chính</label>
           <input
@@ -317,7 +418,6 @@ export default function AdminListingForm({ mode, listing }: Props) {
         >
           Quay lại
         </button>
-
         <button className="btn-primary" type="submit" disabled={loading}>
           {loading ? "Đang lưu..." : "Lưu sản phẩm"}
         </button>

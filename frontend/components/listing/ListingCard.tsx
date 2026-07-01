@@ -6,6 +6,13 @@ import { formatCurrency } from "@/lib/format";
 import { useCart } from "@/components/cart/CartContext";
 import { useNotify } from "@/components/shared/NotificationProvider";
 
+const TYPE_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
+  ACCOUNT: { label: "Tài khoản", bg: "#dbeafe", color: "#1e40af" },
+  ITEM: { label: "Vật phẩm", bg: "#fef3c7", color: "#92400e" },
+  SERVICE: { label: "Dịch vụ", bg: "#f3e8ff", color: "#6b21a8" },
+  RANDOM: { label: "Ngẫu nhiên", bg: "#f3f4f6", color: "#374151" },
+};
+
 interface Props {
   listing: Listing;
 }
@@ -49,6 +56,20 @@ export default function ListingCard({ listing }: Props) {
         <h3>{listing.title}</h3>
 
         <div className="listing-tags">
+          {listing.listingType && TYPE_CONFIG[listing.listingType] && (
+            <span
+              style={{
+                background: TYPE_CONFIG[listing.listingType].bg,
+                color: TYPE_CONFIG[listing.listingType].color,
+                borderRadius: 8,
+                padding: "4px 8px",
+                fontSize: 11,
+                fontWeight: 800,
+              }}
+            >
+              {TYPE_CONFIG[listing.listingType].label}
+            </span>
+          )}
           <span>{listing.gameName}</span>
           {listing.serverName && <span>SV {listing.serverName}</span>}
         </div>
