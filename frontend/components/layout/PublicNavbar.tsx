@@ -102,7 +102,7 @@ export default function PublicNavbar() {
   return (
     <header className="public-navbar">
       <Link href="/" className="public-logo">
-        <img src="/logo_shop_2-removebg-preview.png" alt="thienngocrong.shop" />
+        <img src="/logo.png" alt="shopthien.xyz" />
       </Link>
 
       <nav className="public-nav">
@@ -132,7 +132,11 @@ export default function PublicNavbar() {
         <button
           type="button"
           className="nav-login"
-          style={{ background: "white", color: "var(--text)", position: "relative" }}
+          style={{
+            background: "white",
+            color: "var(--text)",
+            position: "relative",
+          }}
           onClick={() => window.dispatchEvent(new Event("cart:toggle"))}
         >
           🛒 Giỏ hàng
@@ -160,7 +164,11 @@ export default function PublicNavbar() {
 
         {!loggedIn ? (
           <>
-            <Link href="/register" className="nav-login" style={{ background: "white", color: "var(--primary)" }}>
+            <Link
+              href="/register"
+              className="nav-login"
+              style={{ background: "white", color: "var(--primary)" }}
+            >
               Đăng ký
             </Link>
             <Link href="/login" className="nav-login">
@@ -180,6 +188,7 @@ export default function PublicNavbar() {
 
             <div className="user-dropdown">
               <Link href="/me">Hồ sơ</Link>
+              <Link href="/me/tickets">Hỗ trợ</Link>
 
               {role === "ADMIN" && <Link href="/admin">Admin</Link>}
 

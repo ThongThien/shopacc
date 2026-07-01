@@ -8,6 +8,8 @@ import com.shopacc.backend.dto.user.TransactionResponse;
 import com.shopacc.backend.dto.user.UserBalanceResponse;
 import com.shopacc.backend.security.CustomUserDetails;
 import com.shopacc.backend.service.UserService;
+import com.shopacc.backend.repository.UserBalanceLogRepository;
+import com.shopacc.backend.entity.UserBalanceLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserBalanceLogRepository balanceLogRepository;
 
     @GetMapping("/balance")
     public UserBalanceResponse getMyBalance(
@@ -50,5 +53,11 @@ public class UserController {
         return Map.of(
                 "message",
                 "Password changed successfully");
+    }
+
+    @GetMapping("/balance-logs")
+    public List<UserBalanceLog> getMyBalanceLogs(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        return balanceLogRepository.findByUserIdOrderByCreatedAtDesc(userDetails.getId());
     }
 }
