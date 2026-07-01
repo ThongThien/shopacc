@@ -1295,8 +1295,8 @@ button:disabled {
 .admin-toolbar {
   padding: 16px;
   margin-bottom: 18px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
@@ -1381,11 +1381,11 @@ button:disabled {
 
 .admin-toolbar input.input {
   flex: 1;
-  min-width: 300px;
+  min-width: 200px;
 }
 
 .admin-toolbar select.input {
-  width: 180px;
+  width: 160px;
   flex-shrink: 0;
 }
 .admin-game-tabs {
