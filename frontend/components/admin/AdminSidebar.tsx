@@ -10,6 +10,7 @@ const links = [
   { href: "/admin/orders", label: "Đơn hàng" },
   { href: "/admin/users", label: "Người dùng" },
   { href: "/admin/transactions", label: "Giao dịch" },
+  { href: "/admin/discounts", label: "Mã giảm giá" },
   { href: "/admin/webhooks", label: "Webhook Logs" },
   { href: "/admin/audit", label: "Nhật ký hệ thống" },
 ];

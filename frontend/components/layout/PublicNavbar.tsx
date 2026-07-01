@@ -9,9 +9,11 @@ import { Listing } from "@/types/listing";
 import { UserBalance } from "@/types/user";
 import { formatCurrency } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
+import { useCart } from "@/components/cart/CartContext";
 
 export default function PublicNavbar() {
   const { notify, confirmAction } = useNotify();
+  const { count } = useCart();
 
   const [listings, setListings] = useState<Listing[]>([]);
   const [balance, setBalance] = useState<UserBalance | null>(null);
@@ -126,6 +128,35 @@ export default function PublicNavbar() {
         <Link href="/services">Dịch vụ</Link>
         <Link href="/me/orders">Lịch sử mua</Link>
         <Link href="/me/deposits">Nạp tiền</Link>
+
+        <button
+          type="button"
+          className="nav-login"
+          style={{ background: "white", color: "var(--text)", position: "relative" }}
+          onClick={() => window.dispatchEvent(new Event("cart:toggle"))}
+        >
+          🛒 Giỏ hàng
+          {count > 0 && (
+            <span
+              style={{
+                position: "absolute",
+                top: -6,
+                right: -6,
+                background: "var(--accent)",
+                color: "white",
+                borderRadius: "50%",
+                width: 20,
+                height: 20,
+                fontSize: 11,
+                fontWeight: 900,
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              {count}
+            </span>
+          )}
+        </button>
 
         {!loggedIn ? (
           <>

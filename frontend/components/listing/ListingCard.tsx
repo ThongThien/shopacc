@@ -3,12 +3,36 @@
 import Link from "next/link";
 import { Listing } from "@/types/listing";
 import { formatCurrency } from "@/lib/format";
+import { useCart } from "@/components/cart/CartContext";
+import { useNotify } from "@/components/shared/NotificationProvider";
 
 interface Props {
   listing: Listing;
 }
 
 export default function ListingCard({ listing }: Props) {
+  const { addItem, items } = useCart();
+  const { notify } = useNotify();
+  const inCart = items.some((i) => i.listingId === listing.id);
+
+  async function handleAddToCart(e: React.MouseEvent) {
+    e.preventDefault();
+    if (inCart) return;
+    try {
+      await addItem({
+        listingId: listing.id,
+        title: listing.title || "",
+        price: listing.price,
+        thumbnail: listing.thumbnail,
+        gameName: listing.gameName,
+        serverName: listing.serverName,
+      });
+      notify("success", "Đã thêm vào giỏ hàng");
+    } catch (err) {
+      notify("error", err instanceof Error ? err.message : "Thêm vào giỏ thất bại");
+    }
+  }
+
   return (
     <article className="listing-card">
       <div className="listing-image-wrap">
@@ -36,6 +60,16 @@ export default function ListingCard({ listing }: Props) {
             Xem chi tiết
           </Link>
         </div>
+
+        <button
+          type="button"
+          className={inCart ? "btn-secondary" : "btn-primary"}
+          style={{ marginTop: 10, width: "100%", padding: "8px 12px", fontSize: 13 }}
+          disabled={inCart}
+          onClick={handleAddToCart}
+        >
+          {inCart ? "Đã thêm vào giỏ" : "Thêm vào giỏ hàng"}
+        </button>
       </div>
     </article>
   );

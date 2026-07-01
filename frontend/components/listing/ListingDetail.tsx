@@ -5,13 +5,12 @@ import { useRouter } from "next/navigation";
 
 import PurchaseConfirmModal from "@/components/order/PurchaseConfirmModal";
 import { useNotify } from "@/components/shared/NotificationProvider";
-import { showLoading, hideLoading } from "@/components/shared/LoadingOverlay";
 
-import { purchaseListing } from "@/services/order.service";
 import { getMyBalance } from "@/services/user.service";
 
 import { ListingDetail as ListingDetailType } from "@/types/listing";
 import { formatCurrency } from "@/lib/format";
+import { useCart } from "@/components/cart/CartContext";
 
 interface Props {
   listing: ListingDetailType;
@@ -20,6 +19,8 @@ interface Props {
 export default function ListingDetail({ listing }: Props) {
   const router = useRouter();
   const { notify } = useNotify();
+  const { addItem, items } = useCart();
+  const inCart = items.some((i) => i.listingId === listing.id);
 
   const images = listing.images || [];
   const defaultImage = listing.thumbnail || images[0] || "/placeholder.png";
@@ -42,24 +43,23 @@ export default function ListingDetail({ listing }: Props) {
   }
 
   async function handleConfirmPurchase() {
-    try {
-      setLoading(true);
-      showLoading("Đang xử lý thanh toán...");
-
-      await purchaseListing(listing.id);
-
-      notify("success", "Mua acc thành công. Vui lòng kiểm tra lịch sử mua.");
-
-      window.dispatchEvent(new Event("balance-changed"));
-      setOpen(false);
-      router.push("/me/orders");
-      router.refresh();
-    } catch (err) {
-      notify("error", err instanceof Error ? err.message : "Mua acc thất bại");
-    } finally {
-      setLoading(false);
-      hideLoading();
+    if (!inCart) {
+      try {
+        await addItem({
+          listingId: listing.id,
+          title: listing.title || "",
+          price: listing.price,
+          thumbnail: listing.thumbnail,
+          gameName: listing.gameName,
+          serverName: listing.serverName,
+        });
+      } catch {
+        // ignore — continue to checkout anyway
+      }
     }
+
+    setOpen(false);
+    router.push("/checkout");
   }
 
   return (
@@ -118,9 +118,39 @@ export default function ListingDetail({ listing }: Props) {
 
           <p className="detail-description">{listing.description}</p>
 
-          <button className="buy-button" onClick={handleBuyClick}>
-            Mua ngay
-          </button>
+          <div style={{ display: "grid", gap: 10 }}>
+            <button className="buy-button" onClick={handleBuyClick}>
+              Mua ngay
+            </button>
+            <button
+              type="button"
+              className={inCart ? "btn-secondary" : "btn-primary"}
+              style={{
+                ...(inCart
+                  ? {}
+                  : { background: "white", color: "var(--primary)" }),
+              }}
+              disabled={inCart}
+              onClick={async () => {
+                if (inCart) return;
+                try {
+                  await addItem({
+                    listingId: listing.id,
+                    title: listing.title || "",
+                    price: listing.price,
+                    thumbnail: listing.thumbnail,
+                    gameName: listing.gameName,
+                    serverName: listing.serverName,
+                  });
+                  notify("success", "Đã thêm vào giỏ hàng");
+                } catch (err) {
+                  notify("error", err instanceof Error ? err.message : "Thêm vào giỏ thất bại");
+                }
+              }}
+            >
+              {inCart ? "Đã thêm vào giỏ" : "Thêm vào giỏ hàng"}
+            </button>
+          </div>
         </div>
       </section>
 

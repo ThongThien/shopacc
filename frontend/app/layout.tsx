@@ -4,6 +4,8 @@ import { NotificationProvider } from "@/components/shared/NotificationProvider";
 import "./globals.css";
 import AuthExpiredModal from "@/components/shared/AuthExpiredModal";
 import LoadingOverlay from "@/components/shared/LoadingOverlay";
+import { CartProvider } from "@/components/cart/CartContext";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -27,9 +29,12 @@ export default function RootLayout({
     <html lang="vi">
       <body className={inter.className}>
         <NotificationProvider>
-          {children}
-          <AuthExpiredModal />
-          <LoadingOverlay />
+          <CartProvider>
+            {children}
+            <AuthExpiredModal />
+            <LoadingOverlay />
+            <CartDrawer />
+          </CartProvider>
         </NotificationProvider>
       </body>
     </html>

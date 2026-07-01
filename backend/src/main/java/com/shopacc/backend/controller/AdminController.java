@@ -18,6 +18,8 @@ import com.shopacc.backend.security.CustomUserDetails;
 import com.shopacc.backend.service.AuditLogService;
 import com.shopacc.backend.repository.PaymentWebhookLogRepository;
 import com.shopacc.backend.entity.PaymentWebhookLog;
+import com.shopacc.backend.entity.DiscountCode;
+import com.shopacc.backend.repository.DiscountCodeRepository;
 import org.springframework.data.domain.Sort;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,6 +41,8 @@ public class AdminController {
         private final AuditLogService auditLogService;
 
         private final PaymentWebhookLogRepository webhookLogRepository;
+
+        private final DiscountCodeRepository discountCodeRepository;
 
         @GetMapping("/categories")
         public List<CategoryResponse> getAllCategories() {
@@ -423,5 +427,71 @@ public class AdminController {
                                 httpRequest);
 
                 return new SecretResponse(secretData);
+        }
+
+        // ===================== DISCOUNT CODES =====================
+        @GetMapping("/discounts")
+        public List<DiscountCode> getAllDiscounts() {
+                return discountCodeRepository.findAll();
+        }
+
+        @PostMapping("/discounts")
+        public DiscountCode createDiscount(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @RequestBody DiscountCode discount,
+                        HttpServletRequest httpRequest) {
+                discount.setUsedCount(0);
+                discount.setCreatedAt(java.time.LocalDateTime.now());
+                if (discount.getCode() == null) discount.setCode(userDetails.getUsername() + "_" + System.currentTimeMillis() / 1000);
+                DiscountCode saved = discountCodeRepository.save(discount);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_CREATE_LISTING,
+                                "Created discount code " + saved.getCode(),
+                                httpRequest);
+
+                return saved;
+        }
+
+        @PatchMapping("/discounts/{id}")
+        public DiscountCode updateDiscount(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        @RequestBody DiscountCode update,
+                        HttpServletRequest httpRequest) {
+                DiscountCode discount = discountCodeRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Discount not found"));
+                if (update.getCode() != null) discount.setCode(update.getCode());
+                if (update.getType() != null) discount.setType(update.getType());
+                if (update.getValue() != null) discount.setValue(update.getValue());
+                if (update.getMinOrderAmount() != null) discount.setMinOrderAmount(update.getMinOrderAmount());
+                if (update.getMaxUsage() != null) discount.setMaxUsage(update.getMaxUsage());
+                discount.setActive(update.isActive());
+                if (update.getExpiresAt() != null) discount.setExpiresAt(update.getExpiresAt());
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_UPDATE_LISTING,
+                                "Updated discount code " + discount.getCode(),
+                                httpRequest);
+
+                return discountCodeRepository.save(discount);
+        }
+
+        @DeleteMapping("/discounts/{id}")
+        public Map<String, String> deleteDiscount(
+                        @AuthenticationPrincipal CustomUserDetails userDetails,
+                        @PathVariable Long id,
+                        HttpServletRequest httpRequest) {
+                discountCodeRepository.deleteById(id);
+
+                auditLogService.log(
+                                userDetails.getId(),
+                                AuditAction.ADMIN_DELETE_LISTING,
+                                "Deleted discount code id=" + id,
+                                httpRequest);
+
+                return Map.of("message", "Discount deleted");
         }
 }
