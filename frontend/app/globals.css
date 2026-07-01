@@ -138,7 +138,7 @@ button:disabled {
 }
 
 .input {
-  width: 100%;
+  width: 95%;
 
   border: 1px solid var(--border);
 
@@ -184,13 +184,13 @@ button:disabled {
 }
 
 .public-logo {
-  font-size: 22px;
+  font-size: 60px;
   font-weight: 900;
   color: var(--primary);
 }
 
 .public-logo img {
-  height: 48px;
+  height: 150px;
   width: auto;
   display: block;
 }
@@ -1338,13 +1338,23 @@ button:disabled {
 }
 
 @keyframes loadingBarSlide {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 @keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .admin-content,

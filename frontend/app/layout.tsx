@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Thiên Ngọc Rồng Shop",
   description: "Shop acc Ngọc Rồng Online uy tín",
   icons: {
-    icon: "/logo_web-removebg-preview.png",
+    icon: "/icon_web.png",
   },
 };
 
