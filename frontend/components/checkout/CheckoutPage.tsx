@@ -165,21 +165,22 @@ export default function CheckoutPage() {
               <b style={{ color: "var(--accent)", fontSize: 17, whiteSpace: "nowrap" }}>
                 {formatCurrency(item.price)}
               </b>
-
-              {item.listingType === "SERVICE" && item.serviceInfo && (
-                <div style={{ width: "100%", fontSize: 12, color: "var(--muted)",
-                  borderTop: "1px solid var(--border)", paddingTop: 8 }}>
-                  {(function () {
-                    try {
-                      const info = JSON.parse(item.serviceInfo);
-                      return (
-                        <span>TK: <b>{info.accountName}</b> · Server: <b>{info.server || "-"}</b>{info.note ? ` · ${info.note}` : ""}</span>
-                      );
-                    } catch { return null; }
-                  })()}
-                </div>
-              )}
             </div>
+
+            {item.listingType === "SERVICE" && item.serviceInfo && (
+              <div style={{ fontSize: 12, color: "var(--muted)",
+                borderTop: "1px solid var(--border)", paddingTop: 8 }}>
+                {(function () {
+                  try {
+                    const info = JSON.parse(item.serviceInfo);
+                    return (
+                      <span>TK: <b>{info.accountName}</b> · Server: <b>{info.server || "-"}</b>{info.note ? ` · ${info.note}` : ""}</span>
+                    );
+                  } catch { return null; }
+                })()}
+              </div>
+            )}
+          </div>
           ))}
         </div>
 

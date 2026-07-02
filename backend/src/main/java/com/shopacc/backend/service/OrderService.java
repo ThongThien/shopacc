@@ -157,7 +157,10 @@ public class OrderService {
                 order.setPaymentStatus(PaymentStatus.PAID);
                 orderRepository.save(order);
 
-                listing.setStatus(ListingStatus.SOLD_OUT);
+                // Không đánh dấu SOLD_OUT cho SERVICE vì có thể đặt nhiều lần
+                if (listing.getListingType() != com.shopacc.backend.enums.ListingType.SERVICE) {
+                        listing.setStatus(ListingStatus.SOLD_OUT);
+                }
                 listingRepository.save(listing);
 
                 UserBalanceLog balanceLog = UserBalanceLog.builder()
