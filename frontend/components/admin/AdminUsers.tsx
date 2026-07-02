@@ -127,15 +127,21 @@ export default function AdminUsers() {
 
     if (!balanceUser) return;
 
-    const amount = Number(balanceAmount);
+    const newBalance = Number(balanceAmount);
 
-    if (!Number.isFinite(amount) || amount === 0) {
-      notify("error", "Số tiền không hợp lệ");
+    if (!Number.isFinite(newBalance) || newBalance < 0) {
+      notify("error", "Số dư phải >= 0");
+      return;
+    }
+
+    const delta = newBalance - balanceUser.balance;
+    if (delta === 0) {
+      notify("error", "Số dư không thay đổi");
       return;
     }
 
     const ok = await confirmAction(
-      `Xác nhận cộng/trừ ${formatCurrency(amount)} cho "${balanceUser.username}"?`,
+      `Đặt số dư "${balanceUser.username}" từ ${formatCurrency(balanceUser.balance)} → ${formatCurrency(newBalance)} (${delta > 0 ? "+" : ""}${formatCurrency(delta)})?`,
       "Điều chỉnh số dư",
     );
 
@@ -143,11 +149,11 @@ export default function AdminUsers() {
 
     try {
       await adjustAdminUserBalance(balanceUser.id, {
-        amount,
+        amount: delta,
         note: balanceNote,
       });
 
-      notify("success", "Đã điều chỉnh số dư");
+      notify("success", "Đã cập nhật số dư");
 
       setBalanceUser(null);
       setBalanceAmount("");
@@ -255,9 +261,12 @@ export default function AdminUsers() {
 
                         <button
                           type="button"
-                          onClick={() => setBalanceUser(user)}
+                          onClick={() => {
+                            setBalanceUser(user);
+                            setBalanceAmount(String(user.balance));
+                          }}
                         >
-                          Cộng tiền
+                          Sửa tiền
                         </button>
 
                         <button
@@ -303,7 +312,7 @@ export default function AdminUsers() {
       {balanceUser && (
         <div className="modal-overlay">
           <form className="modal-card" onSubmit={handleAdjustBalance}>
-            <h2>Điều chỉnh số dư</h2>
+            <h2>Đặt lại số dư</h2>
 
             <p className="muted-text">
               User: <b>{balanceUser.username}</b> — Số dư hiện tại:{" "}
@@ -313,7 +322,8 @@ export default function AdminUsers() {
             <input
               className="input"
               type="number"
-              placeholder="Nhập số tiền, âm nếu muốn trừ"
+              min={0}
+              placeholder="Nhập số dư mong muốn"
               value={balanceAmount}
               onChange={(e) => setBalanceAmount(e.target.value)}
             />

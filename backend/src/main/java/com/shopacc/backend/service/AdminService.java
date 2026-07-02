@@ -552,9 +552,7 @@ public class AdminService {
                 try {
                         return cryptoService.decrypt(listing.getSecretDataEncrypted());
                 } catch (Exception ex) {
-                        throw new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "Cannot decrypt secret data");
+                        return "[DỮ LIỆU MẪU] " + listing.getSecretDataEncrypted();
                 }
         }
 

@@ -303,7 +303,7 @@ public class OrderService {
                                         "Listing not found");
                 }
 
-                String secretData = cryptoService.decrypt(
+                String secretData = decryptSafe(
                                 listing.getSecretDataEncrypted());
 
                 return OrderSecretResponse.builder()
