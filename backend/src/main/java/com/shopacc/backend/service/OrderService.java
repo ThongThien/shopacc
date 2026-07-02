@@ -261,7 +261,7 @@ public class OrderService {
                                         .createdAt(response.getCreatedAt())
                                         .updatedAt(response.getUpdatedAt())
                                         .items(response.getItems())
-                                        .serviceInfo(cryptoService.decrypt(order.getServiceInfo()))
+                                        .serviceInfo(decryptSafe(order.getServiceInfo()))
                                         .build();
                 }
                 return response;
@@ -342,6 +342,15 @@ public class OrderService {
                                 .items(items)
                                 .serviceInfo(order.getServiceInfo())
                                 .build();
+        }
+
+        private String decryptSafe(String encrypted) {
+                if (encrypted == null || encrypted.isBlank()) return null;
+                try {
+                        return cryptoService.decrypt(encrypted);
+                } catch (Exception e) {
+                        return encrypted; // return as-is if not encrypted (dummy data)
+                }
         }
 
         private String resolvePaymentMethod(Order order) {
