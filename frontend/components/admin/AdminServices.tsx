@@ -28,8 +28,8 @@ export default function AdminServices() {
   const [slug, setSlug] = useState("");
   const [price, setPrice] = useState(0);
   const [desc, setDesc] = useState("");
-  const [thumb, setThumb] = useState("");
   const [srv, setSrv] = useState("");
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
   async function load() {
     setLoading(true);
@@ -57,8 +57,8 @@ export default function AdminServices() {
     setSlug("");
     setPrice(0);
     setDesc("");
-    setThumb("");
     setSrv("");
+    setThumbnailFile(null);
   }
 
   async function handleSubmit() {
@@ -68,11 +68,11 @@ export default function AdminServices() {
       slug,
       description: desc,
       price,
-      thumbnail: thumb,
       serverName: srv,
       isActive: true,
     };
     try {
+      let svcId = editId;
       if (editId) {
         await apiFetch(`/api/services/${editId}`, {
           method: "PUT",
@@ -80,12 +80,25 @@ export default function AdminServices() {
         });
         notify("success", "Cập nhật dịch vụ");
       } else {
-        await apiFetch("/api/services", {
+        const created = await apiFetch<{ id: number }>("/api/services", {
           method: "POST",
           body: JSON.stringify(payload),
         });
+        svcId = created.id;
         notify("success", "Tạo dịch vụ mới");
       }
+
+      // Upload thumbnail if file selected
+      if (thumbnailFile && svcId) {
+        const formData = new FormData();
+        formData.append("file", thumbnailFile);
+        await fetch(`${window.location.origin}/api/services/${svcId}/upload-image`, {
+          method: "POST",
+          body: formData,
+          headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+        });
+      }
+
       resetForm();
       await load();
     } catch (err) {
@@ -236,12 +249,13 @@ export default function AdminServices() {
                   color: "var(--muted)",
                 }}
               >
-                Thumbnail URL
+                Ảnh thumbnail
               </label>
               <input
                 className="input"
-                value={thumb}
-                onChange={(e) => setThumb(e.target.value)}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => setThumbnailFile(e.target.files?.[0] || null)}
               />
             </div>
             <div>
@@ -342,7 +356,7 @@ export default function AdminServices() {
                             setSlug(s.slug);
                             setPrice(s.price);
                             setDesc("");
-                            setThumb("");
+                            setThumbnailFile(null);
                             setSrv(s.serverName || "");
                             setShowForm(true);
                           }}

@@ -16,7 +16,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,6 +36,17 @@ public class ServiceController {
     private final UserRepository userRepository;
     private final UserBalanceLogRepository balanceLogRepository;
     private final CryptoService cryptoService;
+
+    @Value("${SUPABASE_URL}")
+    private String supabaseUrl;
+
+    @Value("${SUPABASE_SERVICE_ROLE_KEY}")
+    private String serviceRoleKey;
+
+    @Value("${SUPABASE_BUCKET}")
+    private String bucket;
+
+    private final WebClient webClient = WebClient.create();
 
     // ==================== PUBLIC ====================
 
@@ -232,6 +247,39 @@ public class ServiceController {
         balanceLogRepository.save(log);
 
         return mapOrderAdmin(order);
+    }
+
+    @PostMapping("/{id}/upload-image")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Map<String, String> uploadImage(
+                    @PathVariable Long id,
+                    @RequestParam("file") MultipartFile file) {
+
+        Service svc = serviceRepository.findById(id)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        try {
+            String fileName = "services/" + id + "_" + System.currentTimeMillis() + ".jpg";
+
+            String uploadUrl = supabaseUrl + "/storage/v1/object/" + bucket + "/" + fileName;
+            webClient.post()
+                            .uri(uploadUrl)
+                            .header("Authorization", "Bearer " + serviceRoleKey)
+                            .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                            .body(Mono.just(file.getBytes()), byte[].class)
+                            .retrieve()
+                            .bodyToMono(String.class)
+                            .block();
+
+            String publicUrl = supabaseUrl + "/storage/v1/object/public/" + bucket + "/" + fileName;
+            svc.setThumbnail(publicUrl);
+            svc.setUpdatedAt(LocalDateTime.now());
+            serviceRepository.save(svc);
+
+            return Map.of("url", publicUrl);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Upload failed");
+        }
     }
 
     // ==================== MAPPERS ====================
