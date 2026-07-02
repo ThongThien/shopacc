@@ -127,7 +127,23 @@ export default function PublicNavbar() {
 
         <Link href="/services">Dịch vụ</Link>
         <Link href="/me/orders">Lịch sử mua</Link>
+        <Link href="/me/service-orders">Đơn dịch vụ</Link>
         <Link href="/me/deposits">Nạp tiền</Link>
+
+        <div className="nav-dropdown">
+          <Link href="/services">Dịch vụ</Link>
+          <div className="nav-dropdown-menu">
+            {games.length === 0 && <span>Chưa có game</span>}
+            {games.map((game) => (
+              <Link
+                key={`svc-${game}`}
+                href={`/services?game=${encodeURIComponent(game)}`}
+              >
+                {game}
+              </Link>
+            ))}
+          </div>
+        </div>
 
         <button
           type="button"

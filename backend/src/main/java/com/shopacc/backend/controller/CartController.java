@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -52,6 +53,7 @@ public class CartController {
     }
 
     @PostMapping("/{listingId}")
+    @Transactional
     public Map<String, Object> addToCart(
                     @AuthenticationPrincipal CustomUserDetails userDetails,
                     @PathVariable Long listingId) {
@@ -78,6 +80,7 @@ public class CartController {
     }
 
     @DeleteMapping("/{listingId}")
+    @Transactional
     public Map<String, Object> removeFromCart(
                     @AuthenticationPrincipal CustomUserDetails userDetails,
                     @PathVariable Long listingId) {
@@ -87,6 +90,7 @@ public class CartController {
     }
 
     @DeleteMapping
+    @Transactional
     public Map<String, Object> clearCart(
                     @AuthenticationPrincipal CustomUserDetails userDetails) {
 

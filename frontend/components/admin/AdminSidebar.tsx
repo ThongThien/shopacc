@@ -8,6 +8,8 @@ const links = [
   { href: "/admin/listings", label: "Danh sách sản phẩm" },
   { href: "/admin/categories", label: "Danh mục" },
   { href: "/admin/orders", label: "Đơn hàng" },
+  { href: "/admin/services", label: "Dịch vụ" },
+  { href: "/admin/service-orders", label: "Đơn dịch vụ" },
   { href: "/admin/users", label: "Người dùng" },
   { href: "/admin/transactions", label: "Giao dịch" },
   { href: "/admin/tickets", label: "Ticket" },

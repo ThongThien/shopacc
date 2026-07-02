@@ -10,6 +10,8 @@ DELETE FROM tickets;
 DELETE FROM payment_webhook_logs;
 DELETE FROM discount_codes;
 DELETE FROM audit_logs;
+DELETE FROM service_orders;
+DELETE FROM services;
 DELETE FROM user_balance_logs;
 DELETE FROM order_items;
 DELETE FROM orders;
@@ -34,6 +36,8 @@ ALTER SEQUENCE IF EXISTS discount_codes_id_seq RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS tickets_id_seq RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS cart_items_id_seq RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS payment_webhook_logs_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS services_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS service_orders_id_seq RESTART WITH 1;
 
 -- =========================================================
 -- USERS — password BCrypt: 123456
@@ -107,12 +111,6 @@ INSERT INTO listings (category_id, listing_type, game_name, server_name, title, 
 (5,  'ITEM', 'Ngọc Rồng Online', '7',   'Set Vật Phẩm Săn Boss',          'set-vat-pham-san-boss', 'Combo vật phẩm hỗ trợ săn boss: đậu thần, bùa may mắn.',150000, 'https://placehold.co/600x400/eab308/000000?text=SET+SAN+BOSS',   'Giao trực tiếp trong game SV7',       'PUBLISHED', TRUE,  130, NOW(), NOW()),
 (6,  'ITEM', 'Ngọc Rồng Online', 'All', 'Pet Đệ Tử Cấp 5',                'pet-de-tu-cap-5',       'Pet đệ tử cấp 5 full skill, hỗ trợ săn boss.',         500000, 'https://placehold.co/600x400/eab308/000000?text=PET+DE+TU',       'Cần acc trống slot pet để nhận',      'PUBLISHED', FALSE, 210, NOW(), NOW());
 
--- ==================== NGỌC RỒNG ONLINE — SERVICE ====================
-INSERT INTO listings (category_id, listing_type, game_name, server_name, title, slug, description, price, thumbnail, secret_data_encrypted, status, is_featured, view_count, created_at, updated_at) VALUES
-(2,  'SERVICE', 'Ngọc Rồng Online', 'All', 'Cày Đệ Tử 24/7',               'cay-de-tu-24-7',        'Dịch vụ cày đệ tử tự động 24/7, an toàn, không hack.', 200000, 'https://placehold.co/600x400/a855f7/ffffff?text=CAY+DE+TU',       'Điền thông tin acc khi đặt dịch vụ', 'PUBLISHED', TRUE,  450, NOW(), NOW()),
-(2,  'SERVICE', 'Ngọc Rồng Online', 'All', 'Săn Boss Hàng Ngày',           'san-boss-hang-ngay',    'Dịch vụ săn boss tự động mỗi ngày, nhận đủ item.',     150000, 'https://placehold.co/600x400/a855f7/ffffff?text=SAN+BOSS',        'Điền thông tin acc + server',         'PUBLISHED', TRUE,  320, NOW(), NOW()),
-(2,  'SERVICE', 'Ngọc Rồng Online', 'All', 'Up Sức Mạnh Nhanh 1-10tr',    'up-sm-nhanh-1-10tr',    'Dịch vụ up sức mạnh nhanh từ 1tr lên 10tr chỉ trong 1-3 ngày.', 500000, 'https://placehold.co/600x400/a855f7/ffffff?text=UP+SM',          'Cần chuẩn bị đủ ngọc và vàng',       'PUBLISHED', FALSE, 180, NOW(), NOW());
-
 -- ==================== LIÊN QUÂN MOBILE ====================
 INSERT INTO listings (category_id, listing_type, game_name, server_name, title, slug, description, price, thumbnail, secret_data_encrypted, status, is_featured, view_count, created_at, updated_at) VALUES
 (8,  'ACCOUNT', 'Liên Quân Mobile', 'Asia', 'Acc Liên Quân 50 Skin VIP',   'acc-lq-50-skin-vip',    'Acc Liên Quân 50 skin, nhiều skin giới hạn S+.',       350000, 'https://placehold.co/600x400/0891b2/ffffff?text=LIEN+QUAN+50',  'TK: lq_50skin | MK: lq@2024',         'PUBLISHED', TRUE,  260, NOW(), NOW()),
@@ -126,8 +124,7 @@ INSERT INTO listings (category_id, listing_type, game_name, server_name, title, 
 (11, 'ACCOUNT', 'Free Fire', 'SEA', 'Acc Free Fire 10 Skin Súng VIP',    'acc-ff-10-skin-sung',   'Acc Free Fire 10 skin súng VIP, nhiều skin Evo.',       220000, 'https://placehold.co/600x400/dc2626/ffffff?text=FF+SKIN+SUNG', 'TK: ff_skin10 | MK: ff@2024',          'PUBLISHED', TRUE,  180, NOW(), NOW()),
 (11, 'ACCOUNT', 'Free Fire', 'SEA', 'Acc Free Fire 5 Skin Evo + Pet',    'acc-ff-5-evo-pet',      'Acc có 5 skin Evo và pet VIP.',                          300000, 'https://placehold.co/600x400/dc2626/ffffff?text=FF+EVO+PET',   'TK: ff_evo | MK: evo@123',            'PUBLISHED', FALSE, 110, NOW(), NOW()),
 (12, 'ACCOUNT', 'Free Fire', 'SEA', 'Acc Free Fire 2000 Diamond',        'acc-ff-2000-diamond',   'Acc có sẵn 2000 diamond, chưa tiêu.',                   150000, 'https://placehold.co/600x400/dc2626/ffffff?text=FF+DIAMOND',   'TK: ff_dia | MK: dia@123',            'PUBLISHED', FALSE, 90,  NOW(), NOW()),
-(11, 'ITEM',   'Free Fire', 'All', '500 Diamond Free Fire',              '500-diamond-ff',        '500 diamond nạp trực tiếp vào acc của bạn.',            80000,  'https://placehold.co/600x400/eab308/000000?text=FF+500+DIA',    'Cần ID game để nạp',                  'PUBLISHED', FALSE, 65,  NOW(), NOW()),
-(2,  'SERVICE','Ngọc Rồng Online', 'All', 'Nâng Cấp Bông Tai Lên Cấp 3',   'nang-cap-bong-tai-c3',  'Dịch vụ nâng cấp bông tai Porata từ cấp 1 lên cấp 3.', 350000, 'https://placehold.co/600x400/a855f7/ffffff?text=NANG+CAP+BT',  'Cần có sẵn bông tai cấp 1 và đủ ngọc','PUBLISHED', FALSE, 160, NOW(), NOW());
+(11, 'ITEM',   'Free Fire', 'All', '500 Diamond Free Fire',              '500-diamond-ff',        '500 diamond nạp trực tiếp vào acc của bạn.',            80000,  'https://placehold.co/600x400/eab308/000000?text=FF+500+DIA',    'Cần ID game để nạp',                  'PUBLISHED', FALSE, 65,  NOW(), NOW());
 
 -- =========================================================
 -- LISTING IMAGES — 2-3 ảnh mỗi listing
@@ -243,6 +240,19 @@ INSERT INTO tickets (user_id, subject, category, status, last_reply_by_admin, me
 (3, 'Nạp tiền chưa được cộng vào tài khoản', 'DEPOSIT', 'OPEN', TRUE,
  '[{"userId":3,"username":"game thu","isAdmin":false,"text":"Tôi nạp 200k qua SePay từ 3 ngày trước nhưng tiền vẫn chưa vào tài khoản.","createdAt":"' || (NOW() - INTERVAL '3 days')::text || '"},{"userId":1,"username":"admin","isAdmin":true,"text":"Chào bạn, mình đã kiểm tra và thấy giao dịch của bạn đã được xử lý. Bạn vui lòng kiểm tra lại số dư nhé.","createdAt":"' || (NOW() - INTERVAL '2 days')::text || '"}]',
  NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days');
+
+-- =========================================================
+-- SERVICES — Dịch vụ theo game
+-- =========================================================
+
+INSERT INTO services (game_name, title, slug, description, price, thumbnail, server_name, is_active, created_at, updated_at) VALUES
+('Ngọc Rồng Online', 'Cày Đệ Tử 24/7', 'cay-de-tu-24-7', 'Dịch vụ cày đệ tử tự động 24/7, an toàn, không hack, không dùng phần mềm thứ ba.', 200000, 'https://placehold.co/600x400/a855f7/ffffff?text=CAY+DE+TU', '1-3 ngày', TRUE, NOW(), NOW()),
+('Ngọc Rồng Online', 'Săn Boss Hàng Ngày', 'san-boss-hang-ngay', 'Dịch vụ săn boss tự động mỗi ngày, nhận đủ item và exp.', 150000, 'https://placehold.co/600x400/a855f7/ffffff?text=SAN+BOSS', 'Hàng ngày', TRUE, NOW(), NOW()),
+('Ngọc Rồng Online', 'Up Sức Mạnh 1tr-10tr', 'up-sm-1tr-10tr', 'Dịch vụ up sức mạnh nhanh từ 1tr lên 10tr chỉ trong 1-3 ngày.', 500000, 'https://placehold.co/600x400/a855f7/ffffff?text=UP+SM', '1-3 ngày', TRUE, NOW(), NOW()),
+('Ngọc Rồng Online', 'Nâng Cấp Bông Tai Lên C3', 'nang-cap-bong-tai-c3', 'Dịch vụ nâng cấp bông tai Porata từ cấp 1 lên cấp 3.', 350000, 'https://placehold.co/600x400/a855f7/ffffff?text=NANG+CAP+BT', '1-2 ngày', TRUE, NOW(), NOW()),
+('Liên Quân Mobile', 'Cày Rank Theo Mùa', 'cay-rank-theo-mua', 'Dịch vụ cày rank Liên Quân theo mùa, đạt rank mong muốn.', 300000, 'https://placehold.co/600x400/a855f7/ffffff?text=CAY+RANK', '3-7 ngày', TRUE, NOW(), NOW()),
+('Liên Quân Mobile', 'Nạp Quân Huy Giá Rẻ', 'nap-quan-huy-gia-re', 'Dịch vụ nạp quân huy Liên Quân giá rẻ, uy tín.', 100000, 'https://placehold.co/600x400/a855f7/ffffff?text=NAP+QH', '1-2h', TRUE, NOW(), NOW()),
+('Free Fire', 'Nạp Diamond Giá Rẻ', 'nap-diamond-gia-re', 'Dịch vụ nạp kim cương Free Fire giá rẻ hơn ingame 20-30%.', 80000, 'https://placehold.co/600x400/a855f7/ffffff?text=NAP+DIA', '30 phút', TRUE, NOW(), NOW());
 
 -- =========================================================
 -- DONE

@@ -7,7 +7,6 @@ import { Listing } from "@/types/listing";
 const TYPE_CARDS = [
   { type: "ACCOUNT", label: "Tài khoản", icon: "👤", bg: "#eff6ff", border: "#bfdbfe", color: "#1e40af" },
   { type: "ITEM", label: "Vật phẩm", icon: "🎁", bg: "#fffbeb", border: "#fde68a", color: "#92400e" },
-  { type: "SERVICE", label: "Dịch vụ", icon: "🔧", bg: "#faf5ff", border: "#d8b4fe", color: "#6b21a8" },
 ];
 
 function countByType(listings: Listing[], type: string) {
@@ -69,17 +68,14 @@ export default async function HomePage() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
+                  gridTemplateColumns: "repeat(2, 1fr)",
                   gap: 14,
                 }}
               >
                 {TYPE_CARDS.map((card) => {
                   const count = countByType(gameListings, card.type);
                   const from = priceFrom(gameListings, card.type);
-                  const href =
-                    card.type === "SERVICE"
-                      ? `/games/${encodeURIComponent(game)}/services`
-                      : `/accounts?game=${encodeURIComponent(game)}&type=${card.type}`;
+                  const href = `/accounts?game=${encodeURIComponent(game)}&type=${card.type}`;
 
                   return (
                     <Link
