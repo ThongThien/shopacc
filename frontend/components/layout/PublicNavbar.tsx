@@ -37,10 +37,7 @@ export default function PublicNavbar() {
       const data = await getMyBalance();
       setBalance(data);
     } catch {
-      clearAuth();
-      setLoggedIn(false);
-      setRole(null);
-      setBalance(null);
+      // Silently fail — apiFetch already handles 401 via auth-expired event
     }
   }
 

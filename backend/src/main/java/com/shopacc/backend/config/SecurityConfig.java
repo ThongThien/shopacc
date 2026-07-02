@@ -62,6 +62,12 @@ public class SecurityConfig {
                                                 .permitAll()
 
                                                 // =========================
+                                                // SERVICES — Public read
+                                                // =========================
+                                                .requestMatchers(HttpMethod.GET, "/api/services/**")
+                                                .permitAll()
+
+                                                // =========================
                                                 // LISTINGS
                                                 // =========================
                                                 .requestMatchers(HttpMethod.GET, "/api/listings/**")
