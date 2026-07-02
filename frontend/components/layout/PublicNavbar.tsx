@@ -122,11 +122,6 @@ export default function PublicNavbar() {
           </div>
         </div>
 
-        <Link href="/services">Dịch vụ</Link>
-        <Link href="/me/orders">Lịch sử mua</Link>
-        <Link href="/me/service-orders">Đơn dịch vụ</Link>
-        <Link href="/me/deposits">Nạp tiền</Link>
-
         <div className="nav-dropdown">
           <Link href="/services">Dịch vụ</Link>
           <div className="nav-dropdown-menu">
@@ -141,7 +136,7 @@ export default function PublicNavbar() {
             ))}
           </div>
         </div>
-
+        <Link href="/me/deposits">Nạp tiền</Link>
         <button
           type="button"
           className="nav-login"
@@ -200,11 +195,11 @@ export default function PublicNavbar() {
             </button>
 
             <div className="user-dropdown">
-              <Link href="/me">Hồ sơ</Link>
-              <Link href="/me/tickets">Hỗ trợ</Link>
-
-              {role === "ADMIN" && <Link href="/admin">Admin</Link>}
-
+              {role === "ADMIN" && <Link href="/admin">Trang quản lý</Link>}
+              <Link href="/me">Thông tin cá nhân</Link>
+              <Link href="/me/orders">Lịch sử mua</Link>
+              <Link href="/me/service-orders">Đơn dịch vụ</Link>
+              <Link href="/me/tickets">Gửi hỗ trợ - lỗi</Link>
               <button type="button" onClick={handleLogout}>
                 Đăng xuất
               </button>
