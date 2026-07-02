@@ -21,8 +21,8 @@ export function clearAuth() {
   localStorage.removeItem(AUTH_STORAGE_KEYS.refreshToken);
   localStorage.removeItem(AUTH_STORAGE_KEYS.role);
 
-  document.cookie = "accessToken=; path=/; max-age=0";
-  document.cookie = "role=; path=/; max-age=0";
+  document.cookie = "accessToken=; path=/; max-age=0; SameSite=Lax";
+  document.cookie = "role=; path=/; max-age=0; SameSite=Lax";
 
   window.dispatchEvent(new Event("auth-changed"));
 }
