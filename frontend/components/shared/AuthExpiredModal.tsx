@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { clearAuth } from "@/lib/auth";
 
 export default function AuthExpiredModal() {
-  const router = useRouter();
-
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState(
     "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
@@ -55,7 +52,8 @@ export default function AuthExpiredModal() {
             className="btn-secondary"
             type="button"
             onClick={() => {
-              window.location.href = "/";
+              clearAuth();
+              window.location.replace("/");
             }}
           >
             Về trang chủ
@@ -65,7 +63,10 @@ export default function AuthExpiredModal() {
             className="btn-primary"
             type="button"
             onClick={() => {
-              window.location.href = "/login";
+              clearAuth();
+              setTimeout(() => {
+                window.location.replace("/login");
+              }, 100);
             }}
           >
             Đăng nhập lại
