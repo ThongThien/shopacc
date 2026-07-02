@@ -6,7 +6,6 @@
 
 -- Clear (thứ tự FK-safe)
 DELETE FROM cart_items;
-DELETE FROM ticket_messages;
 DELETE FROM tickets;
 DELETE FROM payment_webhook_logs;
 DELETE FROM discount_codes;
@@ -33,7 +32,6 @@ ALTER SEQUENCE IF EXISTS user_balance_logs_id_seq RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS audit_logs_id_seq RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS discount_codes_id_seq RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS tickets_id_seq RESTART WITH 1;
-ALTER SEQUENCE IF EXISTS ticket_messages_id_seq RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS cart_items_id_seq RESTART WITH 1;
 ALTER SEQUENCE IF EXISTS payment_webhook_logs_id_seq RESTART WITH 1;
 
@@ -210,28 +208,28 @@ BEGIN
     INSERT INTO orders (order_code, user_id, total_price, status, payment_status, service_info, created_at, updated_at)
     VALUES ('ORD-DEMO-001', 2, 1200000, 'COMPLETED', 'PAID', NULL, NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days')
     RETURNING id INTO ord_id;
-    INSERT INTO order_items (order_id, listing_id, listing_title, listing_thumbnail, quantity, price, created_at, updated_at)
-    VALUES (ord_id, 10, 'Acc NRO VIP Full Đồ 20tr SM', 'https://placehold.co/600x400/059669/ffffff?text=ACC+VIP+20TR', 1, 1200000, NOW() - INTERVAL '2 days', NOW() - INTERVAL '2 days');
+    INSERT INTO order_items (order_id, listing_id, listing_title, listing_thumbnail, quantity, price, created_at)
+    VALUES (ord_id, 10, 'Acc NRO VIP Full Đồ 20tr SM', 'https://placehold.co/600x400/059669/ffffff?text=ACC+VIP+20TR', 1, 1200000, NOW() - INTERVAL '2 days');
 
     INSERT INTO orders (order_code, user_id, total_price, status, payment_status, service_info, created_at, updated_at)
     VALUES ('ORD-DEMO-002', 2, 350000, 'COMPLETED', 'PAID', NULL, NOW() - INTERVAL '1 day', NOW() - INTERVAL '1 day')
     RETURNING id INTO ord_id;
-    INSERT INTO order_items (order_id, listing_id, listing_title, listing_thumbnail, quantity, price, created_at, updated_at)
-    VALUES (ord_id, 6, 'Acc NRO Bông Tai Porata VIP', 'https://placehold.co/600x400/dc2626/ffffff?text=BONG+TAI+VIP', 1, 350000, NOW() - INTERVAL '1 day', NOW() - INTERVAL '1 day');
+    INSERT INTO order_items (order_id, listing_id, listing_title, listing_thumbnail, quantity, price, created_at)
+    VALUES (ord_id, 6, 'Acc NRO Bông Tai Porata VIP', 'https://placehold.co/600x400/dc2626/ffffff?text=BONG+TAI+VIP', 1, 350000, NOW() - INTERVAL '1 day');
 
     INSERT INTO orders (order_code, user_id, total_price, status, payment_status, service_info, created_at, updated_at)
     VALUES ('ORD-DEMO-003', 3, 200000, 'COMPLETED', 'PAID',
             'PLACEHOLDER_AES_ENCRYPTED_SERVICE_INFO',
             NOW() - INTERVAL '1 day', NOW() - INTERVAL '1 day')
     RETURNING id INTO ord_id;
-    INSERT INTO order_items (order_id, listing_id, listing_title, listing_thumbnail, quantity, price, created_at, updated_at)
-    VALUES (ord_id, 17, 'Cày Đệ Tử 24/7', 'https://placehold.co/600x400/a855f7/ffffff?text=CAY+DE+TU', 1, 200000, NOW() - INTERVAL '1 day', NOW() - INTERVAL '1 day');
+    INSERT INTO order_items (order_id, listing_id, listing_title, listing_thumbnail, quantity, price, created_at)
+    VALUES (ord_id, 17, 'Cày Đệ Tử 24/7', 'https://placehold.co/600x400/a855f7/ffffff?text=CAY+DE+TU', 1, 200000, NOW() - INTERVAL '1 day');
 
     INSERT INTO orders (order_code, user_id, total_price, status, payment_status, service_info, created_at, updated_at)
     VALUES ('ORD-DEMO-004', 3, 250000, 'COMPLETED', 'PAID', NULL, NOW(), NOW())
     RETURNING id INTO ord_id;
-    INSERT INTO order_items (order_id, listing_id, listing_title, listing_thumbnail, quantity, price, created_at, updated_at)
-    VALUES (ord_id, 22, 'Acc Liên Quân 30 Skin + Rank', 'https://placehold.co/600x400/0891b2/ffffff?text=LQ+30+RANK', 1, 250000, NOW(), NOW());
+    INSERT INTO order_items (order_id, listing_id, listing_title, listing_thumbnail, quantity, price, created_at)
+    VALUES (ord_id, 22, 'Acc Liên Quân 30 Skin + Rank', 'https://placehold.co/600x400/0891b2/ffffff?text=LQ+30+RANK', 1, 250000, NOW());
 END $$;
 
 -- =========================================================
