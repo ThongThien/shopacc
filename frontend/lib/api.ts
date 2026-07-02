@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "@/lib/constants";
+import { API_BASE_URL, AUTH_STORAGE_KEYS } from "@/lib/constants";
 import { clearAuth } from "@/lib/auth";
 
 type ApiFetchOptions = RequestInit & {
