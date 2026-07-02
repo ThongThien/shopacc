@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { clearAuth } from "@/lib/auth";
 
 export default function AuthExpiredModal() {
   const router = useRouter();
@@ -21,6 +22,13 @@ export default function AuthExpiredModal() {
       );
 
       setOpen(true);
+
+      // Auto-redirect sau 2s
+      const timer = setTimeout(() => {
+        window.location.href = "/login";
+      }, 2000);
+
+      return () => clearTimeout(timer);
     }
 
     window.addEventListener("auth-expired", handleAuthExpired);
@@ -33,19 +41,21 @@ export default function AuthExpiredModal() {
   if (!open) return null;
 
   return (
-    <div className="auth-card card auth-expired-card">
-      <div className="auth-card card">
-        <h1>Thông báo</h1>
+    <div className="modal-overlay">
+      <div className="modal-card">
+        <h2>Phiên đăng nhập hết hạn</h2>
 
-        <p className="auth-expired-message">{message}</p>
+        <p style={{ color: "var(--muted)", margin: "12px 0" }}>{message}</p>
+        <p style={{ fontSize: 13, color: "var(--muted)" }}>
+          Tự động chuyển về trang đăng nhập sau 2 giây...
+        </p>
 
-        <div className="auth-expired-actions">
+        <div className="modal-actions" style={{ marginTop: 16 }}>
           <button
             className="btn-secondary"
             type="button"
             onClick={() => {
-              setOpen(false);
-              router.push("/");
+              window.location.href = "/";
             }}
           >
             Về trang chủ
@@ -55,8 +65,7 @@ export default function AuthExpiredModal() {
             className="btn-primary"
             type="button"
             onClick={() => {
-              setOpen(false);
-              router.push("/");
+              window.location.href = "/login";
             }}
           >
             Đăng nhập lại

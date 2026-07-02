@@ -41,7 +41,7 @@ export default function ProtectedRoute({ children, role }: Props) {
 
     if (redirectPath) {
       setMessage(redirectMessage);
-      setCountdown(5);
+      setCountdown(2);
 
       window.dispatchEvent(
         new CustomEvent("auth-expired", {
@@ -55,6 +55,7 @@ export default function ProtectedRoute({ children, role }: Props) {
         setCountdown((prev) => {
           if (prev === null || prev <= 1) {
             window.clearInterval(intervalId);
+            window.location.href = redirectPath;
             return 0;
           }
 
@@ -62,14 +63,8 @@ export default function ProtectedRoute({ children, role }: Props) {
         });
       }, 1000);
 
-      const timeoutId = window.setTimeout(() => {
-        console.log("REDIRECT TO:", redirectPath);
-        window.location.href = redirectPath;
-      }, 5000);
-
       return () => {
         window.clearInterval(intervalId);
-        window.clearTimeout(timeoutId);
       };
     }
 

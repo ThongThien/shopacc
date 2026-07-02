@@ -7,8 +7,14 @@ type ApiFetchOptions = RequestInit & {
 function handleAuthExpired() {
   if (typeof window === "undefined") return;
 
+  // Clear localStorage
   localStorage.removeItem(AUTH_STORAGE_KEYS.accessToken);
   localStorage.removeItem(AUTH_STORAGE_KEYS.refreshToken);
+  localStorage.removeItem(AUTH_STORAGE_KEYS.role);
+
+  // Clear cookies so middleware also sees expired token
+  document.cookie = "accessToken=; path=/; max-age=0";
+  document.cookie = "role=; path=/; max-age=0";
 
   window.dispatchEvent(
     new CustomEvent("auth-expired", {
