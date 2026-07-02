@@ -36,6 +36,14 @@ public class OrderService {
         public CreateOrderPreviewResponse createOrderPreview(
                         Long userId,
                         Long listingId) {
+                return createOrderPreview(userId, listingId, null);
+        }
+
+        @Transactional
+        public CreateOrderPreviewResponse createOrderPreview(
+                        Long userId,
+                        Long listingId,
+                        String serviceInfo) {
                 User user = getUser(userId);
 
                 Listing listing = listingRepository.findById(listingId)
@@ -59,6 +67,7 @@ public class OrderService {
                                 .totalPrice(price)
                                 .status(OrderStatus.PENDING)
                                 .paymentStatus(PaymentStatus.UNPAID)
+                                .serviceInfo(serviceInfo != null ? cryptoService.encrypt(serviceInfo) : null)
                                 .build();
 
                 orderRepository.save(order);
@@ -174,7 +183,15 @@ public class OrderService {
         public PurchaseResponse purchaseListing(
                         Long userId,
                         Long listingId) {
-                CreateOrderPreviewResponse preview = createOrderPreview(userId, listingId);
+                return purchaseListing(userId, listingId, null);
+        }
+
+        @Transactional
+        public PurchaseResponse purchaseListing(
+                        Long userId,
+                        Long listingId,
+                        String serviceInfo) {
+                CreateOrderPreviewResponse preview = createOrderPreview(userId, listingId, serviceInfo);
 
                 if (!preview.isCanPurchase()) {
                         throw new ResponseStatusException(
@@ -212,7 +229,7 @@ public class OrderService {
         public List<OrderResponse> getAllOrdersForAdmin() {
                 return orderRepository.findAllWithUserOrderByCreatedAtDesc()
                                 .stream()
-                                .map(this::mapToOrderResponse)
+                                .map(this::mapToOrderResponseForAdmin)
                                 .toList();
         }
 
@@ -222,7 +239,29 @@ public class OrderService {
                                                 HttpStatus.NOT_FOUND,
                                                 "Order not found"));
 
-                return mapToOrderResponse(order);
+                return mapToOrderResponseForAdmin(order);
+        }
+
+        private OrderResponse mapToOrderResponseForAdmin(Order order) {
+                OrderResponse response = mapToOrderResponse(order);
+                if (order.getServiceInfo() != null) {
+                        response = OrderResponse.builder()
+                                        .id(response.getId())
+                                        .orderCode(response.getOrderCode())
+                                        .userId(response.getUserId())
+                                        .username(response.getUsername())
+                                        .userEmail(response.getUserEmail())
+                                        .totalPrice(response.getTotalPrice())
+                                        .status(response.getStatus())
+                                        .paymentStatus(response.getPaymentStatus())
+                                        .paymentMethod(response.getPaymentMethod())
+                                        .createdAt(response.getCreatedAt())
+                                        .updatedAt(response.getUpdatedAt())
+                                        .items(response.getItems())
+                                        .serviceInfo(cryptoService.decrypt(order.getServiceInfo()))
+                                        .build();
+                }
+                return response;
         }
 
         public OrderSecretResponse getOrderSecret(
@@ -298,6 +337,7 @@ public class OrderService {
                                 .createdAt(order.getCreatedAt())
                                 .updatedAt(order.getUpdatedAt())
                                 .items(items)
+                                .serviceInfo(order.getServiceInfo())
                                 .build();
         }
 

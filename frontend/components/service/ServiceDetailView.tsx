@@ -21,23 +21,53 @@ export default function ServiceDetailView({ listing }: Props) {
   const images = listing.images || [];
   const mainImage = listing.thumbnail || images[0] || "/placeholder.png";
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false);
+
+  // Service form
+  const [accountName, setAccountName] = useState("");
+  const [password, setPassword] = useState("");
+  const [serviceServer, setServiceServer] = useState(listing.serverName || "");
+  const [serviceNote, setServiceNote] = useState("");
+
+  function buildServiceInfo() {
+    return JSON.stringify({
+      accountName: accountName.trim(),
+      password: password.trim(),
+      server: serviceServer.trim(),
+      note: serviceNote.trim(),
+    });
+  }
 
   async function handleOrder() {
-    if (!inCart) {
-      try {
-        await addItem({
-          listingId: listing.id,
-          title: listing.title || "",
-          price: listing.price,
-          thumbnail: listing.thumbnail,
-          gameName: listing.gameName,
-          serverName: listing.serverName,
-        });
-      } catch {
-        /* ignore */
-      }
+    if (inCart) {
+      router.push("/checkout");
+      return;
     }
-    router.push("/checkout");
+    setShowForm(true);
+  }
+
+  async function handleAddToCart() {
+    if (!accountName.trim() || !password.trim()) {
+      notify("error", "Vui lòng nhập đầy đủ tên tài khoản và mật khẩu");
+      return;
+    }
+
+    try {
+      await addItem({
+        listingId: listing.id,
+        title: listing.title || "",
+        price: listing.price,
+        thumbnail: listing.thumbnail,
+        gameName: listing.gameName,
+        serverName: listing.serverName,
+        listingType: "SERVICE",
+        serviceInfo: buildServiceInfo(),
+      });
+      notify("success", "Đã thêm dịch vụ vào giỏ hàng");
+      router.push("/checkout");
+    } catch (err) {
+      notify("error", err instanceof Error ? err.message : "Thêm thất bại");
+    }
   }
 
   return (
@@ -104,6 +134,83 @@ export default function ServiceDetailView({ listing }: Props) {
           >
             {inCart ? "Đã thêm vào giỏ" : "Đặt dịch vụ ngay"}
           </button>
+
+          {/* Service Form */}
+          {showForm && (
+            <div
+              className="card"
+              style={{ padding: 16, marginTop: 14, background: "var(--surface-soft)" }}
+            >
+              <h3 style={{ marginTop: 0, fontSize: 16 }}>Thông tin tài khoản cần làm dịch vụ</h3>
+              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 12 }}>
+                Thông tin này được mã hóa AES-256 và chỉ admin mới xem được.
+              </p>
+              <div style={{ display: "grid", gap: 10 }}>
+                <div>
+                  <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13 }}>
+                    Tên tài khoản game *
+                  </label>
+                  <input
+                    className="input"
+                    value={accountName}
+                    onChange={(e) => setAccountName(e.target.value)}
+                    placeholder="Nhập tên tài khoản game"
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13 }}>
+                    Mật khẩu *
+                  </label>
+                  <input
+                    className="input"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Nhập mật khẩu"
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13 }}>
+                    Máy chủ / Hành tinh
+                  </label>
+                  <input
+                    className="input"
+                    value={serviceServer}
+                    onChange={(e) => setServiceServer(e.target.value)}
+                    placeholder={listing.serverName || "VD: Server 7, Hành tinh X"}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13 }}>
+                    Ghi chú thêm
+                  </label>
+                  <textarea
+                    className="input"
+                    style={{ minHeight: 60 }}
+                    value={serviceNote}
+                    onChange={(e) => setServiceNote(e.target.value)}
+                    placeholder="VD: Cần up đệ tử từ cấp 1 lên cấp 5..."
+                  />
+                </div>
+                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                  <button
+                    className="btn-secondary"
+                    type="button"
+                    onClick={() => setShowForm(false)}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    className="btn-primary"
+                    type="button"
+                    onClick={handleAddToCart}
+                  >
+                    Thêm vào giỏ hàng
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

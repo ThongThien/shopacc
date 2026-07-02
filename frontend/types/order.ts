@@ -24,6 +24,7 @@ export interface Order {
   createdAt: string;
   updatedAt?: string;
   items: OrderItem[];
+  serviceInfo?: string; // decrypted for admin, encrypted for user
 }
 
 export interface PurchaseResponse {

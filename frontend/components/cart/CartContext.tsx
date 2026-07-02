@@ -18,6 +18,8 @@ export interface CartItem {
   thumbnail?: string;
   gameName?: string;
   serverName?: string;
+  listingType?: string;
+  serviceInfo?: string; // JSON: {accountName, password, server, note}
 }
 
 interface BackendCartItem {

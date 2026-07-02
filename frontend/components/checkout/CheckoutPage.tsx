@@ -25,7 +25,7 @@ interface DiscountResult {
 export default function CheckoutPage() {
   const router = useRouter();
   const { notify } = useNotify();
-  const { items, clearCart } = useCart();
+  const { items, removeItem, clearCart } = useCart();
 
   const [balance, setBalance] = useState<number | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -80,7 +80,7 @@ export default function CheckoutPage() {
 
     for (const item of items) {
       try {
-        await purchaseListing(item.listingId);
+        await purchaseListing(item.listingId, item.serviceInfo);
         res.push({ item, success: true });
       } catch (err) {
         res.push({
@@ -94,13 +94,16 @@ export default function CheckoutPage() {
     }
 
     setResults(res);
-    const successCount = res.filter((r) => r.success).length;
-    if (successCount > 0) {
-      clearCart().catch(console.error);
+    const successItems = res.filter((r) => r.success);
+    if (successItems.length > 0) {
+      // Only remove successfully purchased items from cart
+      for (const r of successItems) {
+        removeItem(r.item.listingId).catch(console.error);
+      }
       window.dispatchEvent(new Event("balance-changed"));
       notify(
         "success",
-        `Đã mua thành công ${successCount}/${items.length} acc. Xem trong lịch sử mua.`,
+        `Đã mua thành công ${successItems.length}/${items.length} acc. Xem trong lịch sử mua.`,
       );
     }
 
@@ -124,15 +127,15 @@ export default function CheckoutPage() {
             <div
               key={item.listingId}
               style={{
-                display: "flex",
-                gap: 12,
-                alignItems: "center",
+                display: "grid",
+                gap: 10,
                 padding: 10,
                 borderRadius: 10,
                 border: "1px solid var(--border)",
                 background: "var(--surface-soft)",
               }}
             >
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
               <img
                 src={item.thumbnail || "/placeholder.png"}
                 alt={item.title}
@@ -162,6 +165,20 @@ export default function CheckoutPage() {
               <b style={{ color: "var(--accent)", fontSize: 17, whiteSpace: "nowrap" }}>
                 {formatCurrency(item.price)}
               </b>
+
+              {item.listingType === "SERVICE" && item.serviceInfo && (
+                <div style={{ width: "100%", fontSize: 12, color: "var(--muted)",
+                  borderTop: "1px solid var(--border)", paddingTop: 8 }}>
+                  {(function () {
+                    try {
+                      const info = JSON.parse(item.serviceInfo);
+                      return (
+                        <span>TK: <b>{info.accountName}</b> · Server: <b>{info.server || "-"}</b>{info.note ? ` · ${info.note}` : ""}</span>
+                      );
+                    } catch { return null; }
+                  })()}
+                </div>
+              )}
             </div>
           ))}
         </div>

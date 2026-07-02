@@ -41,4 +41,7 @@ public class Order extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false)
     private PaymentStatus paymentStatus;
+
+    @Column(name = "service_info", columnDefinition = "TEXT")
+    private String serviceInfo; // AES-encrypted JSON
 }

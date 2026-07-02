@@ -135,6 +135,21 @@ export default function OrderDetailView({ orderId }: Props) {
               >
                 Copy tài khoản
               </button>
+
+              <div
+                style={{
+                  marginTop: 14,
+                  padding: "10px 14px",
+                  background: "#fef3c7",
+                  border: "1px solid #f59e0b",
+                  borderRadius: 10,
+                  fontSize: 13,
+                  color: "#92400e",
+                  fontWeight: 700,
+                }}
+              >
+                ⚠️ Sau khi nhận acc, hãy vào trang chủ game (ngocrongonline.com) để đổi mật khẩu ngay để bảo vệ tài khoản của bạn.
+              </div>
             </>
           )}
         </div>

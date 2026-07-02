@@ -3,9 +3,11 @@ import { Order, OrderSecretResponse, PurchaseResponse } from "@/types/order";
 
 export async function purchaseListing(
   listingId: number,
+  serviceInfo?: string,
 ): Promise<PurchaseResponse> {
   return apiFetch<PurchaseResponse>(`/api/orders/purchase/${listingId}`, {
     method: "POST",
+    body: serviceInfo ? JSON.stringify({ serviceInfo }) : undefined,
   });
 }
 

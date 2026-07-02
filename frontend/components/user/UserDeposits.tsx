@@ -39,7 +39,6 @@ function statusBadge(status: string) {
 export default function UserDeposits() {
   const { notify, confirmAction } = useNotify();
 
-  const [activeTab, setActiveTab] = useState<"atm" | "card">("atm");
   const [amount, setAmount] = useState(10000);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const txsRef = useRef<Transaction[]>([]);
@@ -54,10 +53,6 @@ export default function UserDeposits() {
   const [historyPage, setHistoryPage] = useState(1);
   const PAGE_SIZE = 10;
 
-  const [telco, setTelco] = useState("Viettel");
-  const [cardValue, setCardValue] = useState("10000");
-  const [cardSerial, setCardSerial] = useState("");
-  const [cardCode, setCardCode] = useState("");
   const [qrUrl, setQrUrl] = useState("");
   const [bankName, setBankName] = useState("");
   const [bankAccount, setBankAccount] = useState("");
@@ -136,13 +131,6 @@ export default function UserDeposits() {
     }
   }
 
-  function handleSubmitCard() {
-    notify(
-      "warning",
-      "Nạp thẻ cào chưa được kích hoạt vì backend chưa có nhà cung cấp xử lý thẻ.",
-    );
-  }
-
   async function handleCopyContent() {
     if (!depositContent) return;
 
@@ -162,25 +150,7 @@ export default function UserDeposits() {
 
       {/* ========== DEPOSIT FORM + QR ========== */}
       <div className="card" style={{ padding: 28, marginBottom: 22 }}>
-        <div className="deposit-tabs">
-          <button
-            className={activeTab === "atm" ? "active" : ""}
-            onClick={() => setActiveTab("atm")}
-            type="button"
-          >
-            ATM / Chuyển khoản
-          </button>
-          <button
-            className={activeTab === "card" ? "active" : ""}
-            onClick={() => setActiveTab("card")}
-            type="button"
-          >
-            Thẻ cào
-          </button>
-        </div>
-
-        {activeTab === "atm" && (
-          <div
+        <div
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
@@ -283,61 +253,6 @@ export default function UserDeposits() {
               )}
             </div>
           </div>
-        )}
-
-        {activeTab === "card" && (
-          <div className="deposit-form">
-            <h1>Nạp thẻ cào</h1>
-            <label>Nhà mạng</label>
-            <select
-              className="input"
-              value={telco}
-              onChange={(e) => setTelco(e.target.value)}
-            >
-              <option>Viettel</option>
-              <option>Mobifone</option>
-              <option>Vinaphone</option>
-            </select>
-            <label>Mệnh giá</label>
-            <select
-              className="input"
-              value={cardValue}
-              onChange={(e) => setCardValue(e.target.value)}
-            >
-              <option value="10000">10.000đ</option>
-              <option value="20000">20.000đ</option>
-              <option value="50000">50.000đ</option>
-              <option value="100000">100.000đ</option>
-              <option value="200000">200.000đ</option>
-              <option value="500000">500.000đ</option>
-            </select>
-            <label>Serial</label>
-            <input
-              className="input"
-              value={cardSerial}
-              onChange={(e) => setCardSerial(e.target.value)}
-              placeholder="Nhập serial thẻ"
-            />
-            <label>Mã thẻ</label>
-            <input
-              className="input"
-              value={cardCode}
-              onChange={(e) => setCardCode(e.target.value)}
-              placeholder="Nhập mã thẻ"
-            />
-            <button
-              className="btn-primary"
-              type="button"
-              onClick={handleSubmitCard}
-            >
-              Gửi thẻ
-            </button>
-            <p className="muted-text">
-              Nạp thẻ sẽ có chiết khấu theo nhà cung cấp. Chức năng này sẽ
-              được bật sau khi backend tích hợp cổng thẻ.
-            </p>
-          </div>
-        )}
       </div>
 
       {/* ========== HISTORY TABLE ========== */}

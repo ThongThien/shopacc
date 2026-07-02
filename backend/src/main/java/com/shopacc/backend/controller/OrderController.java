@@ -30,11 +30,14 @@ public class OrderController {
         public PurchaseResponse purchase(
                         @AuthenticationPrincipal CustomUserDetails userDetails,
                         @PathVariable Long listingId,
+                        @RequestBody(required = false) Map<String, String> body,
                         HttpServletRequest httpRequest) {
 
+                String serviceInfo = body != null ? body.get("serviceInfo") : null;
                 PurchaseResponse response = orderService.purchaseListing(
                                 userDetails.getId(),
-                                listingId);
+                                listingId,
+                                serviceInfo);
 
                 auditLogService.log(
                                 userDetails.getId(),

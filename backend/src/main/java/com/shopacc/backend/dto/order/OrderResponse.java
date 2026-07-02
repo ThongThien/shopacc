@@ -36,4 +36,6 @@ public class OrderResponse {
     private LocalDateTime updatedAt;
 
     private List<OrderItemResponse> items;
+
+    private String serviceInfo; // AES-encrypted, admin-only
 }

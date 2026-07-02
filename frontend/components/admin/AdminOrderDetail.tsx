@@ -176,6 +176,24 @@ export default function AdminOrderDetail({ order: initialOrder }: Props) {
           <span>Tổng thanh toán</span>
           <strong>{formatCurrency(order.totalPrice)}</strong>
         </div>
+
+        {order.serviceInfo && (
+          <div style={{
+            marginTop: 20, padding: "16px 18px",
+            background: "#faf5ff", border: "1px solid #d8b4fe",
+            borderRadius: 12,
+          }}>
+            <h3 style={{ margin: "0 0 10px", color: "#6b21a8", fontSize: 16 }}>
+              🔧 Thông tin dịch vụ
+            </h3>
+            <pre style={{
+              whiteSpace: "pre-wrap", background: "#111827", color: "#e5e7eb",
+              padding: 12, borderRadius: 8, margin: 0, fontSize: 13, lineHeight: 1.6,
+            }}>
+              {order.serviceInfo}
+            </pre>
+          </div>
+        )}
       </div>
     </section>
   );
