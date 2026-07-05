@@ -3,6 +3,7 @@ package com.shopacc.backend.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -19,15 +20,13 @@ public class RedisConfig {
     private int port;
 
     @Bean
+    @Lazy
     public RedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
-        LettuceConnectionFactory factory = new LettuceConnectionFactory(config);
-        factory.setTimeout(java.time.Duration.ofSeconds(3));
-        // Không throw nếu Redis chưa sẵn sàng — CacheService có fallback
-        return factory;
+        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 
     @Bean
+    @Lazy
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
