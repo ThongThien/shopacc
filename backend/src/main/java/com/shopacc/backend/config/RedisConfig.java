@@ -20,7 +20,11 @@ public class RedisConfig {
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(config);
+        factory.setTimeout(java.time.Duration.ofSeconds(3));
+        // Không throw nếu Redis chưa sẵn sàng — CacheService có fallback
+        return factory;
     }
 
     @Bean
