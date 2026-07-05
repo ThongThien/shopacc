@@ -65,6 +65,7 @@ public class AdminService {
         private final OrderItemRepository orderItemRepository;
 
         private final PasswordEncoder passwordEncoder;
+        private final CacheService cacheService;
 
         public List<CategoryResponse> getAllCategories() {
                 return categoryRepository.findAll()

@@ -34,6 +34,8 @@ public class ListingService {
         private final CryptoService cryptoService;
         private final WebClient webClient = WebClient.builder().build();
         private final FileValidationService fileValidationService;
+        private final CacheService cacheService;
+        private static final String CACHE_LISTINGS = "listings:all";
 
         @Value("${SUPABASE_URL}")
         private String supabaseUrl;
@@ -69,11 +71,12 @@ public class ListingService {
         }
 
         public List<ListingResponse> getAllListings() {
-
-                return listingRepository.findAll()
-                                .stream()
-                                .map(this::mapToResponse)
-                                .toList();
+                return cacheService.getOrSet(CACHE_LISTINGS,
+                                new com.fasterxml.jackson.core.type.TypeReference<List<ListingResponse>>() {},
+                                () -> listingRepository.findAll()
+                                                .stream()
+                                                .map(this::mapToResponse)
+                                                .toList());
         }
 
         public ListingDetailResponse getListingDetail(Long id) {
