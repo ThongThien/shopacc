@@ -10,6 +10,7 @@ import com.shopacc.backend.repository.UserRepository;
 import com.shopacc.backend.repository.UserBalanceLogRepository;
 import com.shopacc.backend.security.CustomUserDetails;
 import com.shopacc.backend.service.CryptoService;
+import com.shopacc.backend.service.CacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,6 +37,7 @@ public class ServiceController {
     private final UserRepository userRepository;
     private final UserBalanceLogRepository balanceLogRepository;
     private final CryptoService cryptoService;
+    private final CacheService cacheService;
 
     @Value("${SUPABASE_URL}")
     private String supabaseUrl;
@@ -52,20 +54,29 @@ public class ServiceController {
 
     @GetMapping
     public List<Service> getAllServices(@RequestParam(required = false) String game) {
-        if (game != null && !game.isBlank()) {
-            return serviceRepository.findByGameNameAndIsActiveTrueOrderByCreatedAtDesc(game);
-        }
-        return serviceRepository.findAllByOrderByCreatedAtDesc();
+        String key = game != null ? "services:game:" + game : "services:all";
+        return cacheService.getOrSet(key,
+                new com.fasterxml.jackson.core.type.TypeReference<List<Service>>() {},
+                () -> {
+                    if (game != null && !game.isBlank()) {
+                        return serviceRepository.findByGameNameAndIsActiveTrueOrderByCreatedAtDesc(game);
+                    }
+                    return serviceRepository.findAllByOrderByCreatedAtDesc();
+                });
     }
 
     @GetMapping("/games")
     public List<String> getServiceGames() {
-        List<Service> all = serviceRepository.findAllByOrderByCreatedAtDesc();
-        return all.stream()
-                .filter(Service::isActive)
-                .map(Service::getGameName)
-                .distinct()
-                .toList();
+        return cacheService.getOrSet("services:games",
+                new com.fasterxml.jackson.core.type.TypeReference<List<String>>() {},
+                () -> {
+                    List<Service> all = serviceRepository.findAllByOrderByCreatedAtDesc();
+                    return all.stream()
+                            .filter(Service::isActive)
+                            .map(Service::getGameName)
+                            .distinct()
+                            .toList();
+                });
     }
 
     @GetMapping("/{id}")
@@ -153,7 +164,9 @@ public class ServiceController {
     public Service createService(@RequestBody Service svc) {
         svc.setCreatedAt(LocalDateTime.now());
         svc.setUpdatedAt(LocalDateTime.now());
-        return serviceRepository.save(svc);
+        Service saved = serviceRepository.save(svc);
+        cacheService.evict("services:all", "services:game:" + svc.getGameName(), "services:games");
+        return saved;
     }
 
     @PutMapping("/{id}")
@@ -170,12 +183,16 @@ public class ServiceController {
         if (update.getGameName() != null) svc.setGameName(update.getGameName());
         svc.setActive(update.isActive());
         svc.setUpdatedAt(LocalDateTime.now());
-        return serviceRepository.save(svc);
+        Service saved = serviceRepository.save(svc);
+        cacheService.evict("services:all", "services:game:" + svc.getGameName(), "services:games");
+        return saved;
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public Map<String, String> deleteService(@PathVariable Long id) {
+        Service svc = serviceRepository.findById(id).orElse(null);
+        if (svc != null) cacheService.evict("services:all", "services:game:" + svc.getGameName(), "services:games");
         serviceRepository.deleteById(id);
         return Map.of("message", "Service deleted");
     }

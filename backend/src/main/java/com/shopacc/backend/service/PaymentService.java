@@ -57,6 +57,8 @@ public class PaymentService {
 
         private final PaymentWebhookLogRepository webhookLogRepository;
 
+        private final NotificationService notificationService;
+
         @Value("${VIETQR_BANK_ID}")
         private String vietqrBankId;
 
@@ -410,6 +412,8 @@ public class PaymentService {
                                         .description("SePay deposit: " + transaction.getTransactionCode())
                                         .build();
                         balanceLogRepository.save(balanceLog);
+                notificationService.pushBalance(transaction.getUser().getId(),
+                                Map.of("balance", amountAfter, "username", user.getUsername()));
 
                         // ===================== WEBHOOK FINAL =====================
                         webhookLog.setStatus("PROCESSED");
@@ -626,6 +630,8 @@ public class PaymentService {
                                 .build();
 
                 balanceLogRepository.save(balanceLog);
+                notificationService.pushBalance(transaction.getUser().getId(),
+                                Map.of("balance", amountAfter, "username", user.getUsername()));
 
                 return mapTransaction(transaction);
         }

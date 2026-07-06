@@ -365,7 +365,7 @@ public class AdminService {
                 listing.setThumbnail(request.getThumbnail());
 
                 listingRepository.save(listing);
-                cacheService.evict("listings:all");
+                cacheService.evict("listings:all", "listing:detail:" + listing.getId());
 
                 return mapToListingResponse(listing);
         }
@@ -461,7 +461,7 @@ public class AdminService {
                                 .build();
 
                 listingRepository.save(listing);
-                cacheService.evict("listings:all");
+                cacheService.evict("listings:all", "listing:detail:" + listing.getId());
 
                 return mapToListingResponse(listing);
         }
@@ -581,7 +581,7 @@ public class AdminService {
                 listingImageRepository.deleteByListingId(id);
 
                 listingRepository.delete(listing);
-                cacheService.evict("listings:all");
+                cacheService.evict("listings:all", "listing:detail:" + id);
         }
 
         public void cancelExpiredPendingOrders() {

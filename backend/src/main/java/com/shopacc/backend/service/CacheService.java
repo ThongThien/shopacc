@@ -3,11 +3,13 @@ package com.shopacc.backend.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CacheService {
@@ -20,18 +22,26 @@ public class CacheService {
         try {
             String cached = redisTemplate.opsForValue().get(key);
             if (cached != null) {
-                try { return objectMapper.readValue(cached, typeRef); } catch (Exception e) { /* fall through */ }
+                try {
+                    T result = objectMapper.readValue(cached, typeRef);
+                    log.info("[CACHE] HIT  key={}", key);
+                    return result;
+                } catch (Exception e) {
+                    log.warn("[CACHE] DESERIALIZE FAILED key={}", key);
+                }
             }
         } catch (Exception e) {
-            // Redis is down — skip cache, go to DB
+            log.warn("[CACHE] REDIS DOWN — falling back to DB for key={}", key);
         }
 
+        log.info("[CACHE] MISS key={} — querying DB", key);
         T data = dbFetcher.get();
 
         try {
             redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(data), DEFAULT_TTL);
-        } catch (Exception ignored) {
-            // Redis is down — cache write failed, continue normally
+            log.info("[CACHE] SET  key={} TTL=5m", key);
+        } catch (Exception e) {
+            log.warn("[CACHE] REDIS DOWN — cannot set key={}", key);
         }
         return data;
     }
@@ -39,8 +49,9 @@ public class CacheService {
     public void evict(String... keys) {
         try {
             redisTemplate.delete(java.util.List.of(keys));
-        } catch (Exception ignored) {
-            // Redis is down — skip eviction
+            log.info("[CACHE] EVICT keys={}", java.util.Arrays.toString(keys));
+        } catch (Exception e) {
+            log.warn("[CACHE] REDIS DOWN — cannot evict keys={}", java.util.Arrays.toString(keys));
         }
     }
 }

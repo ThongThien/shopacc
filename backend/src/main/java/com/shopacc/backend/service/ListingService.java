@@ -36,6 +36,7 @@ public class ListingService {
         private final FileValidationService fileValidationService;
         private final CacheService cacheService;
         private static final String CACHE_LISTINGS = "listings:all";
+        private static final String CACHE_LISTING_PREFIX = "listing:detail:";
 
         @Value("${SUPABASE_URL}")
         private String supabaseUrl;
@@ -81,6 +82,10 @@ public class ListingService {
 
         public ListingDetailResponse getListingDetail(Long id) {
 
+                return cacheService.getOrSet(CACHE_LISTING_PREFIX + id,
+                                new com.fasterxml.jackson.core.type.TypeReference<ListingDetailResponse>() {},
+                                () -> {
+
                 Listing listing = listingRepository.findById(id)
                                 .orElseThrow(() -> new RuntimeException("Listing not found"));
 
@@ -105,6 +110,7 @@ public class ListingService {
                                 .categoryName(listing.getCategory().getName())
                                 .images(images)
                                 .build();
+                });
         }
 
         public String uploadListingImage(Long listingId, MultipartFile file) throws IOException {

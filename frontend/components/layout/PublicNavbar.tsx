@@ -10,10 +10,12 @@ import { UserBalance } from "@/types/user";
 import { formatCurrency } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
 import { useCart } from "@/components/cart/CartContext";
+import useWebSocket from "@/hooks/useWebSocket";
 
 export default function PublicNavbar() {
   const { notify, confirmAction } = useNotify();
   const { count } = useCart();
+  useWebSocket(); // Kết nối WebSocket real-time, fallback polling nếu không có
 
   const [listings, setListings] = useState<Listing[]>([]);
   const [balance, setBalance] = useState<UserBalance | null>(null);

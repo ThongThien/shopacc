@@ -20,6 +20,7 @@ import com.shopacc.backend.repository.PaymentWebhookLogRepository;
 import com.shopacc.backend.entity.PaymentWebhookLog;
 import com.shopacc.backend.entity.DiscountCode;
 import com.shopacc.backend.repository.DiscountCodeRepository;
+import com.shopacc.backend.service.CacheService;
 import org.springframework.data.domain.Sort;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,9 +45,13 @@ public class AdminController {
 
         private final DiscountCodeRepository discountCodeRepository;
 
+        private final CacheService cacheService;
+
         @GetMapping("/categories")
         public List<CategoryResponse> getAllCategories() {
-                return adminService.getAllCategories();
+                return cacheService.getOrSet("categories:all",
+                                new com.fasterxml.jackson.core.type.TypeReference<List<CategoryResponse>>() {},
+                                () -> adminService.getAllCategories());
         }
 
         @GetMapping("/categories/{id}")
@@ -68,6 +73,7 @@ public class AdminController {
                                 "categoryId=" + category.getId(),
                                 httpRequest);
 
+                cacheService.evict("categories:all");
                 return category;
         }
 
@@ -85,6 +91,7 @@ public class AdminController {
                                 "categoryId=" + id,
                                 httpRequest);
 
+                cacheService.evict("categories:all");
                 return category;
         }
 
@@ -101,6 +108,7 @@ public class AdminController {
                                 "categoryId=" + id,
                                 httpRequest);
 
+                cacheService.evict("categories:all");
                 return Map.of("message", "Category deleted successfully");
         }
 
