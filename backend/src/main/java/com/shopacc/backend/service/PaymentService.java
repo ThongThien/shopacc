@@ -34,9 +34,8 @@ import java.time.LocalDateTime;
 import java.util.HexFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.time.LocalDateTime;
 import java.util.UUID;
-import org.springframework.web.util.UriComponentsBuilder;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -287,7 +286,8 @@ public class PaymentService {
                         if (transaction.getStatus() == TransactionStatus.SUCCESS) {
                                 // Check duplicate first
                                 if (transaction.getProviderTransactionId() != null &&
-                                                transaction.getProviderTransactionId().equals(request.getReferenceCode())) {
+                                                transaction.getProviderTransactionId()
+                                                                .equals(request.getReferenceCode())) {
                                         webhookLog.setStatus("IGNORED");
                                         webhookLog.setErrorMessage("Duplicate webhook");
                                         webhookLogRepository.save(webhookLog);
@@ -412,8 +412,8 @@ public class PaymentService {
                                         .description("SePay deposit: " + transaction.getTransactionCode())
                                         .build();
                         balanceLogRepository.save(balanceLog);
-                notificationService.pushBalance(transaction.getUser().getId(),
-                                Map.of("balance", amountAfter, "username", user.getUsername()));
+                        notificationService.pushBalance(transaction.getUser().getId(),
+                                        Map.of("balance", amountAfter, "username", user.getUsername()));
 
                         // ===================== WEBHOOK FINAL =====================
                         webhookLog.setStatus("PROCESSED");
