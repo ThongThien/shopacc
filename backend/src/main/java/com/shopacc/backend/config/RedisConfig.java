@@ -21,7 +21,7 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         LettuceConnectionFactory factory = new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
-        factory.setTimeout(java.time.Duration.ofSeconds(5));
+        factory.setTimeout(5000); // 5 seconds in milliseconds
         try {
             factory.afterPropertiesSet();
         } catch (Exception e) {
