@@ -14,7 +14,7 @@ export default function useWebSocket() {
     const token = getAccessToken();
     if (!userId || !token) return;
 
-    let reconnectTimer: ReturnType<typeof setTimeout>;
+    let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
 
     async function connect() {
       if (connectedRef.current) return;
