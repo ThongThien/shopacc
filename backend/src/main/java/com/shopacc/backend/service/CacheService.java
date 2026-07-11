@@ -31,7 +31,7 @@ public class CacheService {
                 }
             }
         } catch (Exception e) {
-            log.warn("[CACHE] REDIS DOWN — falling back to DB for key={}", key);
+            log.warn("[CACHE] REDIS DOWN (get: {}) for key={}", e.toString(), key);
         }
 
         log.info("[CACHE] MISS key={} — querying DB", key);
@@ -41,7 +41,7 @@ public class CacheService {
             redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(data), DEFAULT_TTL);
             log.info("[CACHE] SET  key={} TTL=5m", key);
         } catch (Exception e) {
-            log.warn("[CACHE] REDIS DOWN — cannot set key={}", key);
+            log.warn("[CACHE] REDIS DOWN (set: {}) for key={}", e.toString(), key);
         }
         return data;
     }
