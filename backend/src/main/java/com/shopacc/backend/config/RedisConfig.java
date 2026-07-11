@@ -3,7 +3,6 @@ package com.shopacc.backend.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -20,18 +19,24 @@ public class RedisConfig {
     private int port;
 
     @Bean
-    @Lazy
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
+        factory.setTimeout(java.time.Duration.ofSeconds(5));
+        try {
+            factory.afterPropertiesSet();
+        } catch (Exception e) {
+            // Redis not available at startup — will retry on first use
+        }
+        return factory;
     }
 
     @Bean
-    @Lazy
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(factory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setValueSerializer(new StringRedisSerializer());
+        template.afterPropertiesSet();
         return template;
     }
 }
