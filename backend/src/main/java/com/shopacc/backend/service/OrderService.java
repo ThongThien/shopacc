@@ -54,7 +54,7 @@ public class OrderService {
                 if (listing.getStatus() != ListingStatus.PUBLISHED) {
                         throw new ResponseStatusException(
                                         HttpStatus.BAD_REQUEST,
-                                        "Listing unavailable");
+                                        "Sản phẩm này đã được bán hoặc không còn khả dụng");
                 }
 
                 BigDecimal currentBalance = user.getBalance();
@@ -136,7 +136,7 @@ public class OrderService {
                 if (listing.getStatus() != ListingStatus.PUBLISHED) {
                         throw new ResponseStatusException(
                                         HttpStatus.BAD_REQUEST,
-                                        "Listing unavailable");
+                                        "Sản phẩm này đã được bán hoặc không còn khả dụng");
                 }
 
                 BigDecimal before = user.getBalance();

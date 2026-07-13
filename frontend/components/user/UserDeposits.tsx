@@ -108,6 +108,15 @@ export default function UserDeposits() {
     };
   }, []);
 
+  async function handleRetryDeposit(tx: Transaction) {
+    setDepositContent(tx.transactionCode);
+    // Rebuild QR URL using VietQR
+    const qr = `https://vietqr.app/img?acc=${bankAccount}&bank=${bankName}&amount=${tx.amount}&des=${encodeURIComponent(tx.transactionCode)}&template=compact`;
+    setQrUrl(qr);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    notify("info", "Vui lòng chuyển khoản đúng nội dung và số tiền.");
+  }
+
   async function handleCreateAtmDeposit() {
     const ok = await confirmAction(
       `Bạn muốn tạo lệnh nạp ${formatCurrency(amount)} qua ATM?`,
