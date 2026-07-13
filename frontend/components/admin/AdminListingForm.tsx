@@ -152,6 +152,8 @@ export default function AdminListingForm({ mode, listing }: Props) {
         await uploadThumbnailIfNeeded(created.id);
         await uploadGalleryIfNeeded(created.id);
         notify("success", "Tạo sản phẩm thành công");
+        router.push("/admin/listings");
+        return;
       }
 
       if (mode === "edit") {

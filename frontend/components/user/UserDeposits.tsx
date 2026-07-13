@@ -61,6 +61,18 @@ export default function UserDeposits() {
   async function loadDeposits() {
     const data = await getMyDeposits();
     setTransactions(data);
+
+    // Auto-clear QR if current deposit is no longer PENDING
+    if (depositContent) {
+      const match = data.find((t) => t.transactionCode === depositContent);
+      if (!match || match.status !== "PENDING") {
+        setQrUrl("");
+        setDepositContent("");
+        if (match?.status === "SUCCESS") {
+          notify("success", "Nạp tiền thành công! Số dư đã được cập nhật.");
+        }
+      }
+    }
   }
 
   async function handleManualRefresh() {
