@@ -1,6 +1,7 @@
 package com.shopacc.backend.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -25,7 +26,7 @@ public class GlobalExceptionHandler {
                                 .stream()
                                 .findFirst()
                                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                                .orElse("Invalid request");
+                                .orElse("Dữ liệu không hợp lệ");
 
                 return buildError(
                                 HttpStatus.BAD_REQUEST,
@@ -69,14 +70,24 @@ public class GlobalExceptionHandler {
                                 request);
         }
 
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ApiErrorResponse> handleDuplicate(
+                        DataIntegrityViolationException ex,
+                        HttpServletRequest request) {
+                String msg = ex.getMessage() != null && ex.getMessage().contains("duplicate")
+                                ? "Dữ liệu đã tồn tại, vui lòng kiểm tra lại."
+                                : "Lỗi dữ liệu, vui lòng thử lại.";
+                return buildError(HttpStatus.CONFLICT, msg, request);
+        }
+
         @ExceptionHandler(RuntimeException.class)
         public ResponseEntity<ApiErrorResponse> handleRuntime(
                         RuntimeException ex,
                         HttpServletRequest request) {
 
                 return buildError(
-                                HttpStatus.BAD_REQUEST,
-                                ex.getMessage(),
+                                HttpStatus.INTERNAL_SERVER_ERROR,
+                                "Lỗi hệ thống, vui lòng thử lại sau.",
                                 request);
         }
 
@@ -87,7 +98,7 @@ public class GlobalExceptionHandler {
 
                 return buildError(
                                 HttpStatus.INTERNAL_SERVER_ERROR,
-                                "Internal server error",
+                                "Lỗi hệ thống, vui lòng thử lại sau.",
                                 request);
         }
 

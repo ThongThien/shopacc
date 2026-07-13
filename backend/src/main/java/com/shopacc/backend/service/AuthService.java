@@ -38,6 +38,15 @@ public class AuthService {
         public AuthResponse register(
                         RegisterRequest request) {
 
+                if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+                        throw new ResponseStatusException(HttpStatus.CONFLICT,
+                                        "Email đã được đăng ký. Vui lòng dùng email khác.");
+                }
+                if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+                        throw new ResponseStatusException(HttpStatus.CONFLICT,
+                                        "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
+                }
+
                 User user = User.builder()
                                 .username(request.getUsername())
                                 .email(request.getEmail())
@@ -83,15 +92,15 @@ public class AuthService {
 
                 User user = userRepository.findByEmail(
                                 request.getEmail()).orElseThrow(
-                                                () -> new RuntimeException(
-                                                                "User not found"));
+                                                () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                                                                "Email hoặc mật khẩu không đúng"));
 
                 if (!passwordEncoder.matches(
                                 request.getPassword(),
                                 user.getPasswordHash())) {
 
-                        throw new RuntimeException(
-                                        "Invalid password");
+                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                                        "Email hoặc mật khẩu không đúng");
                 }
                 if (user.getStatus() == UserStatus.BANNED) {
                         throw new ResponseStatusException(
