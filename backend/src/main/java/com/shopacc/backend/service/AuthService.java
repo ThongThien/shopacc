@@ -92,14 +92,14 @@ public class AuthService {
 
                 User user = userRepository.findByEmail(
                                 request.getEmail()).orElseThrow(
-                                                () -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                                                () -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                                                                 "Email hoặc mật khẩu không đúng"));
 
                 if (!passwordEncoder.matches(
                                 request.getPassword(),
                                 user.getPasswordHash())) {
 
-                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                                         "Email hoặc mật khẩu không đúng");
                 }
                 if (user.getStatus() == UserStatus.BANNED) {

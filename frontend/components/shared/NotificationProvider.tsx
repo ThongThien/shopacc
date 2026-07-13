@@ -31,11 +31,11 @@ const NotificationContext = createContext<NotificationContextValue | null>(
   null,
 );
 
-const TYPE_ICONS: Record<string, string> = {
-  success: "✅",
-  error: "❌",
-  warning: "⚠️",
-  info: "ℹ️",
+const TYPE_COLORS: Record<string, string> = {
+  success: "var(--success)",
+  error: "var(--danger)",
+  warning: "var(--warning)",
+  info: "var(--primary)",
 };
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
@@ -73,35 +73,27 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       {toast && (
         <div
           className="modal-overlay"
-          style={{ background: "transparent", pointerEvents: "none", zIndex: 10001 }}
+          style={{ background: "rgba(0,0,0,0.3)", zIndex: 10001 }}
           onClick={() => setToast(null)}
         >
           <div
             style={{
               background: "white",
-              borderRadius: 16,
-              padding: "28px 36px",
-              boxShadow: "0 24px 80px rgba(15,23,42,0.3)",
+              borderRadius: 14,
+              padding: "24px 32px",
+              boxShadow: "0 16px 48px rgba(15,23,42,0.2)",
               textAlign: "center",
               pointerEvents: "auto",
-              animation: "pageFadeIn 0.2s ease-out",
-              maxWidth: 400,
+              maxWidth: 380,
+              borderLeft: `4px solid ${TYPE_COLORS[toast.type]}`,
             }}
           >
-            <div style={{ fontSize: 36, marginBottom: 12 }}>
-              {TYPE_ICONS[toast.type]}
-            </div>
             <p
               style={{
                 margin: 0,
-                fontWeight: 700,
+                fontWeight: 800,
                 fontSize: 15,
-                color:
-                  toast.type === "error"
-                    ? "var(--danger)"
-                    : toast.type === "success"
-                      ? "var(--success)"
-                      : "var(--text)",
+                color: "var(--text)",
               }}
             >
               {toast.message}
