@@ -31,24 +31,18 @@ const NotificationContext = createContext<NotificationContextValue | null>(
   null,
 );
 
-const TYPE_COLORS: Record<string, string> = {
-  success: "var(--success)",
-  error: "var(--danger)",
-  warning: "var(--warning)",
-  info: "var(--primary)",
-};
-
 export function NotificationProvider({ children }: { children: ReactNode }) {
-  const [toast, setToast] = useState<Toast | null>(null);
+  const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
 
   function notify(type: ToastType, message: string) {
     const id = Date.now();
-    setToast({ id, type, message });
+
+    setToasts((prev) => [...prev, { id, type, message }]);
 
     window.setTimeout(() => {
-      setToast((prev) => (prev?.id === id ? null : prev));
-    }, 2500);
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 3000);
   }
 
   function confirmAction(message: string, title = "Xác nhận thao tác") {
@@ -69,38 +63,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     <NotificationContext.Provider value={value}>
       {children}
 
-      {/* Center modal notification */}
-      {toast && (
-        <div
-          className="modal-overlay"
-          style={{ background: "rgba(0,0,0,0.3)", zIndex: 10001 }}
-          onClick={() => setToast(null)}
-        >
-          <div
-            style={{
-              background: "white",
-              borderRadius: 14,
-              padding: "24px 32px",
-              boxShadow: "0 16px 48px rgba(15,23,42,0.2)",
-              textAlign: "center",
-              pointerEvents: "auto",
-              maxWidth: 380,
-              borderLeft: `4px solid ${TYPE_COLORS[toast.type]}`,
-            }}
-          >
-            <p
-              style={{
-                margin: 0,
-                fontWeight: 800,
-                fontSize: 15,
-                color: "var(--text)",
-              }}
-            >
-              {toast.message}
-            </p>
+      {/* Toast notifications */}
+      <div className="toast-wrapper">
+        {toasts.map((toast) => (
+          <div key={toast.id} className={`toast toast-${toast.type}`}>
+            {toast.message}
           </div>
-        </div>
-      )}
+        ))}
+      </div>
 
       {/* Confirm modal */}
       {confirmState && (
