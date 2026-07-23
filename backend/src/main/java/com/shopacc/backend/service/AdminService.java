@@ -154,7 +154,7 @@ public class AdminService {
                                 .name(request.getName())
                                 .slug(request.getSlug())
                                 .description(request.getDescription())
-                                .parent(parent)
+                                .parent(null) // always start with null, set after save
                                 .sortOrder(request.getSortOrder())
                                 .isActive(
                                                 request.getIsActive() != null
@@ -163,6 +163,12 @@ public class AdminService {
                                 .build();
 
                 ProductCategory saved = categoryRepository.save(category);
+
+                // Set parent after save to avoid self-reference
+                if (parent != null) {
+                        saved.setParent(parent);
+                        saved = categoryRepository.save(saved);
+                }
 
                 return mapToCategoryResponse(saved);
         }
@@ -198,6 +204,10 @@ public class AdminService {
                 category.setSlug(request.getSlug());
                 category.setDescription(request.getDescription());
                 category.setParent(parent);
+                // Safety: never allow self-reference
+                if (parent != null && parent.getId().equals(category.getId())) {
+                        category.setParent(null);
+                }
                 category.setSortOrder(request.getSortOrder());
                 category.setIsActive(request.getIsActive());
 
