@@ -3,36 +3,30 @@ export default function PublicFooter() {
     <footer className="public-footer">
       <div className="footer-grid">
         <div>
-          <h3>thienngocrong.shop</h3>
-
+          <h3>shopthien.xyz</h3>
           <p>
-            Shop uy tín giá rẻ có hầu hết các dịch vụ của game Ngọc Rồng Online,
-            hỗ trợ nhiệt tình tận tâm, phục vụ quý khách hàng 24/24. Shop độc
-            quyền và được vận hành bởi YTB Thiên Ngọc Rồng.
+            Shop acc game uy tín — Ngọc Rồng Online, Liên Quân, Free Fire. Hỗ trợ 24/7, giao dịch tự động, bảo mật tuyệt đối.
           </p>
         </div>
-
+        <div className="footer-links">
+          <h3>Liên kết</h3>
+          <ul>
+            <li><a href="/accounts">Kho acc</a></li>
+            <li><a href="/services">Dịch vụ</a></li>
+            <li><a href="/me/deposits">Nạp tiền</a></li>
+            <li><a href="/me/tickets">Hỗ trợ</a></li>
+          </ul>
+        </div>
         <div>
-          <h4>Liên hệ hỗ trợ</h4>
-
-          <p>
-            Liên hệ ngay cho chăm sóc khách hàng nếu gặp bất cứ lỗi nào khi sử
-            dụng dịch vụ trên shop. Thời gian hỗ trợ: 8h-23h.
-          </p>
-
-          <p>Facebook</p>
+          <h3>Liên hệ</h3>
           <p>Zalo: 0772438318</p>
           <p>Email: thongthien2004@gmail.com</p>
-        </div>
-
-        <div>
-          <h4>Phát triển bởi</h4>
-          <p>Youtuber Nguyễn Thông Thiên</p>
+          <p>Facebook: Thiên Ngọc Rồng</p>
         </div>
       </div>
-
       <div className="footer-bottom">
-        © 2026 shopthien.xyz. Tất cả quyền được bảo lưu.
+        <span>© 2026 shopthien.xyz</span>
+        <span>Phát triển bởi Nguyễn Thông Thiên</span>
       </div>
     </footer>
   );
