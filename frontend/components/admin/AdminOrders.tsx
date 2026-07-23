@@ -147,6 +147,13 @@ export default function AdminOrders() {
         </div>
       </div>
 
+      <div className="admin-summary-row">
+        <span>Tổng đơn: {orders.length}</span>
+        <span>Đã thanh toán: {orders.filter((o) => o.paymentStatus === "PAID").length}</span>
+        <span>Chưa thanh toán: {orders.filter((o) => o.paymentStatus === "UNPAID").length}</span>
+        <span>Hoàn tiền: {orders.filter((o) => o.paymentStatus === "REFUNDED").length}</span>
+      </div>
+
       <div className="card admin-toolbar">
         <input
           className="input"
@@ -224,9 +231,6 @@ export default function AdminOrders() {
                     <th onClick={() => toggleSort("createdAt")}>
                       Ngày tạo{sortLabel("createdAt")}
                     </th>
-                    <th onClick={() => toggleSort("updatedAt")}>
-                      Cập nhật{sortLabel("updatedAt")}
-                    </th>
                     <th></th>
                   </tr>
                 </thead>
@@ -251,11 +255,6 @@ export default function AdminOrders() {
                         <td>{paymentStatusLabel(order.paymentStatus)}</td>
                         <td>{order.paymentMethod || "-"}</td>
                         <td>{formatDateTime(order.createdAt)}</td>
-                        <td>
-                          {order.updatedAt
-                            ? formatDateTime(order.updatedAt)
-                            : "-"}
-                        </td>
                         <td>
                           <Link
                             className="table-link"

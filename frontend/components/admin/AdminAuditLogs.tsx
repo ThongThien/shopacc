@@ -58,9 +58,9 @@ export default function AdminAuditLogs() {
       </div>
 
       <div className="admin-summary-row">
-        <span>Tổng log: {auditLogs.length}</span>
-        <span>Admin: {auditLogs.filter((l) => l.action?.startsWith("ADMIN")).length}</span>
-        <span>User: {auditLogs.filter((l) => l.action?.startsWith("USER")).length}</span>
+        <span>Tổng log: {logs.length}</span>
+        <span>Admin: {logs.filter((l) => l.action?.startsWith("ADMIN")).length}</span>
+        <span>User: {logs.filter((l) => l.action?.startsWith("USER")).length}</span>
       </div>
 
       <div className="card admin-toolbar">

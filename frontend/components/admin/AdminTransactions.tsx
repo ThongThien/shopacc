@@ -132,6 +132,13 @@ export default function AdminTransactions() {
         </div>
       </div>
 
+      <div className="admin-summary-row">
+        <span>Tổng: {transactions.length}</span>
+        <span>Thành công: {transactions.filter((t) => t.status === "SUCCESS").length}</span>
+        <span>Đang chờ: {transactions.filter((t) => t.status === "PENDING").length}</span>
+        <span>Hết hạn: {transactions.filter((t) => t.status === "EXPIRED").length}</span>
+      </div>
+
       <div className="card admin-toolbar">
         <input
           className="input"

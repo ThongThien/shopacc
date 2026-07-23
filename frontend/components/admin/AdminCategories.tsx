@@ -103,6 +103,12 @@ export default function AdminCategories() {
         </Link>
       </div>
 
+      <div className="admin-summary-row">
+        <span>Tổng danh mục: {categories.length}</span>
+        <span>Đang hiển thị: {categories.filter((c) => c.isActive).length}</span>
+        <span>Đã ẩn: {categories.filter((c) => !c.isActive).length}</span>
+      </div>
+
       <div className="card admin-toolbar">
         <input
           className="input"
