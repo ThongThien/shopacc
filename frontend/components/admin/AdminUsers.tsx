@@ -177,6 +177,17 @@ export default function AdminUsers() {
         </div>
       </div>
 
+      <div className="admin-summary-row">
+        <span>Tổng: {users.length}</span>
+        <span>
+          Đang hoạt động:{" "}
+          {users.filter((user) => user.status === "ACTIVE").length}
+        </span>
+        <span>
+          Đã khóa: {users.filter((user) => user.status === "BANNED").length}
+        </span>
+      </div>
+
       <div className="card admin-toolbar">
         <input
           className="input"
@@ -215,17 +226,6 @@ export default function AdminUsers() {
         </select>
       </div>
 
-      <div className="admin-summary-row">
-        <span>Tổng: {users.length}</span>
-        <span>
-          Đang hoạt động:{" "}
-          {users.filter((user) => user.status === "ACTIVE").length}
-        </span>
-        <span>
-          Đã khóa: {users.filter((user) => user.status === "BANNED").length}
-        </span>
-      </div>
-
       <div className="card table-card">
         {loading ? (
           <LoadingSpinner text="Đang tải người dùng..." />
@@ -256,32 +256,17 @@ export default function AdminUsers() {
                       <td>{userStatusLabel(user.status)}</td>
                       <td>{formatCurrency(user.balance)}</td>
                       <td>{formatDateTime(user.createdAt)}</td>
-                      <td className="admin-actions">
-                        <Link href={`/admin/users/${user.id}`}>Xem</Link>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setBalanceUser(user);
-                            setBalanceAmount(String(user.balance));
-                          }}
-                        >
-                          Sửa tiền
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleResetPassword(user)}
-                        >
-                          Reset MK
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleChangeStatus(user)}
-                        >
-                          {user.status === "BANNED" ? "Mở khóa" : "Khóa"}
-                        </button>
+                      <td>
+                        <div style={{ display: "flex", gap: 6, whiteSpace: "nowrap", flexWrap: "wrap" }}>
+                          <Link href={`/admin/users/${user.id}`}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-cyan)", borderColor: "var(--color-cyan)" }}>Xem</Link>
+                          <button type="button" onClick={() => { setBalanceUser(user); setBalanceAmount(String(user.balance)); }}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>Sửa tiền</button>
+                          <button type="button" onClick={() => handleResetPassword(user)}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-warning)", borderColor: "var(--color-warning)", color: "var(--color-warning)" }}>Reset MK</button>
+                          <button type="button" onClick={() => handleChangeStatus(user)}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: user.status === "BANNED" ? "var(--color-price)" : "var(--color-danger)", borderColor: user.status === "BANNED" ? "var(--color-price)" : "var(--color-danger)" }}>{user.status === "BANNED" ? "Mở khóa" : "Khóa"}</button>
+                        </div>
                       </td>
                     </tr>
                   ))}

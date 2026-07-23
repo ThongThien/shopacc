@@ -161,21 +161,15 @@ export default function AdminCategories() {
                       <td>{category.parentName || "-"}</td>
                       <td>{category.listingCount ?? 0}</td>
                       <td>{category.isActive ? "Đang hiển thị" : "Đã ẩn"}</td>
-                      <td className="admin-actions">
-                        <Link href={`/admin/categories/${Number(category.id)}`}>
-                          Xem
-                        </Link>
-
-                        <Link href={`/admin/categories/${category.id}/edit`}>
-                          Sửa
-                        </Link>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(category)}
-                        >
-                          Xóa
-                        </button>
+                      <td>
+                        <div style={{ display: "flex", gap: 6, whiteSpace: "nowrap" }}>
+                          <Link href={`/admin/categories/${Number(category.id)}`}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-cyan)", borderColor: "var(--color-cyan)" }}>Xem</Link>
+                          <Link href={`/admin/categories/${category.id}/edit`}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>Sửa</Link>
+                          <button type="button" onClick={() => handleDelete(category)}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-danger)", borderColor: "var(--color-danger)" }}>Xóa</button>
+                        </div>
                       </td>
                     </tr>
                   ))}
