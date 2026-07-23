@@ -269,20 +269,11 @@ export default function AdminListings() {
                     <th>Loại</th>
                     <th>Game</th>
                     <th>Máy chủ</th>
-                    <th onClick={() => toggleSort("viewCount")}>
-                      Lượt xem{sortLabel("viewCount")}
-                    </th>
                     <th onClick={() => toggleSort("price")}>
                       Giá{sortLabel("price")}
                     </th>
                     <th>Trạng thái</th>
-                    <th onClick={() => toggleSort("createdAt")}>
-                      Ngày tạo{sortLabel("createdAt")}
-                    </th>
-                    <th onClick={() => toggleSort("updatedAt")}>
-                      Cập nhật lần cuối{sortLabel("updatedAt")}
-                    </th>
-                    <th></th>
+                    <th>Hành động</th>
                   </tr>
                 </thead>
 
@@ -290,28 +281,22 @@ export default function AdminListings() {
                   {visibleListings.map((listing) => (
                     <tr key={listing.id}>
                       <td>#{listing.id}</td>
-                      <td>{listing.title}</td>
+                      <td style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{listing.title}</td>
                       <td>{listingTypeLabel(listing.listingType)}</td>
                       <td>{listing.gameName}</td>
                       <td>{listing.serverName || "-"}</td>
-                      <td>{listing.viewCount || 0}</td>
                       <td>{formatCurrency(listing.price)}</td>
                       <td>{listingStatusLabel(listing.status)}</td>
-                      <td>{formatDateTime(listing.createdAt || "")}</td>
-                      <td>{formatDateTime(listing.updatedAt || "")}</td>
-                      <td className="admin-actions">
-                        <Link href={`/admin/listings/${listing.id}`}>Xem</Link>
-
-                        <Link href={`/admin/listings/${listing.id}/edit`}>
-                          Sửa
-                        </Link>
-
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(listing.id)}
-                        >
-                          Xóa
-                        </button>
+                      <td>
+                        <div style={{ display: "flex", gap: 6, whiteSpace: "nowrap" }}>
+                          <Link href={`/admin/listings/${listing.id}`}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-cyan)", borderColor: "var(--color-cyan)" }}>Xem</Link>
+                          <Link href={`/admin/listings/${listing.id}/edit`}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>Sửa</Link>
+                          <button type="button" onClick={() => handleDelete(listing.id)}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-danger)", borderColor: "var(--color-danger)" }}>Xóa</button>
+                        </div>
+                      </td>
                       </td>
                     </tr>
                   ))}
