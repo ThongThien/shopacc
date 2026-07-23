@@ -47,6 +47,16 @@ export default function AdminServiceOrders() {
   return (
     <section className="admin-page">
       <div className="admin-page-header"><div><h1>Đơn Dịch vụ</h1><p>Xử lý đơn dịch vụ từ người dùng.</p></div></div>
+      <div className="admin-summary-row">
+        <span>Tổng đơn: {orders.length}</span>
+        <span>Chờ xử lý: {orders.filter((o) => o.status === "PENDING").length}</span>
+        <span>Đang làm: {orders.filter((o) => o.status === "PROCESSING").length}</span>
+        <span>Hoàn thành: {orders.filter((o) => o.status === "COMPLETED").length}</span>
+      </div>
+      <div className="admin-toolbar">
+        <input className="input" placeholder="Tìm theo tên dịch vụ..." style={{ minWidth: 250, flex: 1 }}
+          value="" onChange={() => {}} />
+      </div>
       <div className="card table-card">
         {loading ? <LoadingSpinner /> : (
           <div className="responsive-table">

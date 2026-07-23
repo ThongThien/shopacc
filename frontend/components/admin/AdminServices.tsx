@@ -320,6 +320,11 @@ export default function AdminServices() {
         </div>
       )}
 
+      <div className="admin-summary-row">
+        <span>Tổng dịch vụ: {services.length}</span>
+        <span>Đang hoạt động: {services.filter((s) => s.isActive).length}</span>
+        <span>Đã tắt: {services.filter((s) => !s.isActive).length}</span>
+      </div>
       <div className="card table-card">
         {loading ? (
           <LoadingSpinner text="Đang tải..." />

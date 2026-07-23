@@ -233,30 +233,13 @@ export default function AdminListings() {
           <option value="DRAFT">Nháp</option>
         </select>
 
-        <div className="admin-game-tabs">
-          <button
-            className={
-              activeGame === "all" ? "btn btn-primary" : "btn btn-outline"
-            }
-            type="button"
-            onClick={() => setActiveGame("all")}
-          >
-            Tất cả
-          </button>
-
+        <select className="input" value={activeGame} onChange={(e) => setActiveGame(e.target.value)}
+          style={{ width: 180 }}>
+          <option value="all">Tất cả game</option>
           {games.map((game) => (
-            <button
-              key={game}
-              className={
-                activeGame === game ? "btn btn-primary" : "btn btn-outline"
-              }
-              type="button"
-              onClick={() => setActiveGame(game)}
-            >
-              {game}
-            </button>
+            <option key={game} value={game}>{game}</option>
           ))}
-        </div>
+        </select>
       </div>
 
       <div className="admin-summary-row">
