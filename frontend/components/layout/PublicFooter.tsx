@@ -2,11 +2,13 @@ export default function PublicFooter() {
   return (
     <footer className="public-footer">
       <div className="footer-grid">
-        <div>
-          <h3>shopthien.xyz</h3>
-          <p>
-            Shop acc game uy tín — Ngọc Rồng Online, Liên Quân, Free Fire. Hỗ trợ 24/7, giao dịch tự động, bảo mật tuyệt đối.
-          </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <img src="/logo_footer.png" alt="shopthien.xyz" style={{ height: 52, width: "auto" }} />
+          <div>
+            <h3>shopthien.xyz</h3>
+            <p>Shop acc game uy tín — Ngọc Rồng Online, Liên Quân, Free Fire.</p>
+            <p>Hỗ trợ 24/7, giao dịch tự động, bảo mật tuyệt đối.</p>
+          </div>
         </div>
         <div className="footer-links">
           <h3>Liên kết</h3>
