@@ -43,7 +43,7 @@ public class AuthController {
         }
         var entity = refreshTokenRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
-        if (entity.isRevoked() || entity.getExpiredAt().isBefore(java.time.LocalDateTime.now())) {
+        if (entity.getRevoked() || entity.getExpiredAt().isBefore(java.time.LocalDateTime.now())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token expired");
         }
         String newAccess = jwtService.generateAccessToken(entity.getUser().getEmail());
