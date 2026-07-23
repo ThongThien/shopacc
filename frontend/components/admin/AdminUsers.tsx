@@ -263,7 +263,7 @@ export default function AdminUsers() {
                           <button type="button" onClick={() => { setBalanceUser(user); setBalanceAmount(String(user.balance)); }}
                             className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>Sửa tiền</button>
                           <button type="button" onClick={() => handleResetPassword(user)}
-                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-warning)", borderColor: "var(--color-warning)", color: "var(--color-warning)" }}>Reset MK</button>
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-warning)", borderColor: "var(--color-warning)" }}>Reset MK</button>
                           <button type="button" onClick={() => handleChangeStatus(user)}
                             className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: user.status === "BANNED" ? "var(--color-price)" : "var(--color-danger)", borderColor: user.status === "BANNED" ? "var(--color-price)" : "var(--color-danger)" }}>{user.status === "BANNED" ? "Mở khóa" : "Khóa"}</button>
                         </div>
