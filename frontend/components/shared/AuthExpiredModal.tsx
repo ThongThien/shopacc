@@ -42,8 +42,8 @@ export default function AuthExpiredModal() {
       <div className="modal-card">
         <h2>Phiên đăng nhập hết hạn</h2>
 
-        <p style={{ color: "var(--muted)", margin: "12px 0" }}>{message}</p>
-        <p style={{ fontSize: 13, color: "var(--muted)" }}>
+        <p style={{ color: "var(--color-text-muted)", margin: "12px 0" }}>{message}</p>
+        <p style={{ fontSize: 13, color: "var(--color-text-muted)" }}>
           Tự động chuyển về trang đăng nhập sau 2 giây...
         </p>
 

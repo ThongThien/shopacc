@@ -57,13 +57,13 @@ export default function LoadingOverlay() {
           style={{
             width: 40,
             height: 40,
-            border: "4px solid var(--border)",
-            borderTopColor: "var(--primary)",
+            border: "4px solid var(--color-border)",
+            borderTopColor: "var(--color-primary)",
             borderRadius: "50%",
             animation: "spin 0.7s linear infinite",
           }}
         />
-        <b style={{ color: "var(--text)", fontSize: 15 }}>{state.text}</b>
+        <b style={{ color: "var(--color-text)", fontSize: 15 }}>{state.text}</b>
       </div>
     </div>
   );

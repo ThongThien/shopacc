@@ -159,7 +159,7 @@ export default function PublicNavbar() {
             <Link
               href="/register"
               className="nav-login"
-              style={{ background: "white", color: "var(--primary)" }}
+              style={{ background: "white", color: "var(--color-primary)" }}
             >
               Đăng ký
             </Link>

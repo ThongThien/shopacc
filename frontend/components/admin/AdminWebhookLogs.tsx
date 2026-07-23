@@ -164,7 +164,7 @@ export default function AdminWebhookLogs() {
                             overflow: "hidden",
                             textOverflow: "ellipsis",
                             whiteSpace: "nowrap",
-                            color: "var(--danger)",
+                            color: "var(--color-danger)",
                             fontSize: "13px",
                           }}
                         >
@@ -199,7 +199,7 @@ export default function AdminWebhookLogs() {
                               }}
                             >
                               <div>
-                                <b style={{ color: "var(--muted)", fontSize: "13px" }}>
+                                <b style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>
                                   Nội dung chuyển khoản:
                                 </b>
                                 <pre
@@ -216,7 +216,7 @@ export default function AdminWebhookLogs() {
                                 </pre>
                               </div>
                               <div>
-                                <b style={{ color: "var(--muted)", fontSize: "13px" }}>
+                                <b style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>
                                   Số tài khoản nhận:
                                 </b>
                                 <p style={{ margin: "4px 0 0" }}>
@@ -224,7 +224,7 @@ export default function AdminWebhookLogs() {
                                 </p>
                               </div>
                               <div>
-                                <b style={{ color: "var(--muted)", fontSize: "13px" }}>
+                                <b style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>
                                   Raw Body (JSON từ SePay):
                                 </b>
                                 <pre

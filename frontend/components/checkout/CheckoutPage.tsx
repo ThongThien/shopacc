@@ -117,7 +117,7 @@ export default function CheckoutPage() {
     <section style={{ maxWidth: 720, margin: "0 auto", padding: "28px 16px" }}>
       <div className="card" style={{ padding: 24 }}>
         <h1 style={{ margin: "0 0 6px" }}>Thanh toán</h1>
-        <p style={{ color: "var(--muted)", margin: "0 0 20px" }}>
+        <p style={{ color: "var(--color-text-muted)", margin: "0 0 20px" }}>
           Xác nhận mua {items.length} acc
         </p>
 
@@ -131,8 +131,8 @@ export default function CheckoutPage() {
                 gap: 10,
                 padding: 10,
                 borderRadius: 10,
-                border: "1px solid var(--border)",
-                background: "var(--surface-soft)",
+                border: "1px solid var(--color-border)",
+                background: "var(--color-bg-secondary)",
               }}
             >
               <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
@@ -157,19 +157,19 @@ export default function CheckoutPage() {
                 >
                   {item.title}
                 </b>
-                <small style={{ color: "var(--muted)" }}>
+                <small style={{ color: "var(--color-text-muted)" }}>
                   {item.gameName}
                   {item.serverName ? ` · SV ${item.serverName}` : ""}
                 </small>
               </div>
-              <b style={{ color: "var(--accent)", fontSize: 17, whiteSpace: "nowrap" }}>
+              <b style={{ color: "var(--color-primary)", fontSize: 17, whiteSpace: "nowrap" }}>
                 {formatCurrency(item.price)}
               </b>
             </div>
 
             {item.listingType === "SERVICE" && item.serviceInfo && (
-              <div style={{ fontSize: 12, color: "var(--muted)",
-                borderTop: "1px solid var(--border)", paddingTop: 8 }}>
+              <div style={{ fontSize: 12, color: "var(--color-text-muted)",
+                borderTop: "1px solid var(--color-border)", paddingTop: 8 }}>
                 {(function () {
                   try {
                     const info = JSON.parse(item.serviceInfo);
@@ -243,7 +243,7 @@ export default function CheckoutPage() {
         {/* Balance */}
         <div
           style={{
-            background: "var(--surface-soft)",
+            background: "var(--color-bg-secondary)",
             borderRadius: 12,
             padding: 14,
             marginBottom: 16,
@@ -257,7 +257,7 @@ export default function CheckoutPage() {
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span>Tổng thanh toán:</span>
-            <b style={{ color: "var(--accent)" }}>{formatCurrency(total)}</b>
+            <b style={{ color: "var(--color-primary)" }}>{formatCurrency(total)}</b>
           </div>
           {discount?.valid && (
             <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -265,10 +265,10 @@ export default function CheckoutPage() {
               <b className="text-success">-{formatCurrency(discountAmount)}</b>
             </div>
           )}
-          <hr style={{ border: "none", borderTop: "1px solid var(--border)", margin: "10px 0" }} />
+          <hr style={{ border: "none", borderTop: "1px solid var(--color-border)", margin: "10px 0" }} />
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <span>Tổng cuối:</span>
-            <b style={{ color: "var(--accent)", fontSize: 17 }}>
+            <b style={{ color: "var(--color-primary)", fontSize: 17 }}>
               {formatCurrency(discountedTotal)}
             </b>
           </div>
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                 style={{
                   margin: "4px 0",
                   fontSize: 14,
-                  color: r.success ? "var(--success)" : "var(--danger)",
+                  color: r.success ? "var(--color-success)" : "var(--color-danger)",
                 }}
               >
                 {r.success ? "✅" : "❌"} {r.item.title}

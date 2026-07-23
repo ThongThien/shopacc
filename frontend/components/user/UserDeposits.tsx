@@ -247,10 +247,10 @@ export default function UserDeposits() {
               style={{
                 display: "grid",
                 placeItems: "center",
-                background: depositContent ? "var(--surface-soft)" : "transparent",
+                background: depositContent ? "var(--color-bg-secondary)" : "transparent",
                 borderRadius: 16,
                 padding: depositContent ? 20 : 0,
-                border: depositContent ? "1px solid var(--border)" : "none",
+                border: depositContent ? "1px solid var(--color-border)" : "none",
                 minHeight: depositContent ? 380 : 0,
               }}
             >
@@ -264,11 +264,11 @@ export default function UserDeposits() {
                     borderRadius: 14,
                     background: "white",
                     padding: 12,
-                    border: "1px solid var(--border)",
+                    border: "1px solid var(--color-border)",
                   }}
                 />
               ) : (
-                <p style={{ color: "var(--muted)" }}>
+                <p style={{ color: "var(--color-text-muted)" }}>
                   Nhập số tiền và bấm &quot;Tạo lệnh nạp&quot; để hiện QR
                 </p>
               )}

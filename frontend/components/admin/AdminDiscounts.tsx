@@ -140,7 +140,7 @@ export default function AdminDiscounts() {
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--muted)" }}>
+              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
                 Mã code
               </label>
               <input
@@ -151,7 +151,7 @@ export default function AdminDiscounts() {
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--muted)" }}>
+              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
                 Loại
               </label>
               <select className="input" value={type} onChange={(e) => setType(e.target.value as "PERCENT" | "FIXED")}>
@@ -160,7 +160,7 @@ export default function AdminDiscounts() {
               </select>
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--muted)" }}>
+              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
                 Giá trị
               </label>
               <input
@@ -173,7 +173,7 @@ export default function AdminDiscounts() {
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--muted)" }}>
+              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
                 Đơn tối thiểu (để trống = không giới hạn)
               </label>
               <input
@@ -185,7 +185,7 @@ export default function AdminDiscounts() {
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--muted)" }}>
+              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
                 Số lần dùng tối đa (để trống = không giới hạn)
               </label>
               <input
@@ -282,7 +282,7 @@ export default function AdminDiscounts() {
                           style={{
                             padding: "4px 10px",
                             fontSize: 12,
-                            color: "var(--danger)",
+                            color: "var(--color-danger)",
                           }}
                           type="button"
                           onClick={() => handleDelete(d.id)}

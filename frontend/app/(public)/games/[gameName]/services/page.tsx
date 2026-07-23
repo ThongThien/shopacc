@@ -25,7 +25,7 @@ export default async function ServiceListPage({
       </section>
 
       {services.length === 0 ? (
-        <p style={{ color: "var(--muted)", textAlign: "center", padding: 40 }}>
+        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>
           Chưa có dịch vụ nào cho game này.
         </p>
       ) : (
@@ -37,7 +37,7 @@ export default async function ServiceListPage({
               className="card"
               style={{ textDecoration: "none", color: "inherit", padding: 0, overflow: "hidden" }}
             >
-              <div style={{ height: 160, background: "var(--surface-soft)", display: "grid", placeItems: "center", fontSize: 48 }}>
+              <div style={{ height: 160, background: "var(--color-bg-secondary)", display: "grid", placeItems: "center", fontSize: 48 }}>
                 {svc.thumbnail ? (
                   <img src={svc.thumbnail} alt={svc.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
@@ -48,12 +48,12 @@ export default async function ServiceListPage({
                 <h3 style={{ margin: "0 0 6px" }}>{svc.title}</h3>
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
                   {svc.serverName && (
-                    <span style={{ background: "var(--surface-soft)", padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
+                    <span style={{ background: "var(--color-bg-secondary)", padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
                       {svc.serverName}
                     </span>
                   )}
                 </div>
-                <b style={{ color: "var(--accent)", fontSize: 20 }}>
+                <b style={{ color: "var(--color-primary)", fontSize: 20 }}>
                   {formatCurrency(svc.price)}
                 </b>
               </div>

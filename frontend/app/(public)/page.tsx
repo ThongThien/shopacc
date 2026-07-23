@@ -47,13 +47,13 @@ export default async function HomePage() {
                   gap: 12,
                   marginBottom: 14,
                   paddingBottom: 10,
-                  borderBottom: "2px solid var(--border)",
+                  borderBottom: "2px solid var(--color-border)",
                 }}
               >
                 <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>{game}</h2>
                 <span
                   style={{
-                    background: "var(--accent)",
+                    background: "var(--color-primary)",
                     color: "white",
                     padding: "2px 10px",
                     borderRadius: 999,
@@ -104,7 +104,7 @@ export default async function HomePage() {
                             position: "absolute",
                             top: 8,
                             right: 8,
-                            background: "var(--accent)",
+                            background: "var(--color-primary)",
                             color: "white",
                             fontSize: 10,
                             fontWeight: 900,
@@ -121,17 +121,17 @@ export default async function HomePage() {
 
                       {count > 0 ? (
                         <div style={{ display: "grid", gap: 2 }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text)" }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }}>
                             {count} sản phẩm
                           </span>
                           {from != null && (
-                            <span style={{ fontSize: 13, color: "var(--accent)", fontWeight: 800 }}>
+                            <span style={{ fontSize: 13, color: "var(--color-primary)", fontWeight: 800 }}>
                               Giá từ {formatCurrency(from)}
                             </span>
                           )}
                         </div>
                       ) : (
-                        <span style={{ fontSize: 13, color: "var(--muted)" }}>
+                        <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>
                           Chưa có sản phẩm
                         </span>
                       )}
@@ -145,7 +145,7 @@ export default async function HomePage() {
       </div>
 
       {games.length === 0 && (
-        <p style={{ color: "var(--muted)", textAlign: "center", padding: 40 }}>
+        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>
           Chưa có sản phẩm nào.
         </p>
       )}

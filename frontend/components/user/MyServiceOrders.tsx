@@ -43,10 +43,10 @@ export default function MyServiceOrders() {
   return (
     <div style={{ maxWidth: 800, margin: "0 auto", padding: "28px 16px" }}>
       <h1>Đơn dịch vụ của tôi</h1>
-      <p style={{ color: "var(--muted)" }}>Theo dõi trạng thái các đơn dịch vụ đã đặt.</p>
+      <p style={{ color: "var(--color-text-muted)" }}>Theo dõi trạng thái các đơn dịch vụ đã đặt.</p>
 
       {orders.length === 0 ? (
-        <p style={{ color: "var(--muted)", textAlign: "center", padding: 40 }}>Chưa có đơn dịch vụ nào.</p>
+        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>Chưa có đơn dịch vụ nào.</p>
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
           {orders.map((o) => (
@@ -54,13 +54,13 @@ export default function MyServiceOrders() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                 <div>
                   <b>{o.serviceTitle}</b>
-                  <p style={{ margin: "4px 0", color: "var(--muted)", fontSize: 13 }}>
+                  <p style={{ margin: "4px 0", color: "var(--color-text-muted)", fontSize: 13 }}>
                     #{o.id} · {formatDateTime(o.createdAt)}
                   </p>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   {statusBadge(o.status)}
-                  <p style={{ margin: "4px 0 0", fontWeight: 900, color: "var(--accent)", fontSize: 17 }}>
+                  <p style={{ margin: "4px 0 0", fontWeight: 900, color: "var(--color-primary)", fontSize: 17 }}>
                     {formatCurrency(o.price)}
                   </p>
                 </div>

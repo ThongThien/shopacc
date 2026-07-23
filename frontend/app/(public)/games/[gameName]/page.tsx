@@ -61,7 +61,7 @@ export default async function GamePage({
               textDecoration: "none",
               color: "inherit",
               padding: 24,
-              border: `2px solid var(--border)`,
+              border: `2px solid var(--color-border)`,
               borderRadius: "var(--radius-lg)",
               background: card.color,
               display: "grid",

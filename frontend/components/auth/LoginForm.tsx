@@ -10,8 +10,8 @@ export default function LoginForm() {
   const router = useRouter();
   const { notify } = useNotify();
 
-  const [email, setEmail] = useState("ad1@gmail.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {

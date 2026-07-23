@@ -165,7 +165,7 @@ export default function AdminTickets() {
 
             {/* Expanded thread */}
             {expandedId && (
-              <div style={{ padding: "16px 0", borderTop: "2px solid var(--primary)" }}>
+              <div style={{ padding: "16px 0", borderTop: "2px solid var(--color-primary)" }}>
                 {tickets
                   .filter((t) => t.id === expandedId)
                   .map((ticket) => {
@@ -179,15 +179,15 @@ export default function AdminTickets() {
                               marginBottom: 10,
                               padding: "10px 14px",
                               borderRadius: 10,
-                              background: msg.isAdmin ? "#eef2ff" : "var(--surface-soft)",
-                              border: msg.isAdmin ? "1px solid #c7d2fe" : "1px solid var(--border)",
+                              background: msg.isAdmin ? "#eef2ff" : "var(--color-bg-secondary)",
+                              border: msg.isAdmin ? "1px solid #c7d2fe" : "1px solid var(--color-border)",
                             }}
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                               <b style={{ fontSize: 13 }}>
                                 {msg.isAdmin ? "Admin" : msg.username}
                               </b>
-                              <small style={{ color: "var(--muted)" }}>
+                              <small style={{ color: "var(--color-text-muted)" }}>
                                 {formatDateTime(msg.createdAt)}
                               </small>
                             </div>

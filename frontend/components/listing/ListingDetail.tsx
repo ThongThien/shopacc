@@ -149,7 +149,7 @@ export default function ListingDetail({ listing }: Props) {
               style={{
                 ...(inCart
                   ? {}
-                  : { background: "white", color: "var(--primary)" }),
+                  : { background: "white", color: "var(--color-primary)" }),
               }}
               disabled={inCart}
               onClick={async () => {

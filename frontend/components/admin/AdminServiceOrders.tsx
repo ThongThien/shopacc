@@ -69,7 +69,7 @@ export default function AdminServiceOrders() {
                           <button className="btn-primary" style={{ padding: "4px 8px", fontSize: 11 }} type="button" onClick={() => handleAction(o.id, "complete")}>Done</button>
                         )}
                         {o.status !== "COMPLETED" && o.status !== "CANCELLED" && (
-                          <button className="btn-secondary" style={{ padding: "4px 8px", fontSize: 11, color: "var(--danger)" }} type="button" onClick={() => handleAction(o.id, "cancel")}>Hủy</button>
+                          <button className="btn-secondary" style={{ padding: "4px 8px", fontSize: 11, color: "var(--color-danger)" }} type="button" onClick={() => handleAction(o.id, "cancel")}>Hủy</button>
                         )}
                       </div>
                     </td>
@@ -78,7 +78,7 @@ export default function AdminServiceOrders() {
               </tbody>
             </table>
             {expanded && (
-              <div style={{ padding: 14, borderTop: "2px solid var(--primary)" }}>
+              <div style={{ padding: 14, borderTop: "2px solid var(--color-primary)" }}>
                 {orders.filter((o) => o.id === expanded).map((o) => (
                   <div key={o.id} style={{ display: "grid", gap: 8 }}>
                     <p><b>TK game:</b> {o.accountName || "-"}</p>

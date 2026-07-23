@@ -64,7 +64,7 @@ export default function CartDrawer() {
             justifyContent: "space-between",
             alignItems: "center",
             padding: "18px 20px",
-            borderBottom: "1px solid var(--border)",
+            borderBottom: "1px solid var(--color-border)",
           }}
         >
           <h2 style={{ margin: 0, fontSize: 19 }}>Giỏ hàng ({count})</h2>
@@ -76,7 +76,7 @@ export default function CartDrawer() {
               background: "transparent",
               fontSize: 22,
               cursor: "pointer",
-              color: "var(--muted)",
+              color: "var(--color-text-muted)",
             }}
           >
             ✕
@@ -86,7 +86,7 @@ export default function CartDrawer() {
         {/* Items */}
         <div style={{ flex: 1, overflowY: "auto", padding: "14px 20px" }}>
           {items.length === 0 ? (
-            <p style={{ color: "var(--muted)", textAlign: "center", marginTop: 60 }}>
+            <p style={{ color: "var(--color-text-muted)", textAlign: "center", marginTop: 60 }}>
               Giỏ hàng trống
             </p>
           ) : (
@@ -99,8 +99,8 @@ export default function CartDrawer() {
                     gap: 12,
                     padding: 10,
                     borderRadius: 12,
-                    border: "1px solid var(--border)",
-                    background: "var(--surface-soft)",
+                    border: "1px solid var(--color-border)",
+                    background: "var(--color-bg-secondary)",
                   }}
                 >
                   <img
@@ -126,14 +126,14 @@ export default function CartDrawer() {
                     >
                       {item.title}
                     </p>
-                    <p style={{ margin: "2px 0", color: "var(--muted)", fontSize: 12 }}>
+                    <p style={{ margin: "2px 0", color: "var(--color-text-muted)", fontSize: 12 }}>
                       {item.gameName}
                       {item.serverName ? ` · ${item.serverName}` : ""}
                     </p>
                     <p
                       style={{
                         margin: 0,
-                        color: "var(--accent)",
+                        color: "var(--color-primary)",
                         fontWeight: 900,
                         fontSize: 15,
                       }}
@@ -147,7 +147,7 @@ export default function CartDrawer() {
                     style={{
                       border: "none",
                       background: "transparent",
-                      color: "var(--danger)",
+                      color: "var(--color-danger)",
                       cursor: "pointer",
                       fontSize: 16,
                       alignSelf: "flex-start",
@@ -166,7 +166,7 @@ export default function CartDrawer() {
         {items.length > 0 && (
           <div
             style={{
-              borderTop: "1px solid var(--border)",
+              borderTop: "1px solid var(--color-border)",
               padding: "16px 20px",
               display: "grid",
               gap: 10,
@@ -181,7 +181,7 @@ export default function CartDrawer() {
             >
               <b>Tổng cộng:</b>
               <strong
-                style={{ color: "var(--accent)", fontSize: 22, fontWeight: 900 }}
+                style={{ color: "var(--color-primary)", fontSize: 22, fontWeight: 900 }}
               >
                 {formatCurrency(total)}
               </strong>
@@ -200,7 +200,7 @@ export default function CartDrawer() {
               style={{
                 border: "none",
                 background: "transparent",
-                color: "var(--muted)",
+                color: "var(--color-text-muted)",
                 cursor: "pointer",
                 fontSize: 13,
                 textAlign: "center",

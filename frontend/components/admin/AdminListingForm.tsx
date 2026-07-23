@@ -196,7 +196,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
             <option value="SERVICE">Dịch vụ (Service)</option>
             <option value="RANDOM">Ngẫu nhiên (Random)</option>
           </select>
-          <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--muted)" }}>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--color-text-muted)" }}>
             {TYPE_DESCRIPTIONS[payload.listingType]}
           </p>
         </div>
@@ -217,7 +217,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
             ))}
           </select>
           {leafCategories.length === 0 && (
-            <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--warning)" }}>
+            <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--color-warning)" }}>
               Chưa có danh mục con. Vui lòng tạo danh mục con trước.
             </p>
           )}

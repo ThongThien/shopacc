@@ -81,7 +81,7 @@ export default function UserTickets() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
         <div>
           <h1 style={{ margin: 0 }}>Hỗ trợ</h1>
-          <p style={{ margin: "4px 0 0", color: "var(--muted)" }}>
+          <p style={{ margin: "4px 0 0", color: "var(--color-text-muted)" }}>
             Tạo ticket khi cần hỗ trợ về tài khoản hoặc nạp tiền.
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function UserTickets() {
           <h2 style={{ marginTop: 0 }}>Tạo ticket mới</h2>
           <div style={{ display: "grid", gap: 12 }}>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--muted)" }}>
+              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
                 Danh mục
               </label>
               <select className="input" value={category} onChange={(e) => setCategory(e.target.value as "ACCOUNT" | "DEPOSIT")}>
@@ -105,7 +105,7 @@ export default function UserTickets() {
               </select>
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--muted)" }}>
+              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
                 Tiêu đề / Mô tả vấn đề
               </label>
               <textarea
@@ -132,7 +132,7 @@ export default function UserTickets() {
       {loading ? (
         <LoadingSpinner text="Đang tải..." />
       ) : tickets.length === 0 ? (
-        <p style={{ color: "var(--muted)", textAlign: "center", padding: 40 }}>
+        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>
           Chưa có ticket hỗ trợ nào.
         </p>
       ) : (
@@ -151,7 +151,7 @@ export default function UserTickets() {
                     <b>
                       [{ticket.category === "ACCOUNT" ? "Tài khoản" : "Nạp tiền"}] {ticket.subject}
                     </b>
-                    <p style={{ margin: "4px 0 0", color: "var(--muted)", fontSize: 13 }}>
+                    <p style={{ margin: "4px 0 0", color: "var(--color-text-muted)", fontSize: 13 }}>
                       {formatDateTime(ticket.updatedAt)}
                     </p>
                   </div>
@@ -171,7 +171,7 @@ export default function UserTickets() {
                 </div>
 
                 {isExpanded && (
-                  <div style={{ marginTop: 14, borderTop: "1px solid var(--border)", paddingTop: 14 }}>
+                  <div style={{ marginTop: 14, borderTop: "1px solid var(--color-border)", paddingTop: 14 }}>
                     {msgs.map((msg, i) => (
                       <div
                         key={i}
@@ -179,15 +179,15 @@ export default function UserTickets() {
                           marginBottom: 10,
                           padding: "10px 14px",
                           borderRadius: 10,
-                          background: msg.isAdmin ? "#eef2ff" : "var(--surface-soft)",
-                          border: msg.isAdmin ? "1px solid #c7d2fe" : "1px solid var(--border)",
+                          background: msg.isAdmin ? "#eef2ff" : "var(--color-bg-secondary)",
+                          border: msg.isAdmin ? "1px solid #c7d2fe" : "1px solid var(--color-border)",
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
                           <b style={{ fontSize: 13 }}>
                             {msg.isAdmin ? "Admin" : msg.username}
                           </b>
-                          <small style={{ color: "var(--muted)" }}>
+                          <small style={{ color: "var(--color-text-muted)" }}>
                             {formatDateTime(msg.createdAt)}
                           </small>
                         </div>

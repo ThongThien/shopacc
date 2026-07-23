@@ -31,7 +31,7 @@ export default function BalanceHistory() {
     return (
       <div className="card" style={{ padding: 20, marginTop: 18 }}>
         <h2 style={{ marginTop: 0 }}>Lịch sử biến động số dư</h2>
-        <p style={{ color: "var(--muted)" }}>Chưa có biến động số dư.</p>
+        <p style={{ color: "var(--color-text-muted)" }}>Chưa có biến động số dư.</p>
       </div>
     );
   }
@@ -59,7 +59,7 @@ export default function BalanceHistory() {
                   <td>
                     <span
                       style={{
-                        color: log.amountChange >= 0 ? "var(--success)" : "var(--danger)",
+                        color: log.amountChange >= 0 ? "var(--color-success)" : "var(--color-danger)",
                         fontWeight: 700,
                       }}
                     >

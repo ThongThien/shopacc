@@ -91,9 +91,9 @@ export default function ServiceOrderView() {
             Dịch vụ · {svc.gameName}
           </span>
           <h1 style={{ margin: "10px 0", fontSize: 24 }}>{svc.title}</h1>
-          <p style={{ color: "var(--muted)", lineHeight: 1.6 }}>{svc.description || "Chưa có mô tả"}</p>
-          <b style={{ fontSize: 28, color: "var(--accent)", display: "block", margin: "12px 0" }}>{formatCurrency(svc.price)}</b>
-          {svc.serverName && <span style={{ background: "var(--surface-soft)", padding: "6px 12px", borderRadius: 8, fontSize: 13 }}>⏱ {svc.serverName}</span>}
+          <p style={{ color: "var(--color-text-muted)", lineHeight: 1.6 }}>{svc.description || "Chưa có mô tả"}</p>
+          <b style={{ fontSize: 28, color: "var(--color-primary)", display: "block", margin: "12px 0" }}>{formatCurrency(svc.price)}</b>
+          {svc.serverName && <span style={{ background: "var(--color-bg-secondary)", padding: "6px 12px", borderRadius: 8, fontSize: 13 }}>⏱ {svc.serverName}</span>}
 
           {!showForm ? (
             <button className="btn-primary" type="button" style={{ width: "100%", marginTop: 16, padding: 14, fontSize: 16 }}
@@ -101,9 +101,9 @@ export default function ServiceOrderView() {
               Đặt dịch vụ ngay
             </button>
           ) : (
-            <div className="card" style={{ padding: 14, marginTop: 14, background: "var(--surface-soft)" }}>
+            <div className="card" style={{ padding: 14, marginTop: 14, background: "var(--color-bg-secondary)" }}>
               <h4 style={{ margin: "0 0 8px" }}>Thông tin tài khoản</h4>
-              <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 10 }}>Mã hóa AES-256, chỉ admin xem được</p>
+              <p style={{ fontSize: 12, color: "var(--color-text-muted)", marginBottom: 10 }}>Mã hóa AES-256, chỉ admin xem được</p>
               <div style={{ display: "grid", gap: 8 }}>
                 <input className="input" placeholder="Tên tài khoản game *" value={accountName} onChange={(e) => setAccountName(e.target.value)} />
                 <input className="input" type="password" placeholder="Mật khẩu *" value={password} onChange={(e) => setPassword(e.target.value)} />

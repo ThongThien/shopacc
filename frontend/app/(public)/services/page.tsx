@@ -46,7 +46,7 @@ export default function ServiceListPage() {
       </section>
 
       {Object.keys(groups).length === 0 ? (
-        <p style={{ color: "var(--muted)", textAlign: "center", padding: 40 }}>
+        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>
           Chưa có dịch vụ nào.
         </p>
       ) : (
@@ -79,7 +79,7 @@ export default function ServiceListPage() {
                         {svc.serverName}
                       </span>
                     )}
-                    <p style={{ margin: "6px 0 0", color: "var(--accent)", fontWeight: 900, fontSize: 18 }}>
+                    <p style={{ margin: "6px 0 0", color: "var(--color-primary)", fontWeight: 900, fontSize: 18 }}>
                       {formatCurrency(svc.price)}
                     </p>
                   </div>

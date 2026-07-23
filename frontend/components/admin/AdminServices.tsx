@@ -145,7 +145,7 @@ export default function AdminServices() {
                   marginBottom: 4,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: "var(--muted)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 Game
@@ -174,7 +174,7 @@ export default function AdminServices() {
               <p
                 style={{
                   fontSize: 11,
-                  color: "var(--warning)",
+                  color: "var(--color-warning)",
                   margin: "4px 0 0",
                 }}
               >
@@ -188,7 +188,7 @@ export default function AdminServices() {
                   marginBottom: 4,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: "var(--muted)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 Tiêu đề
@@ -209,7 +209,7 @@ export default function AdminServices() {
                   marginBottom: 4,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: "var(--muted)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 Slug
@@ -227,7 +227,7 @@ export default function AdminServices() {
                   marginBottom: 4,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: "var(--muted)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 Giá
@@ -246,7 +246,7 @@ export default function AdminServices() {
                   marginBottom: 4,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: "var(--muted)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 Ảnh thumbnail
@@ -265,7 +265,7 @@ export default function AdminServices() {
                   marginBottom: 4,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: "var(--muted)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 Thời gian / Server
@@ -284,7 +284,7 @@ export default function AdminServices() {
                   marginBottom: 4,
                   fontWeight: 700,
                   fontSize: 13,
-                  color: "var(--muted)",
+                  color: "var(--color-text-muted)",
                 }}
               >
                 Mô tả
@@ -368,7 +368,7 @@ export default function AdminServices() {
                           style={{
                             padding: "4px 10px",
                             fontSize: 12,
-                            color: "var(--danger)",
+                            color: "var(--color-danger)",
                           }}
                           type="button"
                           onClick={() => handleDelete(s.id)}

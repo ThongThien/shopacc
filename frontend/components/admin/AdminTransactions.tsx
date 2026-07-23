@@ -198,7 +198,7 @@ export default function AdminTransactions() {
                       {tx.username ? (
                         <>
                           <div style={{ fontWeight: 700 }}>{tx.username}</div>
-                          <div style={{ fontSize: "12px", color: "var(--muted)" }}>
+                          <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>
                             {tx.email}
                           </div>
                         </>

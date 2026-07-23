@@ -109,16 +109,16 @@ export default function ServiceDetailView({ listing }: Props) {
             </span>
           </div>
           <h1 style={{ margin: 0, fontSize: 26 }}>{listing.title}</h1>
-          <p style={{ margin: 0, color: "var(--muted)", lineHeight: 1.6 }}>
+          <p style={{ margin: 0, color: "var(--color-text-muted)", lineHeight: 1.6 }}>
             {listing.description || "Chưa có mô tả"}
           </p>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-            <b style={{ fontSize: 32, color: "var(--accent)", fontWeight: 900 }}>
+            <b style={{ fontSize: 32, color: "var(--color-primary)", fontWeight: 900 }}>
               {formatCurrency(listing.price)}
             </b>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <span style={{ background: "var(--surface-soft)", padding: "6px 12px", borderRadius: 8, fontSize: 13, fontWeight: 700 }}>
+            <span style={{ background: "var(--color-bg-secondary)", padding: "6px 12px", borderRadius: 8, fontSize: 13, fontWeight: 700 }}>
               ⏱ {listing.serverName || "1-24h"}
             </span>
             <span style={{ background: "#dcfce7", color: "#166534", padding: "6px 12px", borderRadius: 8, fontSize: 13, fontWeight: 700 }}>
@@ -139,10 +139,10 @@ export default function ServiceDetailView({ listing }: Props) {
           {showForm && (
             <div
               className="card"
-              style={{ padding: 16, marginTop: 14, background: "var(--surface-soft)" }}
+              style={{ padding: 16, marginTop: 14, background: "var(--color-bg-secondary)" }}
             >
               <h3 style={{ marginTop: 0, fontSize: 16 }}>Thông tin tài khoản cần làm dịch vụ</h3>
-              <p style={{ fontSize: 13, color: "var(--muted)", marginBottom: 12 }}>
+              <p style={{ fontSize: 13, color: "var(--color-text-muted)", marginBottom: 12 }}>
                 Thông tin này được mã hóa AES-256 và chỉ admin mới xem được.
               </p>
               <div style={{ display: "grid", gap: 10 }}>
@@ -259,7 +259,7 @@ export default function ServiceDetailView({ listing }: Props) {
             ].map((faq, i) => (
               <div key={i}>
                 <b style={{ fontSize: 14 }}>{faq.q}</b>
-                <p style={{ margin: "2px 0 0", color: "var(--muted)", fontSize: 13 }}>{faq.a}</p>
+                <p style={{ margin: "2px 0 0", color: "var(--color-text-muted)", fontSize: 13 }}>{faq.a}</p>
               </div>
             ))}
           </div>
