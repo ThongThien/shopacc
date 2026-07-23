@@ -954,12 +954,58 @@ select.input {
 .page-container { animation: pageFadeIn 250ms ease-in-out; }
 
 @media (max-width: 1280px) { .category-grid, .listing-grid, .service-grid { grid-template-columns: repeat(3, 1fr); } .admin-stat-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 1024px) { .listing-detail, .order-detail-layout { grid-template-columns: 1fr; } .admin-shell { grid-template-columns: 1fr; } .admin-sidebar { position: relative; height: auto; } .footer-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 768px) {
-  .public-navbar { height: auto; padding: 12px 16px; flex-wrap: wrap; gap: 8px; } .public-nav { flex-wrap: wrap; gap: 10px; font-size: 13px; }
-  .category-grid, .listing-grid, .service-grid { grid-template-columns: repeat(2, 1fr); } .admin-content { padding: 16px; }
-  .page-container { padding: 24px 16px 40px; width: 100%; } .listing-toolbar { flex-wrap: wrap; } .listing-toolbar > div { flex: 1 1 45%; min-width: 140px; }
-  .footer-grid { grid-template-columns: 1fr; padding-bottom: 16px; }
+@media (max-width: 1024px) {
+  .listing-detail, .order-detail-layout { grid-template-columns: 1fr; }
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-sidebar { position: relative; height: auto; overflow-y: visible; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-col-span-2 { grid-column: span 1; }
 }
-@media (max-width: 480px) { .category-grid, .listing-grid, .service-grid { grid-template-columns: 1fr; } .bill-grid, .bill-header { grid-template-columns: 1fr; } .admin-page-header { flex-direction: column; align-items: flex-start; } .modal-card { padding: 20px; } }
+@media (max-width: 768px) {
+  .public-navbar { height: auto; padding: 10px 14px; flex-wrap: wrap; gap: 6px; }
+  .public-nav { flex-wrap: wrap; gap: 6px; font-size: 12px; }
+  .public-logo img { height: 40px; width: auto; }
+  .btn-primary { height: 40px; padding: 0 16px; font-size: 13px; min-height: 0; }
+  .btn-secondary { height: 38px; padding: 0 14px; font-size: 13px; min-height: 0; }
+  .input { height: 42px; font-size: 14px; }
+  .page-heading h1 { font-size: 24px; }
+  .page-heading p { font-size: 13px; }
+  .page-container { padding: 20px 12px 32px; width: 100%; }
+  .category-grid, .listing-grid, .service-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .listing-card-body { padding: 12px; }
+  .listing-card-body h3 { font-size: 14px; }
+  .listing-card-footer strong { font-size: 16px; }
+  .admin-content { padding: 14px; }
+  .admin-toolbar { gap: 8px; }
+  .admin-toolbar .input { min-width: 100%; flex: 1 1 100%; }
+  .admin-toolbar select.input { width: 100%; }
+  .listing-toolbar { flex-wrap: wrap; gap: 8px; padding: 12px; }
+  .listing-toolbar > div { flex: 1 1 100%; min-width: 0; }
+  .detail-right { padding: 16px; }
+  .detail-price { font-size: 22px; }
+  .footer-grid { grid-template-columns: 1fr; padding: 0 14px 16px; gap: 20px; }
+  .footer-bottom { flex-direction: column; text-align: center; padding: 12px 14px; }
+  .public-footer { padding: 24px 0 0; }
+  .public-footer h3 { font-size: 14px; }
+  .public-footer p, .footer-links a { font-size: 13px; }
+  .modal-card { padding: 20px; width: calc(100% - 24px); }
+  .auth-card { padding: 24px; }
+  .data-table th, .data-table td { padding: 0 8px; font-size: 12px; }
+  .data-table td { height: 48px; }
+  .deposit-tabs { flex-direction: column; }
+}
+@media (max-width: 480px) {
+  .category-grid, .listing-grid, .service-grid { grid-template-columns: 1fr; }
+  .listing-card-footer { flex-wrap: wrap; }
+  .bill-grid, .bill-header { grid-template-columns: 1fr; }
+  .admin-page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .admin-stat-grid { grid-template-columns: 1fr; }
+  .admin-summary-row { flex-direction: column; gap: 6px; }
+  .admin-summary-row span { font-size: 12px; }
+  .admin-detail-grid { grid-template-columns: 1fr; }
+  .admin-detail-gallery-card { grid-column: span 1; }
+  .admin-detail-gallery { grid-template-columns: repeat(2, 1fr); }
+  .listing-toolbar > div, .admin-toolbar .input, .admin-toolbar select.input { flex: 1 1 100%; width: 100%; }
+}
 
