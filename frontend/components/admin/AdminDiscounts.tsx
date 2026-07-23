@@ -121,11 +121,7 @@ export default function AdminDiscounts() {
           <h1>Mã giảm giá</h1>
           <p>Tạo và quản lý mã giảm giá cho khách hàng.</p>
         </div>
-        <div className="admin-summary-row">
-          <span>Tổng mã: {discounts.length}</span>
-          <span>Đang hoạt động: {discounts.filter((d) => d.isActive).length}</span>
-          <span>Đã tắt: {discounts.filter((d) => !d.isActive).length}</span>
-        </div>
+
         <button
           className="btn-primary"
           type="button"
@@ -137,15 +133,31 @@ export default function AdminDiscounts() {
           Tạo mã mới
         </button>
       </div>
-
+      <div className="admin-summary-row">
+        <span>Tổng mã: {discounts.length}</span>
+        <span>
+          Đang hoạt động: {discounts.filter((d) => d.isActive).length}
+        </span>
+        <span>Đã tắt: {discounts.filter((d) => !d.isActive).length}</span>
+      </div>
       {showForm && (
         <div className="card" style={{ padding: 20, marginBottom: 20 }}>
           <h2 style={{ marginTop: 0 }}>
             {editId ? "Sửa mã giảm giá" : "Tạo mã giảm giá"}
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <div
+            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}
+          >
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 4,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: "var(--color-text-muted)",
+                }}
+              >
                 Mã code
               </label>
               <input
@@ -156,16 +168,36 @@ export default function AdminDiscounts() {
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 4,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: "var(--color-text-muted)",
+                }}
+              >
                 Loại
               </label>
-              <select className="input" value={type} onChange={(e) => setType(e.target.value as "PERCENT" | "FIXED")}>
+              <select
+                className="input"
+                value={type}
+                onChange={(e) => setType(e.target.value as "PERCENT" | "FIXED")}
+              >
                 <option value="PERCENT">Phần trăm (%)</option>
                 <option value="FIXED">Số tiền cố định</option>
               </select>
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 4,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: "var(--color-text-muted)",
+                }}
+              >
                 Giá trị
               </label>
               <input
@@ -178,7 +210,15 @@ export default function AdminDiscounts() {
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 4,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: "var(--color-text-muted)",
+                }}
+              >
                 Đơn tối thiểu (để trống = không giới hạn)
               </label>
               <input
@@ -190,7 +230,15 @@ export default function AdminDiscounts() {
               />
             </div>
             <div>
-              <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13, color: "var(--color-text-muted)" }}>
+              <label
+                style={{
+                  display: "block",
+                  marginBottom: 4,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  color: "var(--color-text-muted)",
+                }}
+              >
                 Số lần dùng tối đa (để trống = không giới hạn)
               </label>
               <input
@@ -202,7 +250,14 @@ export default function AdminDiscounts() {
               />
             </div>
           </div>
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginTop: 14 }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              justifyContent: "flex-end",
+              marginTop: 14,
+            }}
+          >
             <button className="btn-secondary" type="button" onClick={resetForm}>
               Hủy
             </button>
@@ -243,7 +298,9 @@ export default function AdminDiscounts() {
                     </td>
                     <td>{discountLabel(d)}</td>
                     <td>
-                      {d.minOrderAmount ? formatCurrency(d.minOrderAmount) : "-"}
+                      {d.minOrderAmount
+                        ? formatCurrency(d.minOrderAmount)
+                        : "-"}
                     </td>
                     <td>
                       {d.usedCount}
@@ -268,7 +325,7 @@ export default function AdminDiscounts() {
                       <div style={{ display: "flex", gap: 6 }}>
                         <button
                           className="btn-secondary"
-                          style={{ padding: "4px 10px", fontSize: 12 }}
+                          style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}
                           type="button"
                           onClick={() => openEdit(d)}
                         >
@@ -276,7 +333,7 @@ export default function AdminDiscounts() {
                         </button>
                         <button
                           className="btn-secondary"
-                          style={{ padding: "4px 10px", fontSize: 12 }}
+                          style={{ padding: "4px 10px", fontSize: 12, height: 30, color: d.isActive ? "var(--color-danger)" : "var(--color-price)", borderColor: d.isActive ? "var(--color-danger)" : "var(--color-price)" }}
                           type="button"
                           onClick={() => handleToggle(d.id, d.isActive)}
                         >

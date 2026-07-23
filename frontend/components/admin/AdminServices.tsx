@@ -352,7 +352,7 @@ export default function AdminServices() {
                       <div style={{ display: "flex", gap: 6 }}>
                         <button
                           className="btn-secondary"
-                          style={{ padding: "4px 10px", fontSize: 12 }}
+                          style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}
                           type="button"
                           onClick={() => {
                             setEditId(s.id);

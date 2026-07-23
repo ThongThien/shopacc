@@ -149,9 +149,13 @@ export default function AdminCategoryDetail({ category }: Props) {
                   <td>{formatCurrency(listing.price)}</td>
                   <td>{listingStatusLabel(listing.status)}</td>
                   <td>{listing.viewCount || 0}</td>
-                  <td className="admin-actions">
-                    <Link href={`/admin/listings/${listing.id}`}>Xem</Link>
-                    <Link href={`/admin/listings/${listing.id}/edit`}>Sửa</Link>
+                  <td>
+                    <div style={{ display: "flex", gap: 6, whiteSpace: "nowrap" }}>
+                      <Link href={`/admin/listings/${listing.id}`}
+                        className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-cyan)", borderColor: "var(--color-cyan)" }}>Xem</Link>
+                      <Link href={`/admin/listings/${listing.id}/edit`}
+                        className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>Sửa</Link>
+                    </div>
                   </td>
                 </tr>
               ))}
