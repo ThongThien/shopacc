@@ -119,7 +119,7 @@ export default function PublicNavbar() {
         <Link href="/">Trang chủ</Link>
 
         <div className="nav-dropdown">
-          <Link href="/accounts">Kho acc</Link>
+          <Link href="/accounts" style={{ display: "flex", alignItems: "center", gap: 4 }}>Kho acc <ChevronDown size={14} /></Link>
 
           <div className="nav-dropdown-menu">
             {games.length === 0 && <span>Chưa có game</span>}
@@ -136,7 +136,7 @@ export default function PublicNavbar() {
         </div>
 
         <div className="nav-dropdown">
-          <Link href="/services">Dịch vụ</Link>
+          <Link href="/services" style={{ display: "flex", alignItems: "center", gap: 4 }}>Dịch vụ <ChevronDown size={14} /></Link>
           <div className="nav-dropdown-menu">
             {games.length === 0 && <span>Chưa có game</span>}
             {games.map((game) => (

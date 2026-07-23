@@ -6,8 +6,8 @@ import { Listing } from "@/types/listing";
 import { User, Gift, Wrench } from "lucide-react";
 
 const TYPE_CARDS = [
-  { type: "ACCOUNT", label: "Tài khoản", icon: User, bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", color: "var(--color-primary)" },
-  { type: "ITEM", label: "Vật phẩm", icon: Gift, bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.2)", color: "var(--color-cyan)" },
+  { type: "ACCOUNT", label: "Tài khoản", icon: User, bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", color: "var(--color-primary)", thumb: null as string | null },
+  { type: "ITEM", label: "Vật phẩm", icon: Gift, bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.2)", color: "var(--color-cyan)", thumb: null as string | null },
 ];
 
 function countByType(listings: Listing[], type: string) {
@@ -118,6 +118,14 @@ export default async function HomePage() {
 
                       <card.icon size={32} />
                       <b style={{ fontSize: 16, color: card.color }}>{card.label}</b>
+
+                      {card.thumb ? (
+                        <div style={{ marginTop: 8, borderRadius: 12, overflow: "hidden", aspectRatio: "16/9", background: "var(--color-bg-secondary)" }}>
+                          <img src={card.thumb} alt={card.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        </div>
+                      ) : (
+                        <card.icon size={32} />
+                      )}
 
                       {count > 0 ? (
                         <div style={{ display: "grid", gap: 2 }}>
