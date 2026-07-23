@@ -6,7 +6,7 @@ import { Listing } from "@/types/listing";
 import { User, Gift, Wrench } from "lucide-react";
 
 const TYPE_CARDS = [
-  { type: "ACCOUNT", label: "Tài khoản", icon: User, bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", color: "var(--color-primary)", thumb: null as string | null },
+  { type: "ACCOUNT", label: "Tài khoản", icon: User, bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", color: "var(--color-price)", thumb: null as string | null },
   { type: "ITEM", label: "Vật phẩm", icon: Gift, bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.2)", color: "var(--color-cyan)", thumb: null as string | null },
 ];
 
@@ -53,7 +53,7 @@ export default async function HomePage() {
                 <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>{game}</h2>
                 <span
                   style={{
-                    background: "var(--color-primary)",
+                    background: "var(--color-danger)",
                     color: "white",
                     padding: "2px 10px",
                     borderRadius: 999,
@@ -104,7 +104,7 @@ export default async function HomePage() {
                             position: "absolute",
                             top: 8,
                             right: 8,
-                            background: "var(--color-primary)",
+                            background: "var(--color-danger)",
                             color: "white",
                             fontSize: 10,
                             fontWeight: 900,
