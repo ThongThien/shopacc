@@ -985,10 +985,10 @@ select.input {
   .detail-right { padding: 16px; }
   .detail-price { font-size: 22px; }
   .footer-grid { grid-template-columns: 1fr; padding: 0 14px 16px; gap: 20px; }
-  .footer-bottom { flex-direction: column; text-align: center; padding: 12px 14px; }
-  .public-footer { padding: 24px 0 0; }
-  .public-footer h3 { font-size: 14px; }
-  .public-footer p, .footer-links a { font-size: 13px; }
+  .footer-bottom { flex-direction: column; text-align: center; padding: 10px 12px; font-size: 11px; }
+  .public-footer { padding: 20px 0 0; }
+  .public-footer h3 { font-size: 13px; margin: 0 0 6px; }
+  .public-footer p, .footer-links a { font-size: 12px; }
   .modal-card { padding: 20px; width: calc(100% - 24px); }
   .auth-card { padding: 24px; }
   .data-table th, .data-table td { padding: 0 8px; font-size: 12px; }
