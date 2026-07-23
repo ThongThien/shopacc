@@ -188,7 +188,19 @@ export default function AdminListings() {
           Tạo sản phẩm
         </Link>
       </div>
+      <div className="admin-summary-row">
+        <span>Tổng sản phẩm: {listings.length}</span>
 
+        <span>
+          Đang bán:{" "}
+          {listings.filter((listing) => listing.status === "PUBLISHED").length}
+        </span>
+
+        <span>
+          Đã bán:{" "}
+          {listings.filter((listing) => listing.status === "SOLD_OUT").length}
+        </span>
+      </div>
       <div className="card admin-toolbar">
         <input
           className="input"
@@ -233,27 +245,19 @@ export default function AdminListings() {
           <option value="DRAFT">Nháp</option>
         </select>
 
-        <select className="input" value={activeGame} onChange={(e) => setActiveGame(e.target.value)}
-          style={{ width: 180 }}>
+        <select
+          className="input"
+          value={activeGame}
+          onChange={(e) => setActiveGame(e.target.value)}
+          style={{ width: 180 }}
+        >
           <option value="all">Tất cả game</option>
           {games.map((game) => (
-            <option key={game} value={game}>{game}</option>
+            <option key={game} value={game}>
+              {game}
+            </option>
           ))}
         </select>
-      </div>
-
-      <div className="admin-summary-row">
-        <span>Tổng sản phẩm: {listings.length}</span>
-
-        <span>
-          Đang bán:{" "}
-          {listings.filter((listing) => listing.status === "PUBLISHED").length}
-        </span>
-
-        <span>
-          Đã bán:{" "}
-          {listings.filter((listing) => listing.status === "SOLD_OUT").length}
-        </span>
       </div>
       <div className="card table-card">
         {loading ? (
@@ -281,20 +285,69 @@ export default function AdminListings() {
                   {visibleListings.map((listing) => (
                     <tr key={listing.id}>
                       <td>#{listing.id}</td>
-                      <td style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{listing.title}</td>
+                      <td
+                        style={{
+                          maxWidth: 200,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {listing.title}
+                      </td>
                       <td>{listingTypeLabel(listing.listingType)}</td>
                       <td>{listing.gameName}</td>
                       <td>{listing.serverName || "-"}</td>
                       <td>{formatCurrency(listing.price)}</td>
                       <td>{listingStatusLabel(listing.status)}</td>
                       <td>
-                        <div style={{ display: "flex", gap: 6, whiteSpace: "nowrap" }}>
-                          <Link href={`/admin/listings/${listing.id}`}
-                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-cyan)", borderColor: "var(--color-cyan)" }}>Xem</Link>
-                          <Link href={`/admin/listings/${listing.id}/edit`}
-                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}>Sửa</Link>
-                          <button type="button" onClick={() => handleDelete(listing.id)}
-                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-danger)", borderColor: "var(--color-danger)" }}>Xóa</button>
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: 6,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          <Link
+                            href={`/admin/listings/${listing.id}`}
+                            className="btn-secondary"
+                            style={{
+                              padding: "4px 10px",
+                              fontSize: 12,
+                              height: 30,
+                              color: "var(--color-cyan)",
+                              borderColor: "var(--color-cyan)",
+                            }}
+                          >
+                            Xem
+                          </Link>
+                          <Link
+                            href={`/admin/listings/${listing.id}/edit`}
+                            className="btn-secondary"
+                            style={{
+                              padding: "4px 10px",
+                              fontSize: 12,
+                              height: 30,
+                              color: "var(--color-primary)",
+                              borderColor: "var(--color-primary)",
+                            }}
+                          >
+                            Sửa
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(listing.id)}
+                            className="btn-secondary"
+                            style={{
+                              padding: "4px 10px",
+                              fontSize: 12,
+                              height: 30,
+                              color: "var(--color-danger)",
+                              borderColor: "var(--color-danger)",
+                            }}
+                          >
+                            Xóa
+                          </button>
                         </div>
                       </td>
                     </tr>

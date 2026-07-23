@@ -92,7 +92,9 @@ export default function AdminTransactions() {
   }, [transactions, keyword, type, status]);
 
   async function handleApprove(id: number) {
-    const ok = await confirmAction("Xác nhận duyệt giao dịch này? Tiền sẽ được cộng vào tài khoản người dùng.");
+    const ok = await confirmAction(
+      "Xác nhận duyệt giao dịch này? Tiền sẽ được cộng vào tài khoản người dùng.",
+    );
     if (!ok) return;
 
     setActionLoading(id);
@@ -101,14 +103,19 @@ export default function AdminTransactions() {
       notify("success", "Đã duyệt giao dịch thành công");
       await load();
     } catch (error) {
-      notify("error", error instanceof Error ? error.message : "Duyệt thất bại");
+      notify(
+        "error",
+        error instanceof Error ? error.message : "Duyệt thất bại",
+      );
     } finally {
       setActionLoading(null);
     }
   }
 
   async function handleReject(id: number) {
-    const ok = await confirmAction("Xác nhận từ chối giao dịch này? Hành động này không thể hoàn tác.");
+    const ok = await confirmAction(
+      "Xác nhận từ chối giao dịch này? Hành động này không thể hoàn tác.",
+    );
     if (!ok) return;
 
     setActionLoading(id);
@@ -117,7 +124,10 @@ export default function AdminTransactions() {
       notify("success", "Đã từ chối giao dịch");
       await load();
     } catch (error) {
-      notify("error", error instanceof Error ? error.message : "Từ chối thất bại");
+      notify(
+        "error",
+        error instanceof Error ? error.message : "Từ chối thất bại",
+      );
     } finally {
       setActionLoading(null);
     }
@@ -134,9 +144,16 @@ export default function AdminTransactions() {
 
       <div className="admin-summary-row">
         <span>Tổng: {transactions.length}</span>
-        <span>Thành công: {transactions.filter((t) => t.status === "SUCCESS").length}</span>
-        <span>Đang chờ: {transactions.filter((t) => t.status === "PENDING").length}</span>
-        <span>Hết hạn: {transactions.filter((t) => t.status === "EXPIRED").length}</span>
+        <span>
+          Thành công:{" "}
+          {transactions.filter((t) => t.status === "SUCCESS").length}
+        </span>
+        <span>
+          Đang chờ: {transactions.filter((t) => t.status === "PENDING").length}
+        </span>
+        <span>
+          Hết hạn: {transactions.filter((t) => t.status === "EXPIRED").length}
+        </span>
       </div>
 
       <div className="card admin-toolbar">
@@ -188,7 +205,6 @@ export default function AdminTransactions() {
                   <th>Cổng</th>
                   <th>Mô tả</th>
                   <th>Thời gian</th>
-                  <th>Hành động</th>
                 </tr>
               </thead>
 
@@ -205,7 +221,12 @@ export default function AdminTransactions() {
                       {tx.username ? (
                         <>
                           <div style={{ fontWeight: 700 }}>{tx.username}</div>
-                          <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>
+                          <div
+                            style={{
+                              fontSize: "12px",
+                              color: "var(--color-text-muted)",
+                            }}
+                          >
                             {tx.email}
                           </div>
                         </>
@@ -216,7 +237,14 @@ export default function AdminTransactions() {
                     <td>{formatCurrency(tx.amount)}</td>
                     <td>{statusBadge(tx.status)}</td>
                     <td>{tx.provider || "-"}</td>
-                    <td style={{ maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <td
+                      style={{
+                        maxWidth: 200,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {tx.description || "-"}
                     </td>
                     <td>{formatDateTime(tx.createdAt)}</td>

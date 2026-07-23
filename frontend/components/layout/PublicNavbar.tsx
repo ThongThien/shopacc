@@ -26,7 +26,9 @@ export default function PublicNavbar() {
 
   // Close dropdown on outside click
   useEffect(() => {
-    function handleClick(e: MouseEvent) { setOpenDropdown(null); }
+    function handleClick(e: MouseEvent) {
+      setOpenDropdown(null);
+    }
     if (openDropdown) {
       setTimeout(() => document.addEventListener("click", handleClick), 0);
       return () => document.removeEventListener("click", handleClick);
@@ -119,7 +121,12 @@ export default function PublicNavbar() {
         <Link href="/">Trang chủ</Link>
 
         <div className="nav-dropdown">
-          <Link href="/accounts" style={{ display: "flex", alignItems: "center", gap: 4 }}>Kho acc <ChevronDown size={14} /></Link>
+          <Link
+            href="/accounts"
+            style={{ display: "flex", alignItems: "center", gap: 4 }}
+          >
+            Kho acc <ChevronDown size={14} />
+          </Link>
 
           <div className="nav-dropdown-menu">
             {games.length === 0 && <span>Chưa có game</span>}
@@ -136,7 +143,12 @@ export default function PublicNavbar() {
         </div>
 
         <div className="nav-dropdown">
-          <Link href="/services" style={{ display: "flex", alignItems: "center", gap: 4 }}>Dịch vụ <ChevronDown size={14} /></Link>
+          <Link
+            href="/services"
+            style={{ display: "flex", alignItems: "center", gap: 4 }}
+          >
+            Dịch vụ <ChevronDown size={14} />
+          </Link>
           <div className="nav-dropdown-menu">
             {games.length === 0 && <span>Chưa có game</span>}
             {games.map((game) => (
@@ -153,7 +165,12 @@ export default function PublicNavbar() {
         <button
           type="button"
           className="btn-primary"
-          style={{ background: "var(--color-bg-card)", color: "var(--color-text)", position: "relative", height: 44 }}
+          style={{
+            background: "var(--color-bg-card)",
+            color: "var(--color-text)",
+            position: "relative",
+            height: 44,
+          }}
           onClick={() => window.dispatchEvent(new Event("cart:toggle"))}
         >
           <ShoppingCart size={18} />
@@ -169,7 +186,7 @@ export default function PublicNavbar() {
             <Link
               href="/register"
               className="nav-login"
-              style={{ background: "white", color: "var(--color-primary)" }}
+              style={{ color: "var(--color-primary)" }}
             >
               Đăng ký
             </Link>
@@ -180,7 +197,9 @@ export default function PublicNavbar() {
         ) : (
           <div className="user-menu">
             <button className="user-menu-button" type="button">
-              <span className="user-avatar"><User size={20} /></span>
+              <span className="user-avatar">
+                <User size={20} />
+              </span>
 
               <span>
                 <b>{balance?.username || "Tài khoản"}</b>

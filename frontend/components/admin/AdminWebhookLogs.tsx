@@ -82,7 +82,10 @@ export default function AdminWebhookLogs() {
   }, [logs, keyword, status]);
 
   const totalPages = Math.max(1, Math.ceil(filteredLogs.length / PAGE_SIZE));
-  const pagedLogs = filteredLogs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pagedLogs = filteredLogs.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE,
+  );
 
   return (
     <section className="admin-page">
@@ -148,7 +151,9 @@ export default function AdminWebhookLogs() {
                       <tr key={log.id}>
                         <td>{log.id}</td>
                         <td>{log.provider || "-"}</td>
-                        <td style={{ fontFamily: "monospace", fontSize: "13px" }}>
+                        <td
+                          style={{ fontFamily: "monospace", fontSize: "13px" }}
+                        >
                           {log.referenceCode || "-"}
                         </td>
                         <td>{transferTypeLabel(log.transferType)}</td>
@@ -199,24 +204,12 @@ export default function AdminWebhookLogs() {
                               }}
                             >
                               <div>
-                                <b style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>
-                                  Nội dung chuyển khoản:
-                                </b>
-                                <pre
+                                <b
                                   style={{
-                                    whiteSpace: "pre-wrap",
-                                    background: "#f3f4f6",
-                                    padding: 10,
-                                    borderRadius: 8,
-                                    margin: "4px 0 0",
+                                    color: "var(--color-text-muted)",
                                     fontSize: "13px",
                                   }}
                                 >
-                                  {log.content || "-"}
-                                </pre>
-                              </div>
-                              <div>
-                                <b style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>
                                   Số tài khoản nhận:
                                 </b>
                                 <p style={{ margin: "4px 0 0" }}>
@@ -224,7 +217,12 @@ export default function AdminWebhookLogs() {
                                 </p>
                               </div>
                               <div>
-                                <b style={{ color: "var(--color-text-muted)", fontSize: "13px" }}>
+                                <b
+                                  style={{
+                                    color: "var(--color-text-muted)",
+                                    fontSize: "13px",
+                                  }}
+                                >
                                   Raw Body (JSON từ SePay):
                                 </b>
                                 <pre

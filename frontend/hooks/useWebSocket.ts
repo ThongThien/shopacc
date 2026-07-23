@@ -3,7 +3,8 @@
 import { useEffect, useRef } from "react";
 import { getAccessToken, getUserId } from "@/lib/auth";
 
-const WS_URL = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/^http/, "ws") + "/ws";
+const WS_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/^http/, "ws") + "/ws";
 
 export default function useWebSocket() {
   const stompRef = useRef<unknown>(null);

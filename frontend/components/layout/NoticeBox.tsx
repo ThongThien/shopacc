@@ -27,10 +27,7 @@ const noticeMap = {
   },
   login: {
     title: "Đăng nhập tài khoản",
-    items: [
-      "Không chia sẻ mật khẩu cho người khác.",
-      "Liên hệ shop nếu bạn không thể đăng nhập.",
-    ],
+    items: ["Không chia sẻ mật khẩu cho người khác."],
   },
   deposit: {
     title: "Lưu ý khi nạp tiền",
