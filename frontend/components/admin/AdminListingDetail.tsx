@@ -209,7 +209,7 @@ export default function AdminListingDetail({ listing }: Props) {
             <p className="muted-text">Chưa có ảnh phụ.</p>
           ) : (
             <div className="admin-detail-gallery">
-              {listing.images.map((image, index) => (
+              {listing.images.filter((img) => img !== listing.thumbnail).map((image, index) => (
                 <img
                   key={`${image}-${index}`}
                   src={image}
