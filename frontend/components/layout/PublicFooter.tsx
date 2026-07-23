@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function PublicFooter() {
   return (
     <footer className="public-footer">
@@ -13,10 +15,10 @@ export default function PublicFooter() {
         <div className="footer-links">
           <h3>Liên kết</h3>
           <ul>
-            <li><a href="/accounts">Kho acc</a></li>
-            <li><a href="/services">Dịch vụ</a></li>
-            <li><a href="/me/deposits">Nạp tiền</a></li>
-            <li><a href="/me/tickets">Hỗ trợ</a></li>
+            <li><Link href="/accounts">Kho acc</Link></li>
+            <li><Link href="/services">Dịch vụ</Link></li>
+            <li><Link href="/me/deposits">Nạp tiền</Link></li>
+            <li><Link href="/me/tickets">Hỗ trợ</Link></li>
           </ul>
         </div>
         <div>
