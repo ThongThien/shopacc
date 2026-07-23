@@ -47,7 +47,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [payload, setPayload] = useState<AdminListingPayload>(initialPayload);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
-  const [galleryFile, setGalleryFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [existingGames, setExistingGames] = useState<string[]>([]);
   const [createNewGame, setCreateNewGame] = useState(false);
@@ -121,13 +121,23 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
   async function uploadThumbnailIfNeeded(listingId: number) {
     if (!thumbnailFile) return;
-    const uploaded = await uploadListingImage(listingId, thumbnailFile);
-    await updateAdminListingThumbnail(listingId, { thumbnail: uploaded.url });
+    try {
+      const uploaded = await uploadListingImage(listingId, thumbnailFile);
+      await updateAdminListingThumbnail(listingId, { thumbnail: uploaded.url });
+    } catch {
+      notify("warning", "Không upload được ảnh chính, bạn có thể cập nhật sau.");
+    }
   }
 
   async function uploadGalleryIfNeeded(listingId: number) {
-    if (!galleryFile) return;
-    await uploadListingImage(listingId, galleryFile);
+    if (galleryFiles.length === 0) return;
+    for (const file of galleryFiles) {
+      try {
+        await uploadListingImage(listingId, file);
+      } catch {
+        notify("warning", `Không upload được ảnh: ${file.name}`);
+      }
+    }
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -407,7 +417,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
             type="file"
             multiple
             accept="image/png,image/jpeg,image/webp,image/gif"
-            onChange={(e) => setGalleryFile(e.target.files?.[0] || null)}
+            onChange={(e) => setGalleryFiles(e.target.files ? Array.from(e.target.files) : [])}
           />
         </div>
       </div>
