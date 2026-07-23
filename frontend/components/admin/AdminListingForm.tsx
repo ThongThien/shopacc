@@ -412,13 +412,22 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
         <div>
           <label>Ảnh phụ</label>
-          <input
-            className="input"
-            type="file"
-            multiple
-            accept="image/png,image/jpeg,image/webp,image/gif"
-            onChange={(e) => setGalleryFiles(e.target.files ? Array.from(e.target.files) : [])}
-          />
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+            {galleryFiles.map((file, i) => (
+              <div key={i} style={{ position: "relative", width: 80, height: 80, borderRadius: 10, overflow: "hidden", border: "1px solid var(--color-border)" }}>
+                <img src={URL.createObjectURL(file)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <button type="button" onClick={() => setGalleryFiles((prev) => prev.filter((_, j) => j !== i))}
+                  style={{ position: "absolute", top: 2, right: 2, width: 20, height: 20, borderRadius: "50%", background: "var(--color-danger)", color: "white", border: "none", cursor: "pointer", fontSize: 12, display: "grid", placeItems: "center", lineHeight: 1 }}>✕</button>
+              </div>
+            ))}
+            <label style={{ width: 80, height: 80, borderRadius: 10, border: "2px dashed var(--color-border)", display: "grid", placeItems: "center", cursor: "pointer", color: "var(--color-text-muted)", fontSize: 24, transition: "border-color 0.2s" }}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-primary)")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}>
+              +
+              <input type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: "none" }}
+                onChange={(e) => { if (e.target.files) setGalleryFiles((prev) => [...prev, ...Array.from(e.target.files!)]); }} />
+            </label>
+          </div>
         </div>
       </div>
 
