@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { login } from "@/services/auth.service";
 import { saveAuth } from "@/lib/auth";
@@ -16,9 +16,14 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [captchaA] = useState(() => Math.floor(Math.random() * 5) + 1);
-  const [captchaB] = useState(() => Math.floor(Math.random() * 5) + 1);
+  const [captchaA, setCaptchaA] = useState(0);
+  const [captchaB, setCaptchaB] = useState(0);
   const [captchaAns, setCaptchaAns] = useState("");
+
+  useEffect(() => {
+    setCaptchaA(Math.floor(Math.random() * 5) + 1);
+    setCaptchaB(Math.floor(Math.random() * 5) + 1);
+  }, []);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -68,7 +73,7 @@ export default function LoginForm() {
       {/* Captcha */}
       <div style={{ background: "var(--color-bg-secondary)", borderRadius: 12, padding: 14 }}>
         <p style={{ margin: "0 0 8px", fontSize: 13, color: "var(--color-text-secondary)" }}>
-          Xác minh: <b style={{ color: "var(--color-primary)", fontSize: 16 }}>{captchaA} + {captchaB} = ?</b>
+          Xác minh: <b style={{ color: "var(--color-primary)", fontSize: 16 }} suppressHydrationWarning>{captchaA} + {captchaB} = ?</b>
         </p>
         <input className="input" style={{ height: 40 }} placeholder="Nhập kết quả *"
           value={captchaAns} onChange={(e) => setCaptchaAns(e.target.value.replace(/\D/g, ""))} />
