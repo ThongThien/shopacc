@@ -6,6 +6,8 @@ import AuthExpiredModal from "@/components/shared/AuthExpiredModal";
 import LoadingOverlay from "@/components/shared/LoadingOverlay";
 import { CartProvider } from "@/components/cart/CartContext";
 import CartDrawer from "@/components/cart/CartDrawer";
+import { Toaster } from "sonner";
+import { AnimatePresence } from "framer-motion";
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -34,6 +36,7 @@ export default function RootLayout({
             <AuthExpiredModal />
             <LoadingOverlay />
             <CartDrawer />
+            <Toaster position="top-right" richColors />
           </CartProvider>
         </NotificationProvider>
       </body>

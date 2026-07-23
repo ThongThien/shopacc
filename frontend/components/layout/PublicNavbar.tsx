@@ -11,6 +11,7 @@ import { formatCurrency } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
 import { useCart } from "@/components/cart/CartContext";
 import useWebSocket from "@/hooks/useWebSocket";
+import { ShoppingCart, User, ChevronDown } from "lucide-react";
 
 export default function PublicNavbar() {
   const { notify, confirmAction } = useNotify();
@@ -141,32 +142,13 @@ export default function PublicNavbar() {
         <Link href="/me/deposits">Nạp tiền</Link>
         <button
           type="button"
-          className="nav-login"
-          style={{
-            background: "white",
-            color: "var(--text)",
-            position: "relative",
-          }}
+          className="btn-primary"
+          style={{ background: "white", color: "var(--color-text)", position: "relative" }}
           onClick={() => window.dispatchEvent(new Event("cart:toggle"))}
         >
-          🛒 Giỏ hàng
+          <ShoppingCart size={18} />
           {count > 0 && (
-            <span
-              style={{
-                position: "absolute",
-                top: -6,
-                right: -6,
-                background: "var(--accent)",
-                color: "white",
-                borderRadius: "50%",
-                width: 20,
-                height: 20,
-                fontSize: 11,
-                fontWeight: 900,
-                display: "grid",
-                placeItems: "center",
-              }}
-            >
+            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[11px] font-black">
               {count}
             </span>
           )}
@@ -188,7 +170,7 @@ export default function PublicNavbar() {
         ) : (
           <div className="user-menu">
             <button className="user-menu-button" type="button">
-              <span className="user-avatar">👤</span>
+              <span className="user-avatar"><User size={20} /></span>
 
               <span>
                 <b>{balance?.username || "Tài khoản"}</b>

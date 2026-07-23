@@ -3,10 +3,11 @@ import { getListings } from "@/services/listing.service";
 import { formatCurrency } from "@/lib/format";
 import NoticeBox from "@/components/layout/NoticeBox";
 import { Listing } from "@/types/listing";
+import { User, Gift, Wrench } from "lucide-react";
 
 const TYPE_CARDS = [
-  { type: "ACCOUNT", label: "Tài khoản", icon: "👤", bg: "#eff6ff", border: "#bfdbfe", color: "#1e40af" },
-  { type: "ITEM", label: "Vật phẩm", icon: "🎁", bg: "#fffbeb", border: "#fde68a", color: "#92400e" },
+  { type: "ACCOUNT", label: "Tài khoản", icon: User, bg: "#eff6ff", border: "#bfdbfe", color: "#1e40af" },
+  { type: "ITEM", label: "Vật phẩm", icon: Gift, bg: "#fffbeb", border: "#fde68a", color: "#92400e" },
 ];
 
 function countByType(listings: Listing[], type: string) {
@@ -115,7 +116,7 @@ export default async function HomePage() {
                         </span>
                       )}
 
-                      <span style={{ fontSize: 32 }}>{card.icon}</span>
+                      <card.icon size={32} />
                       <b style={{ fontSize: 16, color: card.color }}>{card.label}</b>
 
                       {count > 0 ? (
