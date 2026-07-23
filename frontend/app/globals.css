@@ -942,7 +942,7 @@ select.input {
 .public-footer { margin-top: auto; padding: 32px 48px 0; background: var(--color-bg-sidebar); border-top: 1px solid var(--color-border); }
 .public-footer h3 { color: var(--color-text); font-size: 14px; margin: 0 0 8px; font-weight: 600; }
 .public-footer p { color: var(--color-text-muted); font-size: 13px; margin: 0 0 4px; line-height: 1.6; }
-.footer-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 32px; padding-bottom: 24px; }
+.footer-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 0.4fr 1.4fr 1fr 1fr; gap: 32px; padding-bottom: 24px; }
 .footer-links ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 3px; }
 .footer-links li { color: var(--color-text-muted); font-size: 13px; line-height: 1.6; }
 .footer-links a { color: var(--color-text-muted); font-size: 13px; }
