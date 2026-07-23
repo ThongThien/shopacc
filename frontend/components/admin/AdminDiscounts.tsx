@@ -322,7 +322,7 @@ export default function AdminDiscounts() {
                     </td>
                     <td>{d.createdAt ? formatDateTime(d.createdAt) : "-"}</td>
                     <td>
-                      <div style={{ display: "flex", gap: 6 }}>
+                      <div style={{ display: "flex", gap: 6, whiteSpace: "nowrap" }}>
                         <button
                           className="btn-secondary"
                           style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-primary)", borderColor: "var(--color-primary)" }}

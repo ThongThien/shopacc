@@ -68,18 +68,18 @@ export default function AdminServiceOrders() {
                     <td>#{o.id}</td><td>#{o.userId}</td><td>{o.serviceTitle}</td><td>{formatCurrency(o.price)}</td>
                     <td>{statusBadge(o.status)}</td><td>{formatDateTime(o.createdAt)}</td>
                     <td>
-                      <div style={{ display: "flex", gap: 4 }}>
-                        <button className="btn-secondary" style={{ padding: "4px 8px", fontSize: 11 }} type="button" onClick={() => setExpanded(expanded === o.id ? null : o.id)}>
+                      <div style={{ display: "flex", gap: 4, whiteSpace: "nowrap" }}>
+                        <button className="btn-secondary" style={{ padding: "4px 8px", fontSize: 11, color: "var(--color-cyan)", borderColor: "var(--color-cyan)" }} type="button" onClick={() => setExpanded(expanded === o.id ? null : o.id)}>
                           {expanded === o.id ? "Ẩn" : "Xem"}
                         </button>
                         {o.status === "PENDING" && (
                           <button className="btn-primary" style={{ padding: "4px 8px", fontSize: 11 }} type="button" onClick={() => handleAction(o.id, "process")}>Xử lý</button>
                         )}
                         {o.status === "PROCESSING" && (
-                          <button className="btn-primary" style={{ padding: "4px 8px", fontSize: 11 }} type="button" onClick={() => handleAction(o.id, "complete")}>Done</button>
+                          <button className="btn-primary" style={{ padding: "4px 8px", fontSize: 11 }} type="button" onClick={() => handleAction(o.id, "complete")}>Xong</button>
                         )}
                         {o.status !== "COMPLETED" && o.status !== "CANCELLED" && (
-                          <button className="btn-secondary" style={{ padding: "4px 8px", fontSize: 11, color: "var(--color-danger)" }} type="button" onClick={() => handleAction(o.id, "cancel")}>Hủy</button>
+                          <button className="btn-secondary" style={{ padding: "4px 8px", fontSize: 11, color: "var(--color-danger)", borderColor: "var(--color-danger)" }} type="button" onClick={() => handleAction(o.id, "cancel")}>Hủy</button>
                         )}
                       </div>
                     </td>

@@ -256,12 +256,8 @@ export default function AdminOrders() {
                         <td>{order.paymentMethod || "-"}</td>
                         <td>{formatDateTime(order.createdAt)}</td>
                         <td>
-                          <Link
-                            className="table-link"
-                            href={`/admin/orders/${order.id}`}
-                          >
-                            Chi tiết
-                          </Link>
+                          <Link href={`/admin/orders/${order.id}`}
+                            className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-cyan)", borderColor: "var(--color-cyan)" }}>Xem chi tiết</Link>
                         </td>
                       </tr>
                     );
