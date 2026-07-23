@@ -984,10 +984,10 @@ select.input {
   .listing-toolbar > div { flex: 1 1 100%; min-width: 0; }
   .detail-right { padding: 16px; }
   .detail-price { font-size: 22px; }
-  .footer-grid { grid-template-columns: 1fr; padding: 0 14px 16px; gap: 20px; }
-  .footer-bottom { flex-direction: column; text-align: center; padding: 10px 12px; font-size: 11px; }
-  .public-footer { padding: 20px 0 0; }
-  .public-footer h3 { font-size: 13px; margin: 0 0 6px; }
+  .footer-grid { grid-template-columns: 1fr; padding: 0 14px 16px; gap: 18px; }
+  .footer-bottom { text-align: left; padding: 10px 14px; font-size: 11px; flex-direction: column; }
+  .public-footer { padding: 24px 0 0; text-align: left; }
+  .public-footer h3 { font-size: 14px; margin: 0 0 8px; }
   .public-footer p, .footer-links a { font-size: 12px; }
   .modal-card { padding: 20px; width: calc(100% - 24px); }
   .auth-card { padding: 24px; }
