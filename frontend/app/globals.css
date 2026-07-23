@@ -938,16 +938,16 @@ select.input {
   line-height: 1.7;
 }
 
-/* Footer — compact */
-.public-footer { margin-top: auto; padding: 32px 48px 0; background: var(--color-bg-sidebar); border-top: 1px solid var(--color-border); }
-.public-footer h3 { color: var(--color-text); font-size: 14px; margin: 0 0 8px; font-weight: 600; }
-.public-footer p { color: var(--color-text-muted); font-size: 13px; margin: 0 0 4px; line-height: 1.6; }
-.footer-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 0.4fr 1.4fr 1fr 1fr; gap: 32px; padding-bottom: 24px; }
-.footer-links ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 3px; }
-.footer-links li { color: var(--color-text-muted); font-size: 13px; line-height: 1.6; }
-.footer-links a { color: var(--color-text-muted); font-size: 13px; }
+/* Footer */
+.public-footer { margin-top: auto; padding: 48px 48px 0; background: var(--color-bg-sidebar); border-top: 1px solid var(--color-border); }
+.public-footer h3 { color: var(--color-text); font-size: 16px; margin: 0 0 12px; font-weight: 700; }
+.public-footer p { color: var(--color-text-muted); font-size: 14px; margin: 0 0 8px; line-height: 1.7; }
+.footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; padding-bottom: 36px; align-items: start; }
+.footer-links ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.footer-links li { color: var(--color-text-muted); font-size: 14px; }
+.footer-links a { color: var(--color-text-muted); font-size: 14px; transition: color 0.15s; }
 .footer-links a:hover { color: var(--color-primary); }
-.footer-bottom { max-width: 1000px; margin: 0 auto; padding: 14px 0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; color: var(--color-text-disabled); font-size: 12px; border-top: 1px solid var(--color-border); }
+.footer-bottom { max-width: 1200px; margin: 0 auto; padding: 16px 0; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; color: var(--color-text-disabled); font-size: 12px; border-top: 1px solid var(--color-border); }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pageFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
