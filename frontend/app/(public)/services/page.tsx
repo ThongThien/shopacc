@@ -57,29 +57,29 @@ export default function ServiceListPage() {
                 {gameName}
               </h2>
             )}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+            <div className="listing-grid">
               {items.map((svc) => (
                 <Link
                   key={svc.id}
                   href={`/services/${svc.id}`}
-                  className="card"
-                  style={{ textDecoration: "none", color: "inherit", padding: 0 }}
+                  className="listing-card"
+                  style={{ textDecoration: "none", color: "inherit" }}
                 >
-                  <div style={{ height: 160, background: "#faf5ff", display: "grid", placeItems: "center", fontSize: 48 }}>
+                  <div className="listing-image-wrap">
                     {svc.thumbnail ? (
-                      <img src={svc.thumbnail} alt={svc.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      <img src={svc.thumbnail} alt={svc.title} />
                     ) : (
-                      "🔧"
+                      <div style={{ width: "100%", height: "100%", display: "grid", placeItems: "center", fontSize: 48, background: "var(--color-bg-secondary)" }}>🔧</div>
                     )}
                   </div>
-                  <div style={{ padding: 14 }}>
-                    <h3 style={{ margin: "0 0 6px", fontSize: 16 }}>{svc.title}</h3>
+                  <div className="listing-card-body">
+                    <h3>{svc.title}</h3>
                     {svc.serverName && (
-                      <span style={{ background: "#f3e8ff", color: "#6b21a8", padding: "3px 8px", borderRadius: 6, fontSize: 12, fontWeight: 700 }}>
-                        {svc.serverName}
+                      <span className="listing-tags" style={{ marginBottom: 8 }}>
+                        <span>{svc.serverName}</span>
                       </span>
                     )}
-                    <p style={{ margin: "6px 0 0", color: "var(--color-primary)", fontWeight: 900, fontSize: 18 }}>
+                    <p style={{ color: "var(--color-primary)", fontWeight: 700, fontSize: 18, margin: 0 }}>
                       {formatCurrency(svc.price)}
                     </p>
                   </div>
