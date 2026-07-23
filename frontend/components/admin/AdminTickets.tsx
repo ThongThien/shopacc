@@ -76,6 +76,21 @@ export default function AdminTickets() {
         </div>
       </div>
 
+      <div className="admin-summary-row">
+        <span>Tổng ticket: {tickets.length}</span>
+        <span>Đang mở: {tickets.filter((t) => t.status === "OPEN").length}</span>
+        <span>Đã đóng: {tickets.filter((t) => t.status === "CLOSED").length}</span>
+      </div>
+
+      <div className="admin-toolbar">
+        <input className="input" placeholder="Tìm theo tiêu đề ticket..." value="" onChange={() => {}} style={{ minWidth: 250 }} />
+        <select className="input" value="" onChange={() => {}} style={{ width: 160 }}>
+          <option value="">Tất cả trạng thái</option>
+          <option value="OPEN">Đang mở</option>
+          <option value="CLOSED">Đã đóng</option>
+        </select>
+      </div>
+
       <div className="card table-card">
         {loading ? (
           <LoadingSpinner text="Đang tải..." />

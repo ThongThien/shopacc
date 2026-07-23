@@ -121,6 +121,11 @@ export default function AdminDiscounts() {
           <h1>Mã giảm giá</h1>
           <p>Tạo và quản lý mã giảm giá cho khách hàng.</p>
         </div>
+        <div className="admin-summary-row">
+          <span>Tổng mã: {discounts.length}</span>
+          <span>Đang hoạt động: {discounts.filter((d) => d.isActive).length}</span>
+          <span>Đã tắt: {discounts.filter((d) => !d.isActive).length}</span>
+        </div>
         <button
           className="btn-primary"
           type="button"
