@@ -143,12 +143,12 @@ export default function PublicNavbar() {
         <button
           type="button"
           className="btn-primary"
-          style={{ background: "white", color: "var(--color-text)", position: "relative" }}
+          style={{ background: "var(--color-bg-card)", color: "var(--color-text)", position: "relative", height: 44 }}
           onClick={() => window.dispatchEvent(new Event("cart:toggle"))}
         >
           <ShoppingCart size={18} />
           {count > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[11px] font-black">
+            <span className="absolute -top-1.5 -right-1.5 bg-pink-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[11px] font-black">
               {count}
             </span>
           )}

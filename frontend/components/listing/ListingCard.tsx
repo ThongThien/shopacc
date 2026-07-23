@@ -61,31 +61,32 @@ export default function ListingCard({ listing }: Props) {
               style={{
                 background: TYPE_CONFIG[listing.listingType].bg,
                 color: TYPE_CONFIG[listing.listingType].color,
+                padding: "4px 10px",
+                fontSize: 12,
+                fontWeight: 700,
                 borderRadius: 8,
-                padding: "4px 8px",
-                fontSize: 11,
-                fontWeight: 800,
               }}
             >
               {TYPE_CONFIG[listing.listingType].label}
             </span>
           )}
-          <span>{listing.gameName}</span>
-          {listing.serverName && <span>SV {listing.serverName}</span>}
+          <span style={{ background: "rgba(255,255,255,0.06)", color: "var(--color-text-secondary)", padding: "4px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}>
+            {listing.gameName}
+          </span>
+          {listing.serverName && <span style={{ background: "rgba(255,255,255,0.06)", color: "var(--color-text-muted)", padding: "4px 10px", borderRadius: 8, fontSize: 12, fontWeight: 500 }}>SV {listing.serverName}</span>}
         </div>
 
         <div className="listing-card-footer">
           <strong>{formatCurrency(listing.price)}</strong>
-
-          <Link href={`/account/${listing.id}`} className="listing-detail-btn">
-            Xem chi tiết
+          <Link href={`/account/${listing.id}`} style={{ color: "var(--color-text-muted)", fontSize: 13 }}>
+            Chi tiết →
           </Link>
         </div>
 
         <button
           type="button"
           className={inCart ? "btn-secondary" : "btn-primary"}
-          style={{ marginTop: 10, width: "100%", padding: "8px 12px", fontSize: 13 }}
+          style={{ width: "100%", height: 44, fontSize: 14 }}
           disabled={inCart}
           onClick={handleAddToCart}
         >
