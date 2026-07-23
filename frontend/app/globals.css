@@ -847,6 +847,23 @@ select.input {
   font-size: 13px;
 }
 
+/* Admin Detail Pages */
+.admin-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.admin-detail-card { padding: 24px; }
+.admin-detail-card h2 { margin: 0 0 16px; font-size: 18px; font-weight: 700; }
+.admin-detail-image { width: 100%; max-height: 300px; object-fit: cover; border-radius: 14px; border: 1px solid var(--color-border); margin-bottom: 16px; background: var(--color-bg-secondary); }
+.admin-info-list { display: grid; gap: 8px; }
+.admin-info-list p { margin: 0; font-size: 14px; color: var(--color-text-secondary); }
+.admin-info-list b { color: var(--color-text); margin-right: 4px; }
+.admin-description { color: var(--color-text-secondary); line-height: 1.7; font-size: 14px; }
+.admin-detail-gallery-card { grid-column: span 2; }
+.admin-detail-gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.admin-detail-gallery img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 12px; border: 1px solid var(--color-border); }
+.secret-content { white-space: pre-wrap; background: #0a0a0a; color: var(--color-text); padding: 16px; border-radius: 12px; line-height: 1.6; font-size: 14px; }
+.secret-locked-box { padding: 16px; text-align: center; background: var(--color-bg-secondary); border-radius: 12px; }
+.secret-locked-box .muted-text { margin: 0 0 12px; }
+.admin-actions { display: flex; gap: 10px; align-items: center; }
+
 .auth-page {
   min-height: 100vh;
   display: grid;
