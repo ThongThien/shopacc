@@ -143,7 +143,7 @@ public class AdminService {
 
                 ProductCategory parent = null;
 
-                if (request.getParentId() != null) {
+                if (request.getParentId() != null && request.getParentId() > 0) {
                         parent = categoryRepository.findById(request.getParentId())
                                         .orElseThrow(() -> new ResponseStatusException(
                                                         HttpStatus.NOT_FOUND,
