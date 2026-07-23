@@ -21,16 +21,21 @@ export default function LoginForm() {
   const [captchaAns, setCaptchaAns] = useState("");
 
   useEffect(() => {
+    refreshCaptcha();
+  }, []);
+
+  function refreshCaptcha() {
     setCaptchaA(Math.floor(Math.random() * 5) + 1);
     setCaptchaB(Math.floor(Math.random() * 5) + 1);
-  }, []);
+    setCaptchaAns("");
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
     if (!email.trim()) { notify("error", "Vui lòng nhập email"); return; }
     if (!password) { notify("error", "Vui lòng nhập mật khẩu"); return; }
-    if (Number(captchaAns) !== captchaA + captchaB) { notify("error", "Sai câu hỏi xác minh, vui lòng thử lại"); return; }
+    if (Number(captchaAns) !== captchaA + captchaB) { notify("error", "Sai câu hỏi xác minh, vui lòng thử lại"); refreshCaptcha(); return; }
 
     try {
       setLoading(true);
@@ -42,6 +47,7 @@ export default function LoginForm() {
       router.refresh();
     } catch {
       notify("error", "Email hoặc mật khẩu không đúng");
+      refreshCaptcha();
     } finally { setLoading(false); }
   }
 
