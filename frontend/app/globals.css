@@ -963,8 +963,8 @@ select.input {
   .form-col-span-2 { grid-column: span 1; }
 }
 @media (max-width: 768px) {
-  .public-navbar { height: auto; padding: 10px 14px; flex-wrap: wrap; gap: 6px; }
-  .public-nav { flex-wrap: wrap; gap: 6px; font-size: 12px; }
+  .public-navbar { height: auto; padding: 8px 12px; flex-wrap: wrap; gap: 4px; flex-direction: column; }
+  .public-nav { flex-wrap: wrap; gap: 4px; font-size: 11px; }
   .public-logo img { height: 40px; width: auto; }
   .btn-primary { height: 40px; padding: 0 16px; font-size: 13px; min-height: 0; }
   .btn-secondary { height: 38px; padding: 0 14px; font-size: 13px; min-height: 0; }

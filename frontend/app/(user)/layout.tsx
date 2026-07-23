@@ -1,5 +1,6 @@
 import PublicFooter from "@/components/layout/PublicFooter";
 import PublicNavbar from "@/components/layout/PublicNavbar";
+import ScrollToTop from "@/components/shared/ScrollToTop";
 
 export default function UserLayout({
   children,
@@ -11,6 +12,7 @@ export default function UserLayout({
       <PublicNavbar />
       <main>{children}</main>
       <PublicFooter />
+      <ScrollToTop />
     </div>
   );
 }
