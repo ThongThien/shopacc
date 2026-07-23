@@ -1,17 +1,15 @@
 export default function Loading() {
   return (
-    <div
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: 3,
-        zIndex: 9999,
-        background: "linear-gradient(90deg, #22c55e, #16a34a, #22c55e)",
-        backgroundSize: "200% 100%",
-        animation: "loadingBarSlide 1.5s ease-in-out infinite",
-      }}
-    />
+    <div style={{
+      position: "fixed", inset: 0,
+      background: "var(--color-bg)",
+      display: "grid", placeItems: "center",
+      zIndex: 9999,
+    }}>
+      <div style={{ textAlign: "center", display: "grid", gap: 16, justifyItems: "center" }}>
+        <div className="loading-spinner" style={{ width: 44, height: 44 }} />
+        <p style={{ color: "var(--color-text-muted)", fontSize: 14 }}>Đang tải...</p>
+      </div>
+    </div>
   );
 }
