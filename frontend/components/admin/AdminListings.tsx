@@ -297,13 +297,12 @@ export default function AdminListings() {
                             className="btn-secondary" style={{ padding: "4px 10px", fontSize: 12, height: 30, color: "var(--color-danger)", borderColor: "var(--color-danger)" }}>Xóa</button>
                         </div>
                       </td>
-                      </td>
                     </tr>
                   ))}
 
                   {visibleListings.length === 0 && (
                     <tr>
-                      <td colSpan={11} className="empty-cell">
+                      <td colSpan={8} className="empty-cell">
                         Không có sản phẩm nào.
                       </td>
                     </tr>
