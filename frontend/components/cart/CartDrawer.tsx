@@ -48,8 +48,8 @@ export default function CartDrawer() {
           bottom: 0,
           width: 380,
           maxWidth: "100%",
-          background: "white",
-          boxShadow: "-8px 0 32px rgba(15,23,42,0.15)",
+          background: "var(--color-bg-card)",
+          boxShadow: "-8px 0 32px rgba(0,0,0,0.4)",
           zIndex: 1000,
           transform: open ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.3s ease",
@@ -64,8 +64,7 @@ export default function CartDrawer() {
             justifyContent: "space-between",
             alignItems: "center",
             padding: "18px 20px",
-            borderBottom: "1px solid var(--color-border)",
-          }}
+            borderBottom: "1px solid var(--color-border)",          }}
         >
           <h2 style={{ margin: 0, fontSize: 19 }}>Giỏ hàng ({count})</h2>
           <button
