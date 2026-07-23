@@ -15,32 +15,36 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
-  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [captchaA] = useState(() => Math.floor(Math.random() * 5) + 1);
+  const [captchaB] = useState(() => Math.floor(Math.random() * 5) + 1);
+  const [captchaAns, setCaptchaAns] = useState("");
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
+    if (!email.trim()) { notify("error", "Vui lòng nhập email"); return; }
+    if (!password) { notify("error", "Vui lòng nhập mật khẩu"); return; }
+    if (Number(captchaAns) !== captchaA + captchaB) { notify("error", "Sai câu hỏi xác minh, vui lòng thử lại"); return; }
+
     try {
       setLoading(true);
-      const response = await login({ email, password });
+      const response = await login({ email: email.trim(), password });
       saveAuth(response);
       notify("success", "Đăng nhập thành công!");
-      if (response.role === "ADMIN") { router.push("/admin"); }
-      else { router.push("/"); }
+      if (response.role === "ADMIN") router.push("/admin");
+      else router.push("/");
       router.refresh();
-    } catch (err) {
-      notify("error", err instanceof Error ? err.message : "Đăng nhập thất bại");
+    } catch {
+      notify("error", "Email hoặc mật khẩu không đúng");
     } finally { setLoading(false); }
   }
 
   return (
     <form onSubmit={handleSubmit} className="auth-card card">
-      <div style={{ textAlign: "center", marginBottom: 8 }}>
+      <div style={{ textAlign: "center", marginBottom: 4 }}>
         <h1 style={{ margin: "0 0 4px", fontSize: 24, fontWeight: 700 }}>Đăng nhập</h1>
-        <p style={{ margin: 0, color: "var(--color-text-muted)", fontSize: 14 }}>
-          Chào mừng trở lại
-        </p>
+        <p style={{ margin: 0, color: "var(--color-text-muted)", fontSize: 14 }}>Chào mừng trở lại</p>
       </div>
 
       <div>
@@ -61,13 +65,13 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 }}>
-        <label style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--color-text-muted)", cursor: "pointer" }}>
-          <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)}
-            style={{ accentColor: "var(--color-primary)" }} />
-          Ghi nhớ
-        </label>
-        <a href="#" style={{ color: "var(--color-primary)" }}>Quên mật khẩu?</a>
+      {/* Captcha */}
+      <div style={{ background: "var(--color-bg-secondary)", borderRadius: 12, padding: 14 }}>
+        <p style={{ margin: "0 0 8px", fontSize: 13, color: "var(--color-text-secondary)" }}>
+          Xác minh: <b style={{ color: "var(--color-primary)", fontSize: 16 }}>{captchaA} + {captchaB} = ?</b>
+        </p>
+        <input className="input" style={{ height: 40 }} placeholder="Nhập kết quả *"
+          value={captchaAns} onChange={(e) => setCaptchaAns(e.target.value.replace(/\D/g, ""))} />
       </div>
 
       <button className="btn-primary" type="submit" disabled={loading} style={{ width: "100%" }}>
@@ -76,8 +80,7 @@ export default function LoginForm() {
       </button>
 
       <p style={{ textAlign: "center", fontSize: 14, color: "var(--color-text-muted)", margin: 0 }}>
-        Chưa có tài khoản?{" "}
-        <Link href="/register" style={{ color: "var(--color-primary)", fontWeight: 600 }}>Đăng ký</Link>
+        Chưa có tài khoản? <Link href="/register" style={{ color: "var(--color-primary)", fontWeight: 600 }}>Đăng ký</Link>
       </p>
     </form>
   );
