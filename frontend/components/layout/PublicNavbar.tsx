@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { clearAuth, getAccessToken, getUserRole } from "@/lib/auth";
 import { getListings } from "@/services/listing.service";
 import { getMyBalance } from "@/services/user.service";
@@ -22,6 +23,15 @@ export default function PublicNavbar() {
   const [balance, setBalance] = useState<UserBalance | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [role, setRole] = useState<string | null>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) { setOpenDropdown(null); }
+    if (openDropdown) {
+      setTimeout(() => document.addEventListener("click", handleClick), 0);
+      return () => document.removeEventListener("click", handleClick);
+    }
+  }, [openDropdown]);
 
   async function syncAuthState() {
     const token = getAccessToken();

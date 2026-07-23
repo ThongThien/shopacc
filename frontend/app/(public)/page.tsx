@@ -6,8 +6,8 @@ import { Listing } from "@/types/listing";
 import { User, Gift, Wrench } from "lucide-react";
 
 const TYPE_CARDS = [
-  { type: "ACCOUNT", label: "Tài khoản", icon: User, bg: "#eff6ff", border: "#bfdbfe", color: "#1e40af" },
-  { type: "ITEM", label: "Vật phẩm", icon: Gift, bg: "#fffbeb", border: "#fde68a", color: "#92400e" },
+  { type: "ACCOUNT", label: "Tài khoản", icon: User, bg: "rgba(212,0,255,0.08)", border: "rgba(212,0,255,0.2)", color: "var(--color-primary)" },
+  { type: "ITEM", label: "Vật phẩm", icon: Gift, bg: "rgba(255,196,0,0.08)", border: "rgba(255,196,0,0.2)", color: "var(--color-warning)" },
 ];
 
 function countByType(listings: Listing[], type: string) {
