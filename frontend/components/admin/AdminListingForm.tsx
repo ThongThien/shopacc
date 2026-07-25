@@ -402,6 +402,12 @@ export default function AdminListingForm({ mode, listing }: Props) {
         {/* Images */}
         <div>
           <label>Ảnh chính</label>
+          {mode === "edit" && payload.thumbnail && (
+            <div style={{ marginBottom: 8 }}>
+              <img src={payload.thumbnail} alt="Thumbnail hiện tại" style={{ width: 120, height: 90, objectFit: "cover", borderRadius: 10, border: "1px solid var(--color-border)" }} />
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--color-text-muted)" }}>Ảnh hiện tại — chọn file mới nếu muốn thay đổi</p>
+            </div>
+          )}
           <input
             className="input"
             type="file"
@@ -413,6 +419,13 @@ export default function AdminListingForm({ mode, listing }: Props) {
         <div>
           <label>Ảnh phụ</label>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+            {/* Existing gallery in edit mode */}
+            {mode === "edit" && listing?.images && listing.images.filter((img) => img !== listing.thumbnail).length > 0 && (
+              <p style={{ margin: "0 0 6px", fontSize: 12, color: "var(--color-text-muted)", width: "100%" }}>Ảnh phụ hiện tại (được giữ nguyên):</p>
+            )}
+            {mode === "edit" && listing?.images && listing.images.filter((img) => img !== listing.thumbnail).map((img, i) => (
+              <img key={`existing-${i}`} src={img} alt="" style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 10, border: "1px solid var(--color-border)" }} />
+            ))}
             {galleryFiles.map((file, i) => (
               <div key={i} style={{ position: "relative", width: 80, height: 80, borderRadius: 10, overflow: "hidden", border: "1px solid var(--color-border)" }}>
                 <img src={URL.createObjectURL(file)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
