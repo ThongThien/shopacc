@@ -242,6 +242,7 @@ public class AdminService {
                 listing.setDescription(request.getDescription());
                 listing.setPrice(request.getPrice());
                 listing.setThumbnail(request.getThumbnail());
+                if (request.getStatus() != null) listing.setStatus(request.getStatus());
                 listing.setSecretDataEncrypted(
                                 cryptoService.encrypt(
                                                 request.getSecretDataEncrypted()));
