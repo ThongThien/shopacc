@@ -1,6 +1,7 @@
 package com.shopacc.backend.dto.admin;
 
 import com.shopacc.backend.enums.ListingType;
+import com.shopacc.backend.enums.ListingStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -27,6 +28,8 @@ public class UpdateListingRequest {
     private BigDecimal price;
 
     private String thumbnail;
+
+    private ListingStatus status;
 
     private String secretDataEncrypted;
 }
