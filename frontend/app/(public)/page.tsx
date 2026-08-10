@@ -72,6 +72,7 @@ export default async function HomePage() {
 
               {/* Type Cards */}
               <div
+                className="home-type-grid"
                 style={{
                   display: "grid",
                   gridTemplateColumns: "repeat(3, 1fr)",
@@ -91,6 +92,7 @@ export default async function HomePage() {
                     <Link
                       key={card.type}
                       href={href}
+                      className="home-type-card"
                       style={{
                         textDecoration: "none",
                         color: "inherit",

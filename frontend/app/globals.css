@@ -989,6 +989,10 @@ select.input {
   .page-heading h1 { font-size: 24px; }
   .page-heading p { font-size: 13px; }
   .page-container { padding: 20px 12px 32px; width: 100%; }
+  .home-type-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .home-type-card { padding: 12px 14px; gap: 10px; }
+  .home-type-card img { width: 48px; height: 48px; }
+  .home-type-card b { font-size: 13px; }
   .category-grid, .listing-grid, .service-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .listing-card-body { padding: 12px; }
   .listing-card-body h3 { font-size: 14px; }
@@ -1013,6 +1017,9 @@ select.input {
   .deposit-tabs { flex-direction: column; }
 }
 @media (max-width: 480px) {
+  .home-type-grid { grid-template-columns: 1fr; }
+  .home-type-card { padding: 14px; gap: 12px; }
+  .home-type-card img { width: 56px; height: 56px; }
   .category-grid, .listing-grid, .service-grid { grid-template-columns: 1fr; }
   .listing-card-footer { flex-wrap: wrap; }
   .bill-grid, .bill-header { grid-template-columns: 1fr; }
