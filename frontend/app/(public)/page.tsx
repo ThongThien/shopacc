@@ -97,9 +97,10 @@ export default async function HomePage() {
                         background: card.bg,
                         border: `1.5px solid ${card.border}`,
                         borderRadius: 14,
-                        padding: "14px 18px",
+                        padding: "20px 24px",
                         display: "flex",
                         flexDirection: "row",
+                        alignItems: "center",
                         gap: 14,
                         position: "relative",
                         overflow: "hidden",
@@ -128,10 +129,10 @@ export default async function HomePage() {
                       <img
                         src={getTypeAsset(game, card.type)}
                         alt={card.label}
-                        style={{ width: 72, height: 72, objectFit: "contain", flexShrink: 0 }}
+                        style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
                       />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <b style={{ fontSize: 16, color: card.color }}>{card.label}</b>
+                        <b style={{ fontSize: 18, color: card.color }}>{card.label}</b>
 
                         {count > 0 ? (
                           <div style={{ display: "grid", gap: 2 }}>
