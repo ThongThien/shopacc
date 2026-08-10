@@ -15,6 +15,10 @@ function countByType(listings: Listing[], type: string) {
   return listings.filter((l) => l.status === "PUBLISHED" && l.listingType === type).length;
 }
 
+function soldByType(listings: Listing[], type: string) {
+  return listings.filter((l) => l.status === "SOLD_OUT" && l.listingType === type).length;
+}
+
 function priceFrom(listings: Listing[], type: string) {
   const pubs = listings.filter((l) => l.status === "PUBLISHED" && l.listingType === type);
   if (pubs.length === 0) return null;
@@ -76,6 +80,7 @@ export default async function HomePage() {
               >
                 {TYPE_CARDS.map((card) => {
                   const count = countByType(gameListings, card.type);
+                  const sold = soldByType(gameListings, card.type);
                   const from = priceFrom(gameListings, card.type);
                   const href =
                     card.type === "SERVICE"
@@ -131,6 +136,7 @@ export default async function HomePage() {
                         <div style={{ display: "grid", gap: 2 }}>
                           <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }}>
                             {count} sản phẩm
+                            {sold > 0 && <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}> · {sold} đã bán</span>}
                           </span>
                           {from != null && (
                             <span style={{ fontSize: 13, color: "var(--color-primary)", fontWeight: 800 }}>
