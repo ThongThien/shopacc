@@ -192,7 +192,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
           data.secretDataEncrypted = secretPlaintext.trim();
         } else if (!secretLoaded) {
           // Keep existing encrypted value — don't clear it
-          data.secretDataEncrypted = listing.secretDataEncrypted || "";
+          data.secretDataEncrypted = listing.secretData || "";
         }
         await updateAdminListing(listing.id, data);
         await uploadThumbnailIfNeeded(listing.id);
