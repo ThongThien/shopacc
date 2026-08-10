@@ -88,6 +88,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
       description: listing.description || "",
       price: listing.price,
       thumbnail: listing.thumbnail || "",
+      status: listing.status,
       secretDataEncrypted: "",
     });
   }, [listing]);

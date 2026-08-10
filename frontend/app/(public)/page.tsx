@@ -3,11 +3,12 @@ import { getListings } from "@/services/listing.service";
 import { formatCurrency } from "@/lib/format";
 import NoticeBox from "@/components/layout/NoticeBox";
 import { Listing } from "@/types/listing";
-import { User, Gift, Wrench } from "lucide-react";
+import { getTypeAsset } from "@/lib/assets";
 
 const TYPE_CARDS = [
-  { type: "ACCOUNT", label: "Tài khoản", icon: User, bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", color: "var(--color-price)", thumb: null as string | null },
-  { type: "ITEM", label: "Vật phẩm", icon: Gift, bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.2)", color: "var(--color-cyan)", thumb: null as string | null },
+  { type: "ACCOUNT", label: "Tài khoản", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", color: "var(--color-price)" },
+  { type: "ITEM", label: "Vật phẩm", bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.2)", color: "var(--color-cyan)" },
+  { type: "SERVICE", label: "Dịch vụ", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", color: "var(--color-primary)" },
 ];
 
 function countByType(listings: Listing[], type: string) {
@@ -69,14 +70,17 @@ export default async function HomePage() {
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(2, 1fr)",
+                  gridTemplateColumns: "repeat(3, 1fr)",
                   gap: 14,
                 }}
               >
                 {TYPE_CARDS.map((card) => {
                   const count = countByType(gameListings, card.type);
                   const from = priceFrom(gameListings, card.type);
-                  const href = `/accounts?game=${encodeURIComponent(game)}&type=${card.type}`;
+                  const href =
+                    card.type === "SERVICE"
+                      ? `/games/${encodeURIComponent(game)}/services`
+                      : `/accounts?game=${encodeURIComponent(game)}&type=${card.type}`;
 
                   return (
                     <Link
@@ -116,16 +120,12 @@ export default async function HomePage() {
                         </span>
                       )}
 
-                      <card.icon size={32} />
+                      <img
+                        src={getTypeAsset(game, card.type)}
+                        alt={card.label}
+                        style={{ width: 48, height: 48, objectFit: "contain" }}
+                      />
                       <b style={{ fontSize: 16, color: card.color }}>{card.label}</b>
-
-                      {card.thumb ? (
-                        <div style={{ marginTop: 8, borderRadius: 12, overflow: "hidden", aspectRatio: "16/9", background: "var(--color-bg-secondary)" }}>
-                          <img src={card.thumb} alt={card.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        </div>
-                      ) : (
-                        <card.icon size={32} />
-                      )}
 
                       {count > 0 ? (
                         <div style={{ display: "grid", gap: 2 }}>
