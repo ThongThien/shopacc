@@ -1018,8 +1018,9 @@ select.input {
 }
 @media (max-width: 480px) {
   .home-type-grid { grid-template-columns: 1fr; }
-  .home-type-card { padding: 14px; gap: 12px; }
+  .home-type-card { padding: 14px; gap: 12px; flex-direction: column; align-items: center; text-align: center; }
   .home-type-card img { width: 56px; height: 56px; }
+  .home-type-card div { text-align: center; }
   .category-grid, .listing-grid, .service-grid { grid-template-columns: 1fr; }
   .listing-card-footer { flex-wrap: wrap; }
   .bill-grid, .bill-header { grid-template-columns: 1fr; }
