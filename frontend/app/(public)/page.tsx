@@ -97,10 +97,10 @@ export default async function HomePage() {
                         background: card.bg,
                         border: `1.5px solid ${card.border}`,
                         borderRadius: 14,
-                        padding: "18px 20px",
+                        padding: "14px 18px",
                         display: "flex",
-                        flexDirection: "column",
-                        gap: 8,
+                        flexDirection: "row",
+                        gap: 14,
                         position: "relative",
                         overflow: "hidden",
                         transition: "transform 0.2s ease, box-shadow 0.2s ease",
@@ -128,27 +128,29 @@ export default async function HomePage() {
                       <img
                         src={getTypeAsset(game, card.type)}
                         alt={card.label}
-                        style={{ width: 48, height: 48, objectFit: "contain" }}
+                        style={{ width: 72, height: 72, objectFit: "contain", flexShrink: 0 }}
                       />
-                      <b style={{ fontSize: 16, color: card.color }}>{card.label}</b>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <b style={{ fontSize: 16, color: card.color }}>{card.label}</b>
 
-                      {count > 0 ? (
-                        <div style={{ display: "grid", gap: 2 }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }}>
-                            {count} sản phẩm
-                            {sold > 0 && <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}> · {sold} đã bán</span>}
-                          </span>
-                          {from != null && (
-                            <span style={{ fontSize: 13, color: "var(--color-primary)", fontWeight: 800 }}>
-                              Giá từ {formatCurrency(from)}
+                        {count > 0 ? (
+                          <div style={{ display: "grid", gap: 2 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }}>
+                              {count} sản phẩm
+                              {sold > 0 && <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}> · {sold} đã bán</span>}
                             </span>
-                          )}
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>
-                          Chưa có sản phẩm
-                        </span>
-                      )}
+                            {from != null && (
+                              <span style={{ fontSize: 13, color: "var(--color-primary)", fontWeight: 800 }}>
+                                Giá từ {formatCurrency(from)}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>
+                            Chưa có sản phẩm
+                          </span>
+                        )}
+                      </div>
                     </Link>
                   );
                 })}
