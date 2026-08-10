@@ -243,9 +243,12 @@ public class AdminService {
                 listing.setPrice(request.getPrice());
                 listing.setThumbnail(request.getThumbnail());
                 if (request.getStatus() != null) listing.setStatus(request.getStatus());
-                listing.setSecretDataEncrypted(
-                                cryptoService.encrypt(
-                                                request.getSecretDataEncrypted()));
+                // Only update secret if new value provided (not blank, not same as existing)
+                String newSecret = request.getSecretDataEncrypted();
+                if (newSecret != null && !newSecret.isBlank()
+                                && !newSecret.equals(listing.getSecretDataEncrypted())) {
+                        listing.setSecretDataEncrypted(cryptoService.encrypt(newSecret));
+                }
 
                 return mapToListingResponse(listing);
         }
