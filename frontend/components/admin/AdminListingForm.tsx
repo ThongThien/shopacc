@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   createAdminListing,
   getAdminCategories,
+  getAdminListingSecret,
   updateAdminListing,
   updateAdminListingThumbnail,
   uploadListingImage,
@@ -49,6 +50,8 @@ export default function AdminListingForm({ mode, listing }: Props) {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [secretPlaintext, setSecretPlaintext] = useState("");
+  const [secretLoaded, setSecretLoaded] = useState(false);
   const [existingGames, setExistingGames] = useState<string[]>([]);
   const [createNewGame, setCreateNewGame] = useState(false);
 
@@ -89,8 +92,10 @@ export default function AdminListingForm({ mode, listing }: Props) {
       price: listing.price,
       thumbnail: listing.thumbnail || "",
       status: listing.status,
-      secretDataEncrypted: "",
+      secretDataEncrypted: mode === "edit" ? "" : "",
     });
+    setSecretLoaded(false);
+    setSecretPlaintext("");
   }, [listing]);
 
   // Leaf categories: have parentId AND are not parents themselves
@@ -141,6 +146,18 @@ export default function AdminListingForm({ mode, listing }: Props) {
     }
   }
 
+  async function handleLoadSecret() {
+    if (!listing) return;
+    try {
+      const data = await getAdminListingSecret(listing.id);
+      setSecretPlaintext(data.secretData || "");
+      setSecretLoaded(true);
+      notify("info", "Đã tải thông tin tài khoản. Bạn có thể chỉnh sửa trước khi lưu.");
+    } catch {
+      notify("error", "Không thể tải thông tin tài khoản");
+    }
+  }
+
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
@@ -169,7 +186,15 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
       if (mode === "edit") {
         if (!listing) return;
-        await updateAdminListing(listing.id, payload);
+        const data = { ...payload };
+        // Only update secret if user loaded and edited it
+        if (secretLoaded && secretPlaintext.trim()) {
+          data.secretDataEncrypted = secretPlaintext.trim();
+        } else if (!secretLoaded) {
+          // Keep existing encrypted value — don't clear it
+          data.secretDataEncrypted = listing.secretDataEncrypted || "";
+        }
+        await updateAdminListing(listing.id, data);
         await uploadThumbnailIfNeeded(listing.id);
         await uploadGalleryIfNeeded(listing.id);
         notify("success", "Cập nhật sản phẩm thành công");
@@ -388,10 +413,19 @@ export default function AdminListingForm({ mode, listing }: Props) {
             Thông tin giao cho khách{" "}
             {mode === "edit" && "(để trống nếu không thay đổi)"}
           </label>
+          {mode === "edit" && !secretLoaded && (
+            <button type="button" className="btn-secondary" onClick={handleLoadSecret}
+              style={{ marginBottom: 8, height: 36, fontSize: 13 }}>
+              Xem secret hiện tại
+            </button>
+          )}
           <textarea
             className="input textarea"
-            value={payload.secretDataEncrypted}
-            onChange={(e) => updateField("secretDataEncrypted", e.target.value)}
+            value={secretLoaded ? secretPlaintext : payload.secretDataEncrypted}
+            onChange={(e) => {
+              if (secretLoaded) setSecretPlaintext(e.target.value);
+              else updateField("secretDataEncrypted", e.target.value);
+            }}
             placeholder={
               payload.listingType === "SERVICE"
                 ? "Liên hệ Zalo shop để cung cấp thông tin cần làm dịch vụ."
