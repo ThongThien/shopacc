@@ -142,4 +142,40 @@ public class CryptoService {
 
                 return normalized;
         }
+
+        // Migration: decrypt with old key, migrate to new key
+        public String encryptWithKey(String plainText, String customKey) {
+                if (plainText == null || plainText.isBlank()) return null;
+                try {
+                        byte[] iv = new byte[IV_LENGTH];
+                        new SecureRandom().nextBytes(iv);
+                        Cipher cipher = Cipher.getInstance(AES_GCM);
+                        byte[] keyBytes = new byte[32];
+                        byte[] raw = customKey.getBytes(StandardCharsets.UTF_8);
+                        System.arraycopy(raw, 0, keyBytes, 0, Math.min(raw.length, 32));
+                        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(keyBytes, AES), new GCMParameterSpec(GCM_TAG_LENGTH, iv));
+                        byte[] encrypted = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+                        byte[] result = new byte[iv.length + encrypted.length];
+                        System.arraycopy(iv, 0, result, 0, iv.length);
+                        System.arraycopy(encrypted, 0, result, iv.length, encrypted.length);
+                        return Base64.getEncoder().encodeToString(result);
+                } catch (Exception e) { throw new RuntimeException("Cannot encrypt with custom key"); }
+        }
+
+        public String decryptWithKey(String encryptedText, String customKey) {
+                if (encryptedText == null || encryptedText.isBlank()) return null;
+                try {
+                        byte[] decoded = Base64.getDecoder().decode(encryptedText);
+                        byte[] iv = new byte[IV_LENGTH];
+                        byte[] encrypted = new byte[decoded.length - IV_LENGTH];
+                        System.arraycopy(decoded, 0, iv, 0, IV_LENGTH);
+                        System.arraycopy(decoded, IV_LENGTH, encrypted, 0, encrypted.length);
+                        Cipher cipher = Cipher.getInstance(AES_GCM);
+                        byte[] keyBytes = new byte[32];
+                        byte[] raw = customKey.getBytes(StandardCharsets.UTF_8);
+                        System.arraycopy(raw, 0, keyBytes, 0, Math.min(raw.length, 32));
+                        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(keyBytes, AES), new GCMParameterSpec(GCM_TAG_LENGTH, iv));
+                        return new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8);
+                } catch (Exception e) { throw new RuntimeException("Cannot decrypt with custom key"); }
+        }
 }

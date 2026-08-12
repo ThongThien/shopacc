@@ -19,8 +19,13 @@ import com.shopacc.backend.service.AuditLogService;
 import com.shopacc.backend.repository.PaymentWebhookLogRepository;
 import com.shopacc.backend.entity.PaymentWebhookLog;
 import com.shopacc.backend.entity.DiscountCode;
+import com.shopacc.backend.entity.Listing;
+import com.shopacc.backend.entity.ServiceOrder;
 import com.shopacc.backend.repository.DiscountCodeRepository;
+import com.shopacc.backend.repository.ListingRepository;
+import com.shopacc.backend.repository.ServiceOrderRepository;
 import com.shopacc.backend.service.CacheService;
+import com.shopacc.backend.service.CryptoService;
 import org.springframework.data.domain.Sort;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,6 +51,10 @@ public class AdminController {
         private final DiscountCodeRepository discountCodeRepository;
 
         private final CacheService cacheService;
+
+        private final ListingRepository listingRepository;
+        private final ServiceOrderRepository serviceOrderRepository;
+        private final CryptoService cryptoService;
 
         @GetMapping("/categories")
         public List<CategoryResponse> getAllCategories() {
@@ -501,5 +510,58 @@ public class AdminController {
                                 httpRequest);
 
                 return Map.of("message", "Discount deleted");
+        }
+
+        @PostMapping("/migrate-aes-key")
+        public Map<String, Object> migrateAesKey(@RequestBody Map<String, String> body) {
+                String oldKey = body.get("oldKey");
+                if (oldKey == null || oldKey.isBlank()) {
+                        return Map.of("success", false, "message", "Missing oldKey");
+                }
+
+                int migrated = 0;
+                int failed = 0;
+
+                // Migrate listings
+                List<com.shopacc.backend.entity.Listing> listings = listingRepository.findAll();
+                for (com.shopacc.backend.entity.Listing l : listings) {
+                        if (l.getSecretDataEncrypted() != null && !l.getSecretDataEncrypted().isBlank()) {
+                                try {
+                                        String plain = cryptoService.decryptWithKey(l.getSecretDataEncrypted(), oldKey);
+                                        l.setSecretDataEncrypted(cryptoService.encrypt(plain));
+                                        listingRepository.save(l);
+                                        migrated++;
+                                } catch (Exception e) {
+                                        failed++;
+                                }
+                        }
+                }
+
+                // Migrate service orders
+                List<com.shopacc.backend.entity.ServiceOrder> svcOrders = serviceOrderRepository.findAll();
+                for (com.shopacc.backend.entity.ServiceOrder so : svcOrders) {
+                        boolean changed = false;
+                        if (so.getAccountName() != null && !so.getAccountName().isBlank()) {
+                                try {
+                                        so.setAccountName(cryptoService.encrypt(
+                                                cryptoService.decryptWithKey(so.getAccountName(), oldKey)));
+                                        changed = true;
+                                } catch (Exception ignored) {}
+                        }
+                        if (so.getPassword() != null && !so.getPassword().isBlank()) {
+                                try {
+                                        so.setPassword(cryptoService.encrypt(
+                                                cryptoService.decryptWithKey(so.getPassword(), oldKey)));
+                                        changed = true;
+                                } catch (Exception ignored) {}
+                        }
+                        if (changed) {
+                                serviceOrderRepository.save(so);
+                                migrated++;
+                        }
+                }
+
+                return Map.of("success", true, "migrated", migrated, "failed", failed,
+                        "message", "AES key migration completed. " + migrated + " records migrated, " + failed + " failed.");
         }
 }
