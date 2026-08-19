@@ -5,7 +5,6 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div>
-        <NoticeBox type="login" />
         <LoginForm />
       </div>
     </div>

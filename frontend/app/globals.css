@@ -943,6 +943,7 @@ select.input {
   display: grid;
   gap: 16px;
 }
+
 .admin-pagination {
   margin-top: 24px;
   display: flex;
