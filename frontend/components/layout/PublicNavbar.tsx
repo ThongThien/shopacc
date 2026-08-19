@@ -120,30 +120,15 @@ export default function PublicNavbar() {
       <nav className="public-nav">
         <Link href="/">Trang chủ</Link>
 
-        <div className="nav-dropdown">
-          <Link
-            href="/accounts"
-            style={{ display: "flex", alignItems: "center", gap: 4 }}
-          >
-            Kho acc <ChevronDown size={14} />
-          </Link>
-        </div>
+        <Link href="/accounts">Kho acc</Link>
 
-        <div className="nav-dropdown">
-          <Link
-            href="/services"
-            style={{ display: "flex", alignItems: "center", gap: 4 }}
-          >
-            Dịch vụ <ChevronDown size={14} />
-          </Link>
-        </div>
+        <Link href="/services">Dịch vụ</Link>
+
+        <Link href="https://zalo.me/g/eyaot0lf9jm4qegzhu9u">Cộng Đồng</Link>
+
+        <Link href="/youtube">Youtube</Link>
+
         <Link href="/me/deposits">Nạp tiền</Link>
-        <Link href="https://zalo.me/g/eyaot0lf9jm4qegzhu9u">
-          Cộng Đồng <ChevronDown size={14} />
-        </Link>
-        <Link href="/youtube">
-          Youtube <ChevronDown size={14} />
-        </Link>
 
         <button
           type="button"
@@ -157,6 +142,7 @@ export default function PublicNavbar() {
           onClick={() => window.dispatchEvent(new Event("cart:toggle"))}
         >
           <ShoppingCart size={18} />
+
           {count > 0 && (
             <span className="absolute -top-1.5 -right-1.5 bg-pink-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[11px] font-black">
               {count}
@@ -173,6 +159,7 @@ export default function PublicNavbar() {
             >
               Đăng ký
             </Link>
+
             <Link href="/login" className="nav-login">
               Đăng nhập
             </Link>
@@ -192,10 +179,12 @@ export default function PublicNavbar() {
 
             <div className="user-dropdown">
               {role === "ADMIN" && <Link href="/admin">Trang quản lý</Link>}
+
               <Link href="/me">Thông tin cá nhân</Link>
               <Link href="/me/orders">Lịch sử mua</Link>
               <Link href="/me/service-orders">Đơn dịch vụ</Link>
               <Link href="/me/tickets">Gửi hỗ trợ - lỗi</Link>
+
               <button type="button" onClick={handleLogout}>
                 Đăng xuất
               </button>

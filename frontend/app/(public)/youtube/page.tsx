@@ -3,6 +3,7 @@ interface YoutubeChannel {
   description: string;
   url: string;
   subscribers: string;
+  avatar: string;
 }
 
 const channels: YoutubeChannel[] = [
@@ -11,24 +12,32 @@ const channels: YoutubeChannel[] = [
     description: "Kênh YouTube Thiên Ngọc Rồng.",
     url: "https://www.youtube.com/@thienngocrong3",
     subscribers: "1N5 sub",
+    avatar:
+      "https://yt3.googleusercontent.com/CkfJc75j09em3wBSsu9MUAgm_DWh8co6Bqigfaf8g0Q9Ike7f16m36pw15NT21B677CC0aJO=s160-c-k-c0x00ffffff-no-rj",
   },
   {
     name: "Thiên Làng Lá",
-    description: "Kênh YouTube Thiên Làng Lá",
+    description: "Kênh YouTube Thiên Làng Lá.",
     url: "https://www.youtube.com/@thienlangla",
     subscribers: "1N6 sub",
+    avatar:
+      "https://yt3.googleusercontent.com/hHiJXztsK2UNcoRwlQMBP12Fykj9WBpK3jerJ0TelX7i4V24gvF5mm4zSJjU6fQqItMTdJoM=s160-c-k-c0x00ffffff-no-rj",
   },
   {
     name: "Thiên Ngọc Rồng 2",
     description: "Kênh YouTube Thiên Ngọc Rồng.",
     url: "https://www.youtube.com/@thienngocrong2",
     subscribers: "500 sub",
+    avatar:
+      "https://yt3.googleusercontent.com/CkfJc75j09em3wBSsu9MUAgm_DWh8co6Bqigfaf8g0Q9Ike7f16m36pw15NT21B677CC0aJO=s160-c-k-c0x00ffffff-no-rj",
   },
   {
     name: "Thiên Ngọc Rồng 1",
     description: "Kênh YouTube Thiên Ngọc Rồng.",
     url: "https://www.youtube.com/@thienngocrong1",
     subscribers: "6N sub",
+    avatar:
+      "https://yt3.googleusercontent.com/CkfJc75j09em3wBSsu9MUAgm_DWh8co6Bqigfaf8g0Q9Ike7f16m36pw15NT21B677CC0aJO=s160-c-k-c0x00ffffff-no-rj",
   },
 ];
 
@@ -45,7 +54,7 @@ export default function YoutubePage() {
             color: "var(--color-text-muted)",
           }}
         >
-          Khám phá các kênh YouTube của chúng tôi.
+          Khám phá các kênh YouTube của Thiên.
         </p>
       </div>
 
@@ -74,24 +83,21 @@ export default function YoutubePage() {
               transition: "transform 0.2s ease, box-shadow 0.2s ease",
             }}
           >
-            {/* YouTube Icon */}
-            <div
+            {/* Avatar */}
+            <img
+              src={channel.avatar}
+              alt={channel.name}
+              width={72}
+              height={72}
               style={{
-                width: 52,
-                height: 52,
-                borderRadius: 14,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                background: "#ff0000",
-                color: "#fff",
-                fontSize: 22,
-                fontWeight: 800,
+                width: 72,
+                height: 72,
+                borderRadius: "50%",
+                objectFit: "cover",
+                display: "block",
                 marginBottom: 18,
               }}
-            >
-              ▶
-            </div>
+            />
 
             {/* Channel Name */}
             <h3
