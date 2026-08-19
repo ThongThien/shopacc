@@ -193,8 +193,8 @@ select.input {
   z-index: 100;
 }
 .public-logo img {
-  height: 140px;
-  width: 240px;
+  height: 100px;
+  width: 200px;
   display: block;
 }
 .public-nav {

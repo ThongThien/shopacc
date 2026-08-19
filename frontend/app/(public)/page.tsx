@@ -26,6 +26,7 @@ const TYPE_CARDS = [
     bg: "rgba(249,115,22,0.08)",
     border: "rgba(249,115,22,0.2)",
     color: "var(--color-primary)",
+    services: ["Up SKH", "Up Đệ", "Săn Đệ Tử", "Săn Boss", "Cày thuê"],
   },
 ];
 
@@ -157,20 +158,43 @@ export default async function HomePage() {
                         }}
                       />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        {/* Label ở trên */}
                         <b
                           style={{
                             display: "block",
                             fontSize: 18,
                             color: card.color,
-                            marginBottom: 4,
+                            marginBottom: 6,
                           }}
                         >
                           {card.label}
                         </b>
 
-                        {/* Thông tin ở dưới */}
-                        {count > 0 ? (
+                        {card.type === "SERVICE" ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              flexWrap: "wrap",
+                              gap: "5px 6px",
+                            }}
+                          >
+                            {card.services?.map((service) => (
+                              <span
+                                key={service}
+                                style={{
+                                  fontSize: 12,
+                                  fontWeight: 600,
+                                  color: "var(--color-text)",
+                                  background: "rgba(249,115,22,0.08)",
+                                  border: "1px solid rgba(249,115,22,0.15)",
+                                  padding: "3px 7px",
+                                  borderRadius: 6,
+                                }}
+                              >
+                                {service}
+                              </span>
+                            ))}
+                          </div>
+                        ) : count > 0 ? (
                           <div style={{ display: "grid", gap: 2 }}>
                             <span
                               style={{
