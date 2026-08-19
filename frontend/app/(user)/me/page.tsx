@@ -6,8 +6,23 @@ export default function MePage() {
   return (
     <div className="page-container user-profile-page">
       <UserAccountOverview />
-      <UserProfile />
-      <BalanceHistory />
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+          gap: 24,
+          alignItems: "start",
+        }}
+      >
+        <section>
+          <UserProfile />
+        </section>
+
+        <section>
+          <BalanceHistory />
+        </section>
+      </div>
     </div>
   );
 }

@@ -8,7 +8,7 @@ const noticeMap = {
     items: [
       "Vui lòng đọc kỹ mô tả acc trước khi mua.",
       "Shop chỉ hỗ trợ khiếu nại nếu lỗi phát sinh từ thông tin shop cung cấp.",
-      "Liên hệ CSKH/Zalo 0772438318 nếu cần hỗ trợ.",
+      "Liên hệ Zalo 0772438318 nếu cần hỗ trợ.",
     ],
   },
   accounts: {
@@ -31,16 +31,13 @@ const noticeMap = {
   },
   deposit: {
     title: "Lưu ý khi nạp tiền",
-    items: [
-      "Chuyển khoản đúng nội dung để hệ thống xác nhận nhanh hơn.",
-      "Nếu nạp thẻ cào, phí chiết khấu có thể thay đổi theo nhà mạng.",
-    ],
+    items: ["Chuyển khoản đúng nội dung để hệ thống xác nhận nhanh hơn."],
   },
   orders: {
     title: "Lịch sử mua",
     items: [
       "Chỉ bạn mới xem được thông tin acc đã mua.",
-      "Nếu acc lỗi, hãy liên hệ hỗ trợ trong thời gian quy định.",
+      "Nếu acc lỗi, hãy liên hệ hỗ trợ trong thời gian sớm nhất.",
     ],
   },
 };

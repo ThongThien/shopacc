@@ -6,38 +6,58 @@ import { Listing } from "@/types/listing";
 import { getTypeAsset } from "@/lib/assets";
 
 const TYPE_CARDS = [
-  { type: "ACCOUNT", label: "Tài khoản", bg: "rgba(34,197,94,0.08)", border: "rgba(34,197,94,0.2)", color: "var(--color-price)" },
-  { type: "ITEM", label: "Vật phẩm", bg: "rgba(6,182,212,0.08)", border: "rgba(6,182,212,0.2)", color: "var(--color-cyan)" },
-  { type: "SERVICE", label: "Dịch vụ", bg: "rgba(249,115,22,0.08)", border: "rgba(249,115,22,0.2)", color: "var(--color-primary)" },
+  {
+    type: "ACCOUNT",
+    label: "Tài khoản",
+    bg: "rgba(34,197,94,0.08)",
+    border: "rgba(34,197,94,0.2)",
+    color: "var(--color-price)",
+  },
+  {
+    type: "ITEM",
+    label: "Vật phẩm",
+    bg: "rgba(6,182,212,0.08)",
+    border: "rgba(6,182,212,0.2)",
+    color: "var(--color-cyan)",
+  },
+  {
+    type: "SERVICE",
+    label: "Dịch vụ",
+    bg: "rgba(249,115,22,0.08)",
+    border: "rgba(249,115,22,0.2)",
+    color: "var(--color-primary)",
+  },
 ];
 
 function countByType(listings: Listing[], type: string) {
-  return listings.filter((l) => l.status === "PUBLISHED" && l.listingType === type).length;
+  return listings.filter(
+    (l) => l.status === "PUBLISHED" && l.listingType === type,
+  ).length;
 }
 
 function soldByType(listings: Listing[], type: string) {
-  return listings.filter((l) => l.status === "SOLD_OUT" && l.listingType === type).length;
+  return listings.filter(
+    (l) => l.status === "SOLD_OUT" && l.listingType === type,
+  ).length;
 }
 
 function priceFrom(listings: Listing[], type: string) {
-  const pubs = listings.filter((l) => l.status === "PUBLISHED" && l.listingType === type);
+  const pubs = listings.filter(
+    (l) => l.status === "PUBLISHED" && l.listingType === type,
+  );
   if (pubs.length === 0) return null;
   return Math.min(...pubs.map((l) => l.price));
 }
 
 export default async function HomePage() {
   const listings = await getListings();
-  const games = Array.from(new Set(listings.map((l) => l.gameName).filter(Boolean))) as string[];
+  const games = Array.from(
+    new Set(listings.map((l) => l.gameName).filter(Boolean)),
+  ) as string[];
 
   return (
     <div className="page-container" style={{ paddingTop: 20 }}>
       <NoticeBox type="home" />
-
-      <section className="page-heading">
-        <h1>Kho acc game</h1>
-        <p>Chọn game và loại sản phẩm bạn muốn mua.</p>
-      </section>
-
       <div style={{ display: "grid", gap: 32 }}>
         {games.map((game) => {
           const gameListings = listings.filter((l) => l.gameName === game);
@@ -55,7 +75,9 @@ export default async function HomePage() {
                   borderBottom: "2px solid var(--color-border)",
                 }}
               >
-                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>{game}</h2>
+                <h1 style={{ margin: 0, fontSize: 22, fontWeight: 900 }}>
+                  {game}
+                </h1>
                 <span
                   style={{
                     background: "var(--color-danger)",
@@ -83,11 +105,7 @@ export default async function HomePage() {
                   const count = countByType(gameListings, card.type);
                   const sold = soldByType(gameListings, card.type);
                   const from = priceFrom(gameListings, card.type);
-                  const href =
-                    card.type === "SERVICE"
-                      ? `/games/${encodeURIComponent(game)}/services`
-                      : `/accounts?game=${encodeURIComponent(game)}&type=${card.type}`;
-
+                  const href = "/services";
                   return (
                     <Link
                       key={card.type}
@@ -131,25 +149,69 @@ export default async function HomePage() {
                       <img
                         src={getTypeAsset(game, card.type)}
                         alt={card.label}
-                        style={{ width: 88, height: 88, objectFit: "contain", flexShrink: 0 }}
+                        style={{
+                          width: 88,
+                          height: 88,
+                          objectFit: "contain",
+                          flexShrink: 0,
+                        }}
                       />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <b style={{ fontSize: 18, color: card.color }}>{card.label}</b>
+                        {/* Label ở trên */}
+                        <b
+                          style={{
+                            display: "block",
+                            fontSize: 18,
+                            color: card.color,
+                            marginBottom: 4,
+                          }}
+                        >
+                          {card.label}
+                        </b>
 
+                        {/* Thông tin ở dưới */}
                         {count > 0 ? (
                           <div style={{ display: "grid", gap: 2 }}>
-                            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }}>
+                            <span
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 700,
+                                color: "var(--color-text)",
+                              }}
+                            >
                               {count} sản phẩm
-                              {sold > 0 && <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}> · {sold} đã bán</span>}
+                              {sold > 0 && (
+                                <span
+                                  style={{
+                                    color: "var(--color-text-muted)",
+                                    fontWeight: 400,
+                                  }}
+                                >
+                                  {" "}
+                                  · {sold} đã bán
+                                </span>
+                              )}
                             </span>
+
                             {from != null && (
-                              <span style={{ fontSize: 13, color: "var(--color-primary)", fontWeight: 800 }}>
+                              <span
+                                style={{
+                                  fontSize: 13,
+                                  color: "var(--color-primary)",
+                                  fontWeight: 800,
+                                }}
+                              >
                                 Giá từ {formatCurrency(from)}
                               </span>
                             )}
                           </div>
                         ) : (
-                          <span style={{ fontSize: 13, color: "var(--color-text-muted)" }}>
+                          <span
+                            style={{
+                              fontSize: 13,
+                              color: "var(--color-text-muted)",
+                            }}
+                          >
                             Chưa có sản phẩm
                           </span>
                         )}
@@ -164,7 +226,13 @@ export default async function HomePage() {
       </div>
 
       {games.length === 0 && (
-        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>
+        <p
+          style={{
+            color: "var(--color-text-muted)",
+            textAlign: "center",
+            padding: 40,
+          }}
+        >
           Chưa có sản phẩm nào.
         </p>
       )}

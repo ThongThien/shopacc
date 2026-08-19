@@ -8,12 +8,12 @@ export default function PublicFooter() {
           <img
             src="/logo_footer.png"
             alt="shopthien.xyz"
-            style={{ height: 160, width: 160, borderRadius: 20 }}
+            style={{ height: 100, width: 100, borderRadius: 30 }}
           />
         </div>
         <div>
           <h3>shopthien.xyz</h3>
-          <p>Shop acc game uy tín — Ngọc Rồng Online, Liên Quân, Free Fire.</p>
+          <p>Shop acc game uy tín — Ngọc Rồng Online</p>
           <p>Hỗ trợ 24/7, giao dịch tự động, bảo mật tuyệt đối.</p>
         </div>
         <div className="footer-links">
@@ -37,12 +37,11 @@ export default function PublicFooter() {
           <h3>Liên hệ</h3>
           <p>Zalo: 0772438318</p>
           <p>Email: thongthien2004@gmail.com</p>
-          <p>Facebook: Thiên Ngọc Rồng</p>
         </div>
       </div>
       <div className="footer-bottom">
         <span>© 2026 shopthien.xyz</span>
-        <span>Phát triển bởi Nguyễn Thông Thiên</span>
+        <span>Phát triển bởi chính tay Thiên Ngọc Rồng</span>
       </div>
     </footer>
   );

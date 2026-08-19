@@ -6,7 +6,7 @@ const TYPE_CARDS = [
   {
     type: "ACCOUNT",
     label: "Tài khoản",
-    desc: "Mua bán tài khoản game. Nhận thông tin đăng nhập sau khi thanh toán.",
+    desc: "Mua bán tài khoản game.",
     icon: "👤",
     color: "#dbeafe",
     borderColor: "#3b82f6",
@@ -15,7 +15,7 @@ const TYPE_CARDS = [
   {
     type: "ITEM",
     label: "Vật phẩm",
-    desc: "Mua bán vật phẩm trong game. Không phải tài khoản.",
+    desc: "Mua bán vật phẩm trong game.",
     icon: "🎁",
     color: "#fef3c7",
     borderColor: "#f59e0b",
@@ -24,7 +24,7 @@ const TYPE_CARDS = [
   {
     type: "SERVICE",
     label: "Dịch vụ",
-    desc: "Cày thuê, săn đệ, nâng cấp và các dịch vụ khác.",
+    desc: "Up SKH, săn đệ và các dịch vụ khác.",
     icon: "🔧",
     color: "#f3e8ff",
     borderColor: "#a855f7",
@@ -72,7 +72,14 @@ export default async function GamePage({
           >
             <span style={{ fontSize: 40 }}>{card.icon}</span>
             <h3 style={{ margin: 0, color: card.textColor }}>{card.label}</h3>
-            <p style={{ margin: 0, fontSize: 14, color: card.textColor, opacity: 0.85 }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: 14,
+                color: card.textColor,
+                opacity: 0.85,
+              }}
+            >
               {card.desc}
             </p>
           </Link>

@@ -19,7 +19,7 @@ export interface CartItem {
   gameName?: string;
   serverName?: string;
   listingType?: string;
-  serviceInfo?: string; // JSON: {accountName, password, server, note}
+  serviceInfo?: string;
 }
 
 interface BackendCartItem {
@@ -107,16 +107,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const removeItem = useCallback(async (listingId: number) => {
-    const snapshot = items;
-    setItems((prev) => prev.filter((i) => i.listingId !== listingId));
+  const removeItem = useCallback(
+    async (listingId: number) => {
+      const snapshot = items;
+      setItems((prev) => prev.filter((i) => i.listingId !== listingId));
 
-    try {
-      await apiFetch(`/api/cart/${listingId}`, { method: "DELETE" });
-    } catch {
-      setItems(snapshot);
-    }
-  }, [items]);
+      try {
+        await apiFetch(`/api/cart/${listingId}`, { method: "DELETE" });
+      } catch {
+        setItems(snapshot);
+      }
+    },
+    [items],
+  );
 
   const clearCart = useCallback(async () => {
     const snapshot = items;

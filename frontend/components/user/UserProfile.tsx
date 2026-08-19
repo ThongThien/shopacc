@@ -72,8 +72,10 @@ export default function UserProfile() {
             <p>ID: #{profile.id}</p>
             <p>Username: {profile.username}</p>
             <p>Email: {profile.email}</p>
-            <p>Role: {profile.role}</p>
-            <p>Trạng thái: {profile.status}</p>
+            <p>
+              Trạng thái:{" "}
+              {profile.status === "ACTIVE" ? "Đang Hoạt Động" : profile.status}
+            </p>
             <p>Số dư: {formatCurrency(profile.balance)}</p>
           </div>
 
@@ -81,12 +83,6 @@ export default function UserProfile() {
             <b>Thời gian tài khoản</b>
             <p>Ngày tạo: {formatDateTime(profile.createdAt)}</p>
             <p>Cập nhật: {formatDateTime(profile.updatedAt)}</p>
-            <p>
-              Lần đăng nhập gần nhất:{" "}
-              {profile.lastLoginAt
-                ? formatDateTime(profile.lastLoginAt)
-                : "Chưa ghi nhận"}
-            </p>
           </div>
         </div>
       )}

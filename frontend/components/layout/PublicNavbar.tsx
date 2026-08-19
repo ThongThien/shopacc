@@ -127,19 +127,6 @@ export default function PublicNavbar() {
           >
             Kho acc <ChevronDown size={14} />
           </Link>
-
-          <div className="nav-dropdown-menu">
-            {games.length === 0 && <span>Chưa có game</span>}
-
-            {games.map((game) => (
-              <Link
-                key={game}
-                href={`/accounts?game=${encodeURIComponent(game)}`}
-              >
-                {game}
-              </Link>
-            ))}
-          </div>
         </div>
 
         <div className="nav-dropdown">
@@ -149,19 +136,15 @@ export default function PublicNavbar() {
           >
             Dịch vụ <ChevronDown size={14} />
           </Link>
-          <div className="nav-dropdown-menu">
-            {games.length === 0 && <span>Chưa có game</span>}
-            {games.map((game) => (
-              <Link
-                key={`svc-${game}`}
-                href={`/services?game=${encodeURIComponent(game)}`}
-              >
-                {game}
-              </Link>
-            ))}
-          </div>
         </div>
         <Link href="/me/deposits">Nạp tiền</Link>
+        <Link href="https://zalo.me/g/eyaot0lf9jm4qegzhu9u">
+          Cộng Đồng <ChevronDown size={14} />
+        </Link>
+        <Link href="/youtube">
+          Youtube <ChevronDown size={14} />
+        </Link>
+
         <button
           type="button"
           className="btn-primary"
