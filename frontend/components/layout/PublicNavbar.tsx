@@ -114,7 +114,7 @@ export default function PublicNavbar() {
   return (
     <header className="public-navbar">
       <Link href="/" className="public-logo">
-        <img src="/logo.png" alt="shopthien.xyz" />
+        <img src="/logo_2.png" alt="shopthien.xyz" />
       </Link>
 
       <nav className="public-nav">
