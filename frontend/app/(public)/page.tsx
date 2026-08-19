@@ -13,13 +13,13 @@ const TYPE_CARDS = [
     border: "rgba(34,197,94,0.2)",
     color: "var(--color-price)",
   },
-  {
-    type: "ITEM",
-    label: "Vật phẩm",
-    bg: "rgba(6,182,212,0.08)",
-    border: "rgba(6,182,212,0.2)",
-    color: "var(--color-cyan)",
-  },
+  // {
+  //   type: "ITEM",
+  //   label: "Vật phẩm",
+  //   bg: "rgba(6,182,212,0.08)",
+  //   border: "rgba(6,182,212,0.2)",
+  //   color: "var(--color-cyan)",
+  // },
   {
     type: "SERVICE",
     label: "Dịch vụ",

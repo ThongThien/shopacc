@@ -15,8 +15,8 @@ export function listingTypeLabel(type: ListingType | string) {
   const labels: Record<string, string> = {
     ACCOUNT: "Tài khoản",
     SERVICE: "Dịch vụ",
-    ITEM: "Vật phẩm",
-    RANDOM: "May mắn",
+    // ITEM: "Vật phẩm",
+    // RANDOM: "May mắn",
   };
 
   return labels[type] || type;

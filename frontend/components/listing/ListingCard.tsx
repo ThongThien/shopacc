@@ -6,11 +6,14 @@ import { formatCurrency } from "@/lib/format";
 import { useCart } from "@/components/cart/CartContext";
 import { useNotify } from "@/components/shared/NotificationProvider";
 
-const TYPE_CONFIG: Record<string, { label: string; bg: string; color: string }> = {
+const TYPE_CONFIG: Record<
+  string,
+  { label: string; bg: string; color: string }
+> = {
   ACCOUNT: { label: "Tài khoản", bg: "#dbeafe", color: "#1e40af" },
-  ITEM: { label: "Vật phẩm", bg: "#fef3c7", color: "#92400e" },
+  // ITEM: { label: "Vật phẩm", bg: "#fef3c7", color: "#92400e" },
   SERVICE: { label: "Dịch vụ", bg: "#f3e8ff", color: "#6b21a8" },
-  RANDOM: { label: "Ngẫu nhiên", bg: "#f3f4f6", color: "#374151" },
+  // RANDOM: { label: "Ngẫu nhiên", bg: "#f3f4f6", color: "#374151" },
 };
 
 interface Props {
@@ -36,7 +39,10 @@ export default function ListingCard({ listing }: Props) {
       });
       notify("success", "Đã thêm vào giỏ hàng");
     } catch (err) {
-      notify("error", err instanceof Error ? err.message : "Thêm vào giỏ thất bại");
+      notify(
+        "error",
+        err instanceof Error ? err.message : "Thêm vào giỏ thất bại",
+      );
     }
   }
 
@@ -70,15 +76,40 @@ export default function ListingCard({ listing }: Props) {
               {TYPE_CONFIG[listing.listingType].label}
             </span>
           )}
-          <span style={{ background: "rgba(255,255,255,0.06)", color: "var(--color-text-secondary)", padding: "4px 10px", borderRadius: 8, fontSize: 12, fontWeight: 600 }}>
+          <span
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              color: "var(--color-text-secondary)",
+              padding: "4px 10px",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+            }}
+          >
             {listing.gameName}
           </span>
-          {listing.serverName && <span style={{ background: "rgba(255,255,255,0.06)", color: "var(--color-text-muted)", padding: "4px 10px", borderRadius: 8, fontSize: 12, fontWeight: 500 }}>SV {listing.serverName}</span>}
+          {listing.serverName && (
+            <span
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                color: "var(--color-text-muted)",
+                padding: "4px 10px",
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 500,
+              }}
+            >
+              SV {listing.serverName}
+            </span>
+          )}
         </div>
 
         <div className="listing-card-footer">
           <strong>{formatCurrency(listing.price)}</strong>
-          <Link href={`/account/${listing.id}`} style={{ color: "var(--color-text-muted)", fontSize: 13 }}>
+          <Link
+            href={`/account/${listing.id}`}
+            style={{ color: "var(--color-text-muted)", fontSize: 13 }}
+          >
             Chi tiết →
           </Link>
         </div>

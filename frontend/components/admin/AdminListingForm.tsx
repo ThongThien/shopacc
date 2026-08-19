@@ -36,9 +36,10 @@ const initialPayload: AdminListingPayload = {
 
 const TYPE_DESCRIPTIONS: Record<string, string> = {
   ACCOUNT: "Bán tài khoản game. Khách mua sẽ nhận được thông tin đăng nhập.",
-  ITEM: "Bán vật phẩm trong game. Không phải tài khoản.",
-  SERVICE: "Cung cấp dịch vụ (cày thuê, săn đệ, up đệ...). Không phải mua bán acc.",
-  RANDOM: "Acc ngẫu nhiên. Khách nhận acc ngẫu nhiên trong kho.",
+  // ITEM: "Bán vật phẩm trong game. Không phải tài khoản.",
+  SERVICE:
+    "Cung cấp dịch vụ (cày thuê, săn đệ, up đệ...). Không phải mua bán acc.",
+  // RANDOM: "Acc ngẫu nhiên. Khách nhận acc ngẫu nhiên trong kho.",
 };
 
 export default function AdminListingForm({ mode, listing }: Props) {
@@ -56,9 +57,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
   const [createNewGame, setCreateNewGame] = useState(false);
 
   useEffect(() => {
-    void getAdminCategories()
-      .then(setCategories)
-      .catch(console.error);
+    void getAdminCategories().then(setCategories).catch(console.error);
 
     // Fetch existing game names from listings
     import("@/services/listing.service")
@@ -69,7 +68,11 @@ export default function AdminListingForm({ mode, listing }: Props) {
         ) as string[];
         setExistingGames(names);
         // If current gameName is not in the list, switch to "Create New" mode
-        if (mode === "edit" && listing?.gameName && !names.includes(listing.gameName)) {
+        if (
+          mode === "edit" &&
+          listing?.gameName &&
+          !names.includes(listing.gameName)
+        ) {
           setCreateNewGame(true);
         }
       })
@@ -103,9 +106,7 @@ export default function AdminListingForm({ mode, listing }: Props) {
     const parentIds = new Set(
       categories.filter((c) => c.parentId != null).map((c) => c.parentId),
     );
-    return categories.filter(
-      (c) => c.parentId != null && !parentIds.has(c.id),
-    );
+    return categories.filter((c) => c.parentId != null && !parentIds.has(c.id));
   }, [categories]);
 
   function updateField<K extends keyof AdminListingPayload>(
@@ -131,7 +132,10 @@ export default function AdminListingForm({ mode, listing }: Props) {
       const uploaded = await uploadListingImage(listingId, thumbnailFile);
       await updateAdminListingThumbnail(listingId, { thumbnail: uploaded.url });
     } catch {
-      notify("warning", "Không upload được ảnh chính, bạn có thể cập nhật sau.");
+      notify(
+        "warning",
+        "Không upload được ảnh chính, bạn có thể cập nhật sau.",
+      );
     }
   }
 
@@ -152,7 +156,10 @@ export default function AdminListingForm({ mode, listing }: Props) {
       const data = await getAdminListingSecret(listing.id);
       setSecretPlaintext(data.secretData || "");
       setSecretLoaded(true);
-      notify("info", "Đã tải thông tin tài khoản. Bạn có thể chỉnh sửa trước khi lưu.");
+      notify(
+        "info",
+        "Đã tải thông tin tài khoản. Bạn có thể chỉnh sửa trước khi lưu.",
+      );
     } catch {
       notify("error", "Không thể tải thông tin tài khoản");
     }
@@ -228,11 +235,17 @@ export default function AdminListingForm({ mode, listing }: Props) {
             }
           >
             <option value="ACCOUNT">Tài khoản (Account)</option>
-            <option value="ITEM">Vật phẩm (Item)</option>
+            {/* <option value="ITEM">Vật phẩm (Item)</option> */}
             <option value="SERVICE">Dịch vụ (Service)</option>
-            <option value="RANDOM">Ngẫu nhiên (Random)</option>
+            {/* <option value="RANDOM">Ngẫu nhiên (Random)</option> */}
           </select>
-          <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--color-text-muted)" }}>
+          <p
+            style={{
+              margin: "4px 0 0",
+              fontSize: 12,
+              color: "var(--color-text-muted)",
+            }}
+          >
             {TYPE_DESCRIPTIONS[payload.listingType]}
           </p>
         </div>
@@ -253,7 +266,13 @@ export default function AdminListingForm({ mode, listing }: Props) {
             ))}
           </select>
           {leafCategories.length === 0 && (
-            <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--color-warning)" }}>
+            <p
+              style={{
+                margin: "4px 0 0",
+                fontSize: 12,
+                color: "var(--color-warning)",
+              }}
+            >
               Chưa có danh mục con. Vui lòng tạo danh mục con trước.
             </p>
           )}
@@ -305,9 +324,9 @@ export default function AdminListingForm({ mode, listing }: Props) {
                   fontWeight: 700,
                 }}
               >
-                ⚠️ Game Name sẽ quyết định việc tạo một Kho Acc Game mới. Nếu nhập
-                tên mới (hoặc sai chính tả), hệ thống sẽ tự động tạo thêm một kho
-                mới ngoài ý muốn.
+                ⚠️ Game Name sẽ quyết định việc tạo một Kho Acc Game mới. Nếu
+                nhập tên mới (hoặc sai chính tả), hệ thống sẽ tự động tạo thêm
+                một kho mới ngoài ý muốn.
               </div>
               {existingGames.length > 0 && (
                 <button
@@ -414,8 +433,12 @@ export default function AdminListingForm({ mode, listing }: Props) {
             {mode === "edit" && "(để trống nếu không thay đổi)"}
           </label>
           {mode === "edit" && !secretLoaded && (
-            <button type="button" className="btn-secondary" onClick={handleLoadSecret}
-              style={{ marginBottom: 8, height: 36, fontSize: 13 }}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={handleLoadSecret}
+              style={{ marginBottom: 8, height: 36, fontSize: 13 }}
+            >
               Xem secret hiện tại
             </button>
           )}
@@ -439,8 +462,26 @@ export default function AdminListingForm({ mode, listing }: Props) {
           <label>Ảnh chính</label>
           {mode === "edit" && payload.thumbnail && (
             <div style={{ marginBottom: 8 }}>
-              <img src={payload.thumbnail} alt="Thumbnail hiện tại" style={{ width: 120, height: 90, objectFit: "cover", borderRadius: 10, border: "1px solid var(--color-border)" }} />
-              <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--color-text-muted)" }}>Ảnh hiện tại — chọn file mới nếu muốn thay đổi</p>
+              <img
+                src={payload.thumbnail}
+                alt="Thumbnail hiện tại"
+                style={{
+                  width: 120,
+                  height: 90,
+                  objectFit: "cover",
+                  borderRadius: 10,
+                  border: "1px solid var(--color-border)",
+                }}
+              />
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  fontSize: 12,
+                  color: "var(--color-text-muted)",
+                }}
+              >
+                Ảnh hiện tại — chọn file mới nếu muốn thay đổi
+              </p>
             </div>
           )}
           <input
@@ -453,27 +494,125 @@ export default function AdminListingForm({ mode, listing }: Props) {
 
         <div>
           <label>Ảnh phụ</label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 10,
+              marginBottom: 10,
+            }}
+          >
             {/* Existing gallery in edit mode */}
-            {mode === "edit" && listing?.images && listing.images.filter((img) => img !== listing.thumbnail).length > 0 && (
-              <p style={{ margin: "0 0 6px", fontSize: 12, color: "var(--color-text-muted)", width: "100%" }}>Ảnh phụ hiện tại (được giữ nguyên):</p>
-            )}
-            {mode === "edit" && listing?.images && listing.images.filter((img) => img !== listing.thumbnail).map((img, i) => (
-              <img key={`existing-${i}`} src={img} alt="" style={{ width: 80, height: 80, objectFit: "cover", borderRadius: 10, border: "1px solid var(--color-border)" }} />
-            ))}
+            {mode === "edit" &&
+              listing?.images &&
+              listing.images.filter((img) => img !== listing.thumbnail).length >
+                0 && (
+                <p
+                  style={{
+                    margin: "0 0 6px",
+                    fontSize: 12,
+                    color: "var(--color-text-muted)",
+                    width: "100%",
+                  }}
+                >
+                  Ảnh phụ hiện tại (được giữ nguyên):
+                </p>
+              )}
+            {mode === "edit" &&
+              listing?.images &&
+              listing.images
+                .filter((img) => img !== listing.thumbnail)
+                .map((img, i) => (
+                  <img
+                    key={`existing-${i}`}
+                    src={img}
+                    alt=""
+                    style={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "cover",
+                      borderRadius: 10,
+                      border: "1px solid var(--color-border)",
+                    }}
+                  />
+                ))}
             {galleryFiles.map((file, i) => (
-              <div key={i} style={{ position: "relative", width: 80, height: 80, borderRadius: 10, overflow: "hidden", border: "1px solid var(--color-border)" }}>
-                <img src={URL.createObjectURL(file)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                <button type="button" onClick={() => setGalleryFiles((prev) => prev.filter((_, j) => j !== i))}
-                  style={{ position: "absolute", top: 2, right: 2, width: 20, height: 20, borderRadius: "50%", background: "var(--color-danger)", color: "white", border: "none", cursor: "pointer", fontSize: 12, display: "grid", placeItems: "center", lineHeight: 1 }}>✕</button>
+              <div
+                key={i}
+                style={{
+                  position: "relative",
+                  width: 80,
+                  height: 80,
+                  borderRadius: 10,
+                  overflow: "hidden",
+                  border: "1px solid var(--color-border)",
+                }}
+              >
+                <img
+                  src={URL.createObjectURL(file)}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setGalleryFiles((prev) => prev.filter((_, j) => j !== i))
+                  }
+                  style={{
+                    position: "absolute",
+                    top: 2,
+                    right: 2,
+                    width: 20,
+                    height: 20,
+                    borderRadius: "50%",
+                    background: "var(--color-danger)",
+                    color: "white",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 12,
+                    display: "grid",
+                    placeItems: "center",
+                    lineHeight: 1,
+                  }}
+                >
+                  ✕
+                </button>
               </div>
             ))}
-            <label style={{ width: 80, height: 80, borderRadius: 10, border: "2px dashed var(--color-border)", display: "grid", placeItems: "center", cursor: "pointer", color: "var(--color-text-muted)", fontSize: 24, transition: "border-color 0.2s" }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-primary)")}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--color-border)")}>
+            <label
+              style={{
+                width: 80,
+                height: 80,
+                borderRadius: 10,
+                border: "2px dashed var(--color-border)",
+                display: "grid",
+                placeItems: "center",
+                cursor: "pointer",
+                color: "var(--color-text-muted)",
+                fontSize: 24,
+                transition: "border-color 0.2s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.borderColor = "var(--color-primary)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.borderColor = "var(--color-border)")
+              }
+            >
               +
-              <input type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: "none" }}
-                onChange={(e) => { if (e.target.files) setGalleryFiles((prev) => [...prev, ...Array.from(e.target.files!)]); }} />
+              <input
+                type="file"
+                multiple
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  if (e.target.files)
+                    setGalleryFiles((prev) => [
+                      ...prev,
+                      ...Array.from(e.target.files!),
+                    ]);
+                }}
+              />
             </label>
           </div>
         </div>

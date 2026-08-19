@@ -18,7 +18,7 @@ const PAGE_SIZE = 8;
 const TYPE_TABS = [
   { key: "", label: "Tất cả" },
   { key: "ACCOUNT", label: "Tài khoản" },
-  { key: "ITEM", label: "Vật phẩm" },
+  // { key: "ITEM", label: "Vật phẩm" },
 ];
 
 export default function ListingBrowser({
@@ -80,7 +80,8 @@ export default function ListingBrowser({
       .filter((listing) => {
         const price = Number(listing.price || 0);
         if (priceRange === "under-100k") return price < 100000;
-        if (priceRange === "100k-500k") return price >= 100000 && price <= 500000;
+        if (priceRange === "100k-500k")
+          return price >= 100000 && price <= 500000;
         if (priceRange === "over-500k") return price > 500000;
         return true;
       })
@@ -103,7 +104,10 @@ export default function ListingBrowser({
     sortBy,
   ]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredListings.length / PAGE_SIZE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredListings.length / PAGE_SIZE),
+  );
   const paginatedListings = filteredListings.slice(
     (page - 1) * PAGE_SIZE,
     page * PAGE_SIZE,

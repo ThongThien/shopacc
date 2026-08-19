@@ -229,9 +229,9 @@ export default function AdminListings() {
         >
           <option value="">Tất cả</option>
           <option value="ACCOUNT">Tài khoản</option>
-          <option value="ITEM">Vật phẩm</option>
+          {/* <option value="ITEM">Vật phẩm</option> */}
           <option value="SERVICE">Dịch vụ</option>
-          <option value="RANDOM">Random</option>
+          {/* <option value="RANDOM">Random</option> */}
         </select>
 
         <select
