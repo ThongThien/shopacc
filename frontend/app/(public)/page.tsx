@@ -174,66 +174,70 @@ export default async function HomePage() {
                       </div>
 
                       {/* Account Information */}
-                      <div className="listing-card-body">
-                        <h3
+                      <h3
+                        style={{
+                          margin: "0 0 8px",
+                          color: card.color,
+                          fontSize: 24,
+                          fontWeight: 900,
+                          lineHeight: 1.2,
+                        }}
+                      >
+                        {card.label}
+                      </h3>
+
+                      {count > 0 ? (
+                        <div
                           style={{
-                            color: card.color,
+                            display: "grid",
+                            gap: 4,
                           }}
                         >
-                          {card.label}
-                        </h3>
-
-                        {count > 0 ? (
-                          <div
-                            style={{
-                              display: "grid",
-                              gap: 2,
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: 13,
-                                fontWeight: 700,
-                                color: "var(--color-text)",
-                              }}
-                            >
-                              {count} sản phẩm
-                              {sold > 0 && (
-                                <span
-                                  style={{
-                                    color: "var(--color-text-muted)",
-                                    fontWeight: 400,
-                                  }}
-                                >
-                                  {" "}
-                                  · {sold} đã bán
-                                </span>
-                              )}
-                            </span>
-
-                            {from != null && (
-                              <span
-                                style={{
-                                  fontSize: 13,
-                                  color: "var(--color-primary)",
-                                  fontWeight: 800,
-                                }}
-                              >
-                                Giá từ {formatCurrency(from)}
-                              </span>
-                            )}
-                          </div>
-                        ) : (
                           <span
                             style={{
-                              fontSize: 13,
-                              color: "var(--color-text-muted)",
+                              fontSize: 16,
+                              fontWeight: 700,
+                              color: "var(--color-text)",
+                              lineHeight: 1.4,
                             }}
                           >
-                            Chưa có sản phẩm
+                            {count} sản phẩm
+                            {sold > 0 && (
+                              <span
+                                style={{
+                                  color: "var(--color-text-muted)",
+                                  fontWeight: 500,
+                                }}
+                              >
+                                {" "}
+                                · {sold} đã bán
+                              </span>
+                            )}
                           </span>
-                        )}
-                      </div>
+
+                          {from != null && (
+                            <span
+                              style={{
+                                fontSize: 15,
+                                color: "var(--color-primary)",
+                                fontWeight: 800,
+                                lineHeight: 1.4,
+                              }}
+                            >
+                              Giá từ {formatCurrency(from)}
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span
+                          style={{
+                            fontSize: 15,
+                            color: "var(--color-text-muted)",
+                          }}
+                        >
+                          Chưa có sản phẩm
+                        </span>
+                      )}
                     </Link>
                   );
                 })}
@@ -258,7 +262,6 @@ export default async function HomePage() {
         <section>
           <section className="page-heading">
             <h1>Dịch vụ</h1>
-            <p>Đặt dịch vụ game — uy tín, an toàn.</p>
           </section>
 
           {Object.keys(serviceGroups).length === 0 ? (
@@ -274,16 +277,6 @@ export default async function HomePage() {
           ) : (
             Object.entries(serviceGroups).map(([gameName, items]) => (
               <section key={gameName} style={{ marginBottom: 32 }}>
-                <h2
-                  style={{
-                    margin: "0 0 14px",
-                    fontSize: 20,
-                    fontWeight: 900,
-                  }}
-                >
-                  {gameName}
-                </h2>
-
                 <div className="listing-grid">
                   {items.map((svc) => (
                     <Link
@@ -293,8 +286,29 @@ export default async function HomePage() {
                       style={{
                         textDecoration: "none",
                         color: "inherit",
+                        position: "relative",
                       }}
                     >
+                      {/* HOT badge */}
+                      <span
+                        style={{
+                          position: "absolute",
+                          top: 10,
+                          right: 10,
+                          zIndex: 2,
+                          background: "#ef4444",
+                          color: "#fff",
+                          fontSize: 12,
+                          fontWeight: 900,
+                          padding: "5px 9px",
+                          borderRadius: 999,
+                          lineHeight: 1,
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+                        }}
+                      >
+                        Siêu HOT
+                      </span>
+
                       <div className="listing-image-wrap">
                         {svc.thumbnail ? (
                           <img src={svc.thumbnail} alt={svc.title} />
