@@ -3,7 +3,6 @@ import { getListings } from "@/services/listing.service";
 import { formatCurrency } from "@/lib/format";
 import NoticeBox from "@/components/layout/NoticeBox";
 import { Listing } from "@/types/listing";
-import { getTypeAsset } from "@/lib/assets";
 
 interface ServiceItem {
   id: number;
@@ -17,6 +16,9 @@ interface ServiceItem {
 }
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
+const ACCOUNT_IMAGE =
+  "https://cdn.phototourl.com/free/2026-08-27-d5816456-b6bf-4bc7-84c3-d8de19259e41.jpg";
 
 const TYPE_CARDS = [
   {
@@ -135,7 +137,7 @@ export default async function HomePage() {
                 </span>
               </div>
 
-              {/* Type Cards */}
+              {/* Account Card */}
               <div
                 className="home-type-grid"
                 style={{
@@ -151,75 +153,35 @@ export default async function HomePage() {
 
                   const from = priceFrom(gameListings, card.type);
 
-                  const href = "/accounts";
-
                   return (
                     <Link
                       key={card.type}
-                      href={href}
-                      className="home-type-card"
+                      href="/accounts"
+                      className="listing-card"
                       style={{
                         textDecoration: "none",
                         color: "inherit",
                         background: card.bg,
                         border: `1.5px solid ${card.border}`,
                         borderRadius: 14,
-                        padding: "20px 24px",
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        gap: 14,
-                        position: "relative",
                         overflow: "hidden",
                         transition: "transform 0.2s ease, box-shadow 0.2s ease",
                       }}
                     >
-                      {/* HOT badge top-right */}
-                      {count > 0 && (
-                        <span
-                          style={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            background: "var(--color-danger)",
-                            color: "white",
-                            fontSize: 10,
-                            fontWeight: 900,
-                            padding: "2px 8px",
-                            borderRadius: 999,
-                          }}
-                        >
-                          HOT
-                        </span>
-                      )}
+                      {/* Account Image */}
+                      <div className="listing-image-wrap">
+                        <img src={ACCOUNT_IMAGE} alt="Tài khoản" />
+                      </div>
 
-                      <img
-                        src={getTypeAsset(game, card.type)}
-                        alt={card.label}
-                        style={{
-                          width: 88,
-                          height: 88,
-                          objectFit: "contain",
-                          flexShrink: 0,
-                        }}
-                      />
-
-                      <div
-                        style={{
-                          flex: 1,
-                          minWidth: 0,
-                        }}
-                      >
-                        <b
+                      {/* Account Information */}
+                      <div className="listing-card-body">
+                        <h3
                           style={{
-                            display: "block",
-                            fontSize: 18,
                             color: card.color,
-                            marginBottom: 6,
                           }}
                         >
                           {card.label}
-                        </b>
+                        </h3>
 
                         {count > 0 ? (
                           <div
