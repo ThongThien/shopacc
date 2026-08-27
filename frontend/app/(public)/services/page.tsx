@@ -24,7 +24,9 @@ export default function ServiceListPage() {
   const [services, setServices] = useState<ServiceItem[]>([]);
 
   useEffect(() => {
-    fetch(`${API}/api/services${game ? `?game=${encodeURIComponent(game)}` : ""}`)
+    fetch(
+      `${API}/api/services${game ? `?game=${encodeURIComponent(game)}` : ""}`,
+    )
       .then((r) => r.json())
       .then(setServices)
       .catch(() => setServices([]));
@@ -42,11 +44,17 @@ export default function ServiceListPage() {
     <div className="page-container">
       <section className="page-heading">
         <h1>{game ? `Dịch vụ ${game}` : "Dịch vụ"}</h1>
-        <p>Đặt dịch vụ game — tự động 24/7, uy tín, an toàn.</p>
+        <p>Đặt dịch vụ game — uy tín, an toàn.</p>
       </section>
 
       {Object.keys(groups).length === 0 ? (
-        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>
+        <p
+          style={{
+            color: "var(--color-text-muted)",
+            textAlign: "center",
+            padding: 40,
+          }}
+        >
           Chưa có dịch vụ nào.
         </p>
       ) : (
@@ -69,17 +77,38 @@ export default function ServiceListPage() {
                     {svc.thumbnail ? (
                       <img src={svc.thumbnail} alt={svc.title} />
                     ) : (
-                      <div style={{ width: "100%", height: "100%", display: "grid", placeItems: "center", fontSize: 48, background: "var(--color-bg-secondary)" }}>🔧</div>
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          display: "grid",
+                          placeItems: "center",
+                          fontSize: 48,
+                          background: "var(--color-bg-secondary)",
+                        }}
+                      >
+                        🔧
+                      </div>
                     )}
                   </div>
                   <div className="listing-card-body">
                     <h3>{svc.title}</h3>
                     {svc.serverName && (
-                      <span className="listing-tags" style={{ marginBottom: 8 }}>
+                      <span
+                        className="listing-tags"
+                        style={{ marginBottom: 8 }}
+                      >
                         <span>{svc.serverName}</span>
                       </span>
                     )}
-                    <p style={{ color: "var(--color-primary)", fontWeight: 700, fontSize: 18, margin: 0 }}>
+                    <p
+                      style={{
+                        color: "var(--color-primary)",
+                        fontWeight: 700,
+                        fontSize: 18,
+                        margin: 0,
+                      }}
+                    >
                       {formatCurrency(svc.price)}
                     </p>
                   </div>
