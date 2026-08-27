@@ -81,19 +81,32 @@ export default function ServiceDetailView({ listing }: Props) {
             padding: 0,
             overflow: "hidden",
             cursor: "pointer",
-            height: 360,
+            aspectRatio: "16 / 9",
+            width: "100%",
           }}
           onClick={() => setLightboxIdx(0)}
         >
           <img
             src={mainImage}
             alt={listing.title}
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
           />
         </div>
 
         {/* Info */}
-        <div className="card" style={{ padding: 24, display: "grid", gap: 14, alignContent: "start" }}>
+        <div
+          className="card"
+          style={{
+            padding: 24,
+            display: "grid",
+            gap: 14,
+            alignContent: "start",
+          }}
+        >
           <div>
             <span
               style={{
@@ -109,26 +122,60 @@ export default function ServiceDetailView({ listing }: Props) {
             </span>
           </div>
           <h1 style={{ margin: 0, fontSize: 26 }}>{listing.title}</h1>
-          <p style={{ margin: 0, color: "var(--color-text-muted)", lineHeight: 1.6 }}>
+          <p
+            style={{
+              margin: 0,
+              color: "var(--color-text-muted)",
+              lineHeight: 1.6,
+            }}
+          >
             {listing.description || "Chưa có mô tả"}
           </p>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
-            <b style={{ fontSize: 32, color: "var(--color-primary)", fontWeight: 900 }}>
+            <b
+              style={{
+                fontSize: 32,
+                color: "var(--color-primary)",
+                fontWeight: 900,
+              }}
+            >
               {formatCurrency(listing.price)}
             </b>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
-            <span style={{ background: "var(--color-bg-secondary)", padding: "6px 12px", borderRadius: 8, fontSize: 13, fontWeight: 700 }}>
+            <span
+              style={{
+                background: "var(--color-bg-secondary)",
+                padding: "6px 12px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 700,
+              }}
+            >
               ⏱ {listing.serverName || "1-24h"}
             </span>
-            <span style={{ background: "#dcfce7", color: "#166534", padding: "6px 12px", borderRadius: 8, fontSize: 13, fontWeight: 700 }}>
+            <span
+              style={{
+                background: "#dcfce7",
+                color: "#166534",
+                padding: "6px 12px",
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 700,
+              }}
+            >
               ✅ Bảo hành 7 ngày
             </span>
           </div>
           <button
             className="btn-primary"
             type="button"
-            style={{ width: "100%", padding: "16px", fontSize: 17, marginTop: 8 }}
+            style={{
+              width: "100%",
+              padding: "16px",
+              fontSize: 17,
+              marginTop: 8,
+            }}
             disabled={inCart}
             onClick={handleOrder}
           >
@@ -139,15 +186,34 @@ export default function ServiceDetailView({ listing }: Props) {
           {showForm && (
             <div
               className="card"
-              style={{ padding: 16, marginTop: 14, background: "var(--color-bg-secondary)" }}
+              style={{
+                padding: 16,
+                marginTop: 14,
+                background: "var(--color-bg-secondary)",
+              }}
             >
-              <h3 style={{ marginTop: 0, fontSize: 16 }}>Thông tin tài khoản cần làm dịch vụ</h3>
-              <p style={{ fontSize: 13, color: "var(--color-text-muted)", marginBottom: 12 }}>
+              <h3 style={{ marginTop: 0, fontSize: 16 }}>
+                Thông tin tài khoản cần làm dịch vụ
+              </h3>
+              <p
+                style={{
+                  fontSize: 13,
+                  color: "var(--color-text-muted)",
+                  marginBottom: 12,
+                }}
+              >
                 Thông tin này được mã hóa AES-256 và chỉ admin mới xem được.
               </p>
               <div style={{ display: "grid", gap: 10 }}>
                 <div>
-                  <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: 4,
+                      fontWeight: 700,
+                      fontSize: 13,
+                    }}
+                  >
                     Tên tài khoản game *
                   </label>
                   <input
@@ -158,7 +224,14 @@ export default function ServiceDetailView({ listing }: Props) {
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: 4,
+                      fontWeight: 700,
+                      fontSize: 13,
+                    }}
+                  >
                     Mật khẩu *
                   </label>
                   <input
@@ -170,18 +243,34 @@ export default function ServiceDetailView({ listing }: Props) {
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: 4,
+                      fontWeight: 700,
+                      fontSize: 13,
+                    }}
+                  >
                     Máy chủ / Hành tinh
                   </label>
                   <input
                     className="input"
                     value={serviceServer}
                     onChange={(e) => setServiceServer(e.target.value)}
-                    placeholder={listing.serverName || "VD: Server 7, Hành tinh X"}
+                    placeholder={
+                      listing.serverName || "VD: Server 7, Hành tinh X"
+                    }
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", marginBottom: 4, fontWeight: 700, fontSize: 13 }}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: 4,
+                      fontWeight: 700,
+                      fontSize: 13,
+                    }}
+                  >
                     Ghi chú thêm
                   </label>
                   <textarea
@@ -192,7 +281,13 @@ export default function ServiceDetailView({ listing }: Props) {
                     placeholder="VD: Cần up đệ tử từ cấp 1 lên cấp 5..."
                   />
                 </div>
-                <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    justifyContent: "flex-end",
+                  }}
+                >
                   <button
                     className="btn-secondary"
                     type="button"
@@ -241,7 +336,9 @@ export default function ServiceDetailView({ listing }: Props) {
           <h2 style={{ marginTop: 0 }}>Hướng dẫn</h2>
           <ol style={{ display: "grid", gap: 8, paddingLeft: 20 }}>
             <li>Thêm dịch vụ vào giỏ hàng</li>
-            <li>Vào trang thanh toán, nhập thông tin tài khoản cần làm dịch vụ</li>
+            <li>
+              Vào trang thanh toán, nhập thông tin tài khoản cần làm dịch vụ
+            </li>
             <li>Thanh toán qua số dư</li>
             <li>Đợi admin xử lý (thời gian tùy dịch vụ)</li>
             <li>Kiểm tra kết quả trong lịch sử mua</li>
@@ -252,14 +349,34 @@ export default function ServiceDetailView({ listing }: Props) {
           <h2 style={{ marginTop: 0 }}>FAQ</h2>
           <div style={{ display: "grid", gap: 12 }}>
             {[
-              { q: "Bao lâu hoàn thành?", a: "Tùy dịch vụ, thường từ 1-24h. Thông tin chi tiết có trong mô tả dịch vụ." },
-              { q: "Có bảo hành không?", a: "Có bảo hành 7 ngày. Nếu có vấn đề, tạo ticket hỗ trợ." },
-              { q: "Có an toàn không?", a: "Tuyệt đối an toàn. Chúng tôi không dùng phần mềm thứ ba." },
-              { q: "Cần chuẩn bị gì?", a: "Chỉ cần tài khoản game và đủ ngọc/vàng theo yêu cầu." },
+              {
+                q: "Bao lâu hoàn thành?",
+                a: "Tùy dịch vụ, thường từ 1-24h. Thông tin chi tiết có trong mô tả dịch vụ.",
+              },
+              {
+                q: "Có bảo hành không?",
+                a: "Có bảo hành 7 ngày. Nếu có vấn đề, tạo ticket hỗ trợ.",
+              },
+              {
+                q: "Có an toàn không?",
+                a: "Tuyệt đối an toàn. Chúng tôi không dùng phần mềm thứ ba.",
+              },
+              {
+                q: "Cần chuẩn bị gì?",
+                a: "Chỉ cần tài khoản game và đủ ngọc/vàng theo yêu cầu.",
+              },
             ].map((faq, i) => (
               <div key={i}>
                 <b style={{ fontSize: 14 }}>{faq.q}</b>
-                <p style={{ margin: "2px 0 0", color: "var(--color-text-muted)", fontSize: 13 }}>{faq.a}</p>
+                <p
+                  style={{
+                    margin: "2px 0 0",
+                    color: "var(--color-text-muted)",
+                    fontSize: 13,
+                  }}
+                >
+                  {faq.a}
+                </p>
               </div>
             ))}
           </div>
@@ -272,8 +389,14 @@ export default function ServiceDetailView({ listing }: Props) {
           images={images.length > 0 ? images : [mainImage]}
           currentIndex={lightboxIdx}
           onClose={() => setLightboxIdx(null)}
-          onPrev={() => setLightboxIdx((i) => (i != null ? (i - 1 + images.length) % images.length : 0))}
-          onNext={() => setLightboxIdx((i) => (i != null ? (i + 1) % images.length : 0))}
+          onPrev={() =>
+            setLightboxIdx((i) =>
+              i != null ? (i - 1 + images.length) % images.length : 0,
+            )
+          }
+          onNext={() =>
+            setLightboxIdx((i) => (i != null ? (i + 1) % images.length : 0))
+          }
         />
       )}
     </div>
