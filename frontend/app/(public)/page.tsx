@@ -60,7 +60,7 @@ async function getServices(): Promise<ServiceItem[]> {
 
     if (!res.ok) {
       return [];
-    }
+    }53
 
     return await res.json();
   } catch {

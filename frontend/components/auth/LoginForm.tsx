@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { login } from "@/services/auth.service";
 import { saveAuth } from "@/lib/auth";
+import { apiFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { useNotify } from "@/components/shared/NotificationProvider";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn, RefreshCw } from "lucide-react";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -16,18 +17,26 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [captchaA, setCaptchaA] = useState(0);
-  const [captchaB, setCaptchaB] = useState(0);
-  const [captchaAns, setCaptchaAns] = useState("");
+  const [captchaId, setCaptchaId] = useState("");
+  const [captchaImg, setCaptchaImg] = useState("");
+  const [captchaCode, setCaptchaCode] = useState("");
 
   useEffect(() => {
     refreshCaptcha();
   }, []);
 
-  function refreshCaptcha() {
-    setCaptchaA(Math.floor(Math.random() * 5) + 1);
-    setCaptchaB(Math.floor(Math.random() * 5) + 1);
-    setCaptchaAns("");
+  async function refreshCaptcha() {
+    setCaptchaCode("");
+    try {
+      const res = await apiFetch<{ captchaId: string; imageBase64: string }>(
+        "/api/auth/captcha",
+        { auth: false },
+      );
+      setCaptchaId(res.captchaId);
+      setCaptchaImg(res.imageBase64);
+    } catch {
+      setCaptchaImg("");
+    }
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -41,22 +50,29 @@ export default function LoginForm() {
       notify("error", "Vui lòng nhập mật khẩu");
       return;
     }
-    if (Number(captchaAns) !== captchaA + captchaB) {
-      notify("error", "Sai câu hỏi xác minh, vui lòng thử lại");
-      refreshCaptcha();
+    if (!captchaCode.trim()) {
+      notify("error", "Vui lòng nhập mã xác nhận");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await login({ email: email.trim(), password });
+      const response = await login({
+        email: email.trim(),
+        password,
+        captchaId,
+        captchaCode: captchaCode.trim(),
+      });
       saveAuth(response);
       notify("success", "Đăng nhập thành công!");
       if (response.role === "ADMIN") router.push("/admin");
       else router.push("/");
       router.refresh();
-    } catch {
-      notify("error", "Email hoặc mật khẩu không đúng");
+    } catch (err) {
+      notify(
+        "error",
+        err instanceof Error ? err.message : "Đăng nhập thất bại",
+      );
       refreshCaptcha();
     } finally {
       setLoading(false);
@@ -153,20 +169,71 @@ export default function LoginForm() {
             color: "var(--color-text-secondary)",
           }}
         >
-          Xác minh:{" "}
-          <b
-            style={{ color: "var(--color-primary)", fontSize: 16 }}
-            suppressHydrationWarning
-          >
-            {captchaA} + {captchaB} = ?
-          </b>
+          Xác minh: nhập mã trong ảnh
         </p>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 8,
+          }}
+        >
+          {captchaImg ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={`data:image/png;base64,${captchaImg}`}
+              alt="Mã xác nhận"
+              title="Bấm để đổi mã khác"
+              onClick={refreshCaptcha}
+              style={{
+                height: 44,
+                borderRadius: 8,
+                cursor: "pointer",
+                border: "1px solid var(--color-border)",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                height: 44,
+                width: 170,
+                borderRadius: 8,
+                background: "rgba(0, 0, 0, 0.06)",
+              }}
+            />
+          )}
+          <button
+            type="button"
+            onClick={refreshCaptcha}
+            title="Đổi mã khác"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 36,
+              height: 36,
+              borderRadius: 8,
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--color-text-muted)",
+              padding: 0,
+            }}
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
         <input
           className="input"
           style={{ height: 40 }}
-          placeholder="Nhập kết quả *"
-          value={captchaAns}
-          onChange={(e) => setCaptchaAns(e.target.value.replace(/\D/g, ""))}
+          placeholder="Nhập mã xác nhận *"
+          value={captchaCode}
+          maxLength={5}
+          autoComplete="off"
+          onChange={(e) =>
+            setCaptchaCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))
+          }
         />
       </div>
 

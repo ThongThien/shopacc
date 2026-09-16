@@ -455,10 +455,6 @@ public class PaymentService {
                         String rawBody,
                         String signature,
                         String timestamp) {
-                System.out.println("========== VERIFY SIGNATURE ==========");
-                System.out.println("Timestamp Header = " + timestamp);
-                System.out.println("Signature Header = " + signature);
-
                 if (signature == null || timestamp == null) {
                         throw new ResponseStatusException(
                                         HttpStatus.UNAUTHORIZED,
@@ -468,7 +464,6 @@ public class PaymentService {
                 long requestTime;
                 try {
                         requestTime = Long.parseLong(timestamp);
-                        System.out.println("Parsed timestamp = " + requestTime);
                 } catch (NumberFormatException e) {
                         throw new ResponseStatusException(
                                         HttpStatus.UNAUTHORIZED,
@@ -476,41 +471,32 @@ public class PaymentService {
                 }
 
                 long now = System.currentTimeMillis() / 1000;
-                System.out.println("Server time = " + now);
 
                 if (timestamp.length() == 13) {
                         requestTime = requestTime / 1000;
                 }
-                System.out.println("Normalized requestTime = " + requestTime);
 
                 if (Math.abs(now - requestTime) > 300) {
                         throw new ResponseStatusException(
                                         HttpStatus.UNAUTHORIZED,
                                         "Expired webhook");
                 }
-                System.out.println("Generating HMAC...");
 
                 String expected = hmacSha256Hex(
                                 timestamp + "." + rawBody,
                                 sepaySecretKey);
-                System.out.println("Expected = " + expected);
                 // normalize signature (IMPORTANT)
                 String cleanSignature = signature
                                 .replace("sha256=", "")
                                 .trim();
-                System.out.println("Received = " + cleanSignature);
                 if (!MessageDigest.isEqual(
                                 expected.getBytes(StandardCharsets.UTF_8),
                                 cleanSignature.getBytes(StandardCharsets.UTF_8))) {
-
-                        System.out.println("EXPECTED = " + expected);
-                        System.out.println("RECEIVED = " + cleanSignature);
 
                         throw new ResponseStatusException(
                                         HttpStatus.UNAUTHORIZED,
                                         "Invalid signature");
                 }
-                System.out.println("✅ Signature matched");
         }
 
         private String hmacSha256Hex(

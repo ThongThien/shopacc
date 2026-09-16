@@ -5,12 +5,16 @@ import com.shopacc.backend.dto.auth.AuthResponse;
 import com.shopacc.backend.dto.auth.LoginRequest;
 import com.shopacc.backend.dto.auth.RegisterRequest;
 import com.shopacc.backend.service.AuthService;
-import com.shopacc.backend.service.JwtService;
-import com.shopacc.backend.repository.RefreshTokenRepository;
+import com.shopacc.backend.service.CaptchaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.time.Duration;
 import java.util.Map;
 
 @RestController
@@ -18,39 +22,79 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
 
+    private static final String REFRESH_COOKIE = "refreshToken";
+
     private final AuthService authService;
-    private final JwtService jwtService;
-    private final RefreshTokenRepository refreshTokenRepository;
+
+    private final CaptchaService captchaService;
+
+    @GetMapping("/captcha")
+    public Map<String, String> captcha() {
+        return captchaService.generate();
+    }
 
     @PostMapping("/register")
-    public AuthResponse register(
-            @Valid @RequestBody RegisterRequest request) {
-
-        return authService.register(request);
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return withRefreshCookie(authService.register(request));
     }
 
     @PostMapping("/login")
-    public AuthResponse login(
-            @Valid @RequestBody LoginRequest request) {
-        return authService.login(request);
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        return withRefreshCookie(authService.login(request));
     }
 
     @PostMapping("/refresh")
-    public AuthResponse refresh(@RequestBody Map<String, String> body) {
-        String refreshToken = body.get("refreshToken");
+    public ResponseEntity<AuthResponse> refresh(
+            @CookieValue(name = REFRESH_COOKIE, required = false) String cookieToken,
+            @RequestBody(required = false) Map<String, String> body) {
+        String refreshToken = resolveRefreshToken(cookieToken, body);
         if (refreshToken == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing refreshToken");
         }
-        var entity = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid refresh token"));
-        if (entity.getRevoked() || entity.getExpiredAt().isBefore(java.time.LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Refresh token expired");
+        return withRefreshCookie(authService.refresh(refreshToken));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = REFRESH_COOKIE, required = false) String cookieToken,
+            @RequestBody(required = false) Map<String, String> body) {
+        authService.logout(resolveRefreshToken(cookieToken, body));
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, expiredRefreshCookie().toString())
+                .build();
+    }
+
+    private String resolveRefreshToken(String cookieToken, Map<String, String> body) {
+        if (cookieToken != null && !cookieToken.isBlank()) {
+            return cookieToken;
         }
-        String newAccess = jwtService.generateAccessToken(entity.getUser().getEmail());
-        return AuthResponse.builder()
-                .accessToken(newAccess)
-                .refreshToken(refreshToken)
-                .role(entity.getUser().getRole().name())
+        String fromBody = body == null ? null : body.get("refreshToken");
+        return (fromBody == null || fromBody.isBlank()) ? null : fromBody;
+    }
+
+    // Strict: FE (shopthien.xyz / localhost:3000) và BE (api.shopthien.xyz / localhost:8081)
+    // là same-site. Nếu sau này FE chạy trên domain khác hẳn (vd *.vercel.app) thì phải đổi
+    // sang SameSite=None, khi đó mới gửi được cookie cross-site.
+    private ResponseEntity<AuthResponse> withRefreshCookie(AuthResponse response) {
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, response.getRefreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path("/api/auth")
+                .maxAge(Duration.ofDays(7))
+                .build();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(response);
+    }
+
+    private ResponseCookie expiredRefreshCookie() {
+        return ResponseCookie.from(REFRESH_COOKIE, "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path("/api/auth")
+                .maxAge(0)
                 .build();
     }
 }

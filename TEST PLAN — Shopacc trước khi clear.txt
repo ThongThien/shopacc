@@ -1,0 +1,61 @@
+TEST PLAN — Shopacc trước khi clear project
+A. AUTH (Đăng nhập / Đăng ký)
+#	Test case	Các bước	Kết quả mong đợi
+1	Đăng ký user mới	Register với email chưa tồn tại	Thành công, redirect /login
+2	Đăng ký email đã có	Register với thong2k4@gmail.com	Báo lỗi "Email đã tồn tại" (không lộ SQL)
+3	Đăng nhập đúng	admin@gmail.com / 123456	Vào /admin, navbar hiện tên + balance
+4	Đăng nhập sai	Sai password	Báo lỗi, ở lại /login
+5	Session hết hạn	Login → đợi lâu → bấm 1 API bất kỳ	Modal "Phiên hết hạn" → bấm Đăng nhập lại → về /login → login OK
+6	Loop đăng nhập	Session hết hạn → bấm Đăng nhập lại	Về /login, HIỆN form login (KHÔNG redirect về /admin)
+7	Logout	Bấm Đăng xuất	Về trang chủ, navbar hiện nút Đăng nhập
+8	User vào /admin	Login USER → gõ /admin	Không vào được (redirect hoặc báo lỗi)
+B. NẠP TIỀN — Payment
+#	Test case	Các bước	Kết quả mong đợi
+9	Tạo lệnh nạp	/me/deposits → nhập 10000 → Tạo lệnh nạp	Hiện QR, bank info, nội dung có SEVQR TKP753 <token>
+10	QR URL hợp lệ	Copy QR URL → mở tab mới	Hiện ảnh QR VietQR
+11	Chuyển tiền test	Tạo lệnh → curl webhook test lên /api/webhooks/sepay	Transaction chuyển PENDING → SUCCESS, balance tăng
+12	Chuyển 2 lần cùng QR	Tạo lệnh 10k → curl webhook 2 lần (khác ref)	2 transaction SUCCESS, balance tăng 20k
+13	Số tiền sai	Tạo lệnh 10k → curl webhook với amount=15k	Transaction NEED_REVIEW, admin duyệt tay
+14	Balance real-time	Mở /me/deposits tab + bắn webhook	Balance navbar cập nhật sau <30s
+15	Làm mới lịch sử	Đợi webhook xong → bấm "Làm mới"	List hiện SUCCESS thay vì PENDING
+C. MUA ACC — Purchase Flow
+#	Test case	Các bước	Kết quả mong đợi
+16	Mua 1 acc	Vào acc detail → Mua ngay → modal xác nhận → /checkout → Thanh toán	Trừ tiền, redirect /me/orders, hiện order COMPLETED
+17	Không đủ tiền	Dùng acc balance 30k mua acc 50k	Báo "Số dư không đủ" ở checkout
+18	Xem thông tin acc	Vào order detail → Xem thông tin tài khoản	Hiện TK/MK + cảnh báo đổi MK
+19	Acc đã bán	Mua 1 acc → người khác vào xem acc đó	Hiện SOLD_OUT, không mua được
+20	Mua 2 acc cùng lúc	Checkout 2 acc trong giỏ	Cả 2 thành công hoặc 1 fail vì hết tiền
+D. GIỎ HÀNG — Cart
+#	Test case	Các bước	Kết quả mong đợi
+21	Thêm vào giỏ	Bấm Thêm vào giỏ trên listing card	Badge cart +1, drawer hiện item
+22	Xóa khỏi giỏ	Mở drawer → bấm X	Item biến mất, không quay lại
+23	Cart per-user	Login user A → thêm acc → logout → login user B	Cart user B trống, không thấy acc của A
+24	Cart qua thiết bị	Login user A trên Chrome → thêm acc	Safari login user A → thấy acc đó
+25	Acc hết hàng trong giỏ	Cart có acc → admin set SOLD_OUT → checkout	Báo lỗi khi thanh toán
+E. DỊCH VỤ — Service
+#	Test case	Các bước	Kết quả mong đợi
+26	Đặt dịch vụ	/services → chọn game → chọn dịch vụ → điền TK/MK → Đặt	Trừ tiền, tạo đơn PENDING, redirect /me/service-orders
+27	Thiếu TK/MK	Đặt dịch vụ không điền TK	Báo "Vui lòng nhập tên tài khoản và mật khẩu"
+28	Admin xử lý	Admin: /admin/service-orders → Xử lý → Done	Status chuyển PROCESSING → COMPLETED
+29	Admin xem TK/MK	Admin bấm Xem trên đơn dịch vụ	Hiện accountName + password đã giải mã
+30	Hủy + hoàn tiền	Admin Hủy đơn	Balance user được hoàn, status CANCELLED
+31	Hủy 2 lần	Admin Hủy 2 lần liên tiếp	Lần 2 báo lỗi, tiền chỉ hoàn 1 lần
+F. ADMIN — Quản lý
+#	Test case	Các bước	Kết quả mong đợi
+32	Tạo listing	/admin/listings/create → điền form	Listing mới hiện trên trang chủ
+33	Sửa listing	/admin/listings/:id/edit → đổi giá	Giá mới hiện ngay sau refresh
+34	Xóa listing	Xóa listing chưa bán	Thành công
+35	Duyệt NEED_REVIEW	Tạo mismatch transaction → admin Approve	Cộng tiền user
+36	Từ chối NEED_REVIEW	Admin Reject	Transaction FAILED, không cộng tiền
+37	Sửa tiền user	/admin/users → Sửa tiền → nhập 500000	Balance user = 500000
+38	Tạo discount	/admin/discounts → tạo SUMMER 10%	Code hiện trong list, user áp dụng được
+39	Tạo category	/admin/categories → tạo mới	Hiện trong dropdown tạo listing
+40	Ticket reply	User tạo ticket → admin reply	Cả 2 thấy message trong thread
+G. REDIS CACHE
+#	Test case	Các bước	Kết quả mong đợi
+41	Cache hit	Load trang chủ 2 lần	Log lần 1: MISS+SET, lần 2: HIT
+42	Cache evict	Admin sửa listing → load trang chủ	Log hiện EVICT → MISS → SET
+43	Redis chết	Stop Redis container → load trang chủ	App vẫn chạy bình thường (fallback DB)
+H. CI/CD
+#	Test case	Các bước	Kết quả mong đợi
+44	Push deploy	Push 1 commit nhỏ lên main	GitHub Actions chạy xanh, VPS cập nhật

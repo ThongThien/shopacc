@@ -40,10 +40,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 final String authHeader = request.getHeader("Authorization");
 
-                System.out.println("==== JWT FILTER ====");
-                System.out.println("PATH: " + path);
-                System.out.println("AUTH HEADER: " + authHeader);
-
                 if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                         filterChain.doFilter(request, response);
                         return;
@@ -52,9 +48,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String jwt = authHeader.substring(7);
 
                 String email = jwtService.extractUsername(jwt);
-
-                System.out.println("JWT: " + jwt);
-                System.out.println("EMAIL: " + email);
 
                 if (email != null &&
                                 SecurityContextHolder.getContext().getAuthentication() == null) {

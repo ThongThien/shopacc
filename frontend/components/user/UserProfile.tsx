@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { clearAuth } from "@/lib/auth";
+import { logout } from "@/lib/auth";
 import { useNotify } from "@/components/shared/NotificationProvider";
 import { useRouter } from "next/navigation";
 import { changeMyPassword, getMyProfile } from "@/services/user.service";
@@ -53,7 +53,7 @@ export default function UserProfile() {
     const ok = await confirmAction("Bạn có chắc muốn đăng xuất không?");
     if (!ok) return;
 
-    clearAuth();
+    await logout();
     notify("success", "Đăng xuất thành công");
     router.push("/");
     router.refresh();

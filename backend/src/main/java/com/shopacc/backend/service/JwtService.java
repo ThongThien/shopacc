@@ -30,6 +30,8 @@ public class JwtService {
 
                                 .subject(email)
 
+                                .claim("token_use", "access")
+
                                 .issuedAt(new Date())
 
                                 .expiration(
@@ -48,6 +50,8 @@ public class JwtService {
                 return Jwts.builder()
 
                                 .subject(email)
+
+                                .claim("token_use", "refresh")
 
                                 .issuedAt(new Date())
 
@@ -72,18 +76,11 @@ public class JwtService {
                         String token,
                         String email) {
 
-                final String username = extractUsername(token);
+                final Claims claims = extractAllClaims(token);
 
-                return username.equals(email)
-                                && !isTokenExpired(token);
-        }
-
-        private boolean isTokenExpired(
-                        String token) {
-
-                return extractAllClaims(token)
-                                .getExpiration()
-                                .before(new Date());
+                return claims.getSubject().equals(email)
+                                && "access".equals(claims.get("token_use"))
+                                && !claims.getExpiration().before(new Date());
         }
 
         private Claims extractAllClaims(

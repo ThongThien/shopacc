@@ -17,9 +17,12 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.web.cors.CorsConfigurationSource;
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
+        private final CorsConfigurationSource corsConfigurationSource;
 
         private final JwtAuthenticationFilter jwtFilter;
 
@@ -28,8 +31,7 @@ public class SecurityConfig {
                         HttpSecurity http) throws Exception {
 
                 http
-                                .cors(cors -> {
-                                })
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
                                 // CSRF disable (OK for JWT + webhook)
                                 .csrf(csrf -> csrf.disable())

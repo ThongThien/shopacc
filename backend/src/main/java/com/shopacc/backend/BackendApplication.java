@@ -13,3 +13,9 @@ public class BackendApplication {
 	}
 
 }
+
+// @SpringBootApplication là annotation chính để khởi động Spring Boot, bao gồm
+// component scanning và auto-configuration.
+// @EnableScheduling dùng để enable cơ
+// chế scheduling của Spring, để các method có @Scheduled được chạy tự động theo
+// thời gian cấu hình.

@@ -9,9 +9,6 @@ let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
 async function tryRefreshToken(): Promise<boolean> {
-  const refreshToken = localStorage.getItem(AUTH_STORAGE_KEYS.refreshToken);
-  if (!refreshToken) return false;
-
   if (isRefreshing && refreshPromise) return refreshPromise;
 
   isRefreshing = true;
@@ -19,8 +16,7 @@ async function tryRefreshToken(): Promise<boolean> {
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refreshToken }),
+        credentials: "include", // gửi cookie HttpOnly refreshToken cho backend
       });
       if (!res.ok) return false;
       const data = await res.json();
@@ -40,11 +36,7 @@ async function tryRefreshToken(): Promise<boolean> {
 function handleAuthExpired() {
   if (typeof window === "undefined") return;
   clearAuth();
-  window.dispatchEvent(
-    new CustomEvent("auth-expired", {
-      detail: { message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại." },
-    }),
-  );
+  window.location.href = "/login";
 }
 
 export async function apiFetch<T>(
@@ -65,7 +57,7 @@ export async function apiFetch<T>(
 
   const url = `${API_BASE_URL}${path}`;
 
-  let response = await fetch(url, { ...options, headers, cache: "no-store" });
+  let response = await fetch(url, { ...options, headers, cache: "no-store", credentials: "include" });
 
   // Auto-refresh on 401 (skip for auth endpoints)
   if (response.status === 401 && !path.startsWith("/api/auth/")) {
@@ -74,7 +66,7 @@ export async function apiFetch<T>(
       // Retry original request with new token
       const newToken = localStorage.getItem(AUTH_STORAGE_KEYS.accessToken);
       if (newToken) headers.set("Authorization", `Bearer ${newToken}`);
-      response = await fetch(url, { ...options, headers, cache: "no-store" });
+      response = await fetch(url, { ...options, headers, cache: "no-store", credentials: "include" });
     }
   }
 

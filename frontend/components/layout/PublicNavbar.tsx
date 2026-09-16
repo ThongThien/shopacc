@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { clearAuth, getAccessToken, getUserRole } from "@/lib/auth";
+import { getAccessToken, getUserRole, logout } from "@/lib/auth";
 import { getListings } from "@/services/listing.service";
 import { getMyBalance } from "@/services/user.service";
 import { Listing } from "@/types/listing";
@@ -106,7 +106,7 @@ export default function PublicNavbar() {
 
     if (!ok) return;
 
-    clearAuth();
+    await logout();
     notify("success", "Đăng xuất thành công");
     window.location.href = "/";
   }

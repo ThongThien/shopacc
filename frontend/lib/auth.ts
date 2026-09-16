@@ -1,11 +1,12 @@
-import { AUTH_STORAGE_KEYS } from "@/lib/constants";
+import { API_BASE_URL, AUTH_STORAGE_KEYS } from "@/lib/constants";
 import { AuthResponse, UserRole } from "@/types/auth";
 
 export function saveAuth(auth: AuthResponse) {
   if (typeof window === "undefined") return;
 
   localStorage.setItem(AUTH_STORAGE_KEYS.accessToken, auth.accessToken);
-  localStorage.setItem(AUTH_STORAGE_KEYS.refreshToken, auth.refreshToken);
+  // Refresh token giờ nằm trong cookie HttpOnly do backend set — dọn token cũ (thời localStorage) nếu còn
+  localStorage.removeItem(AUTH_STORAGE_KEYS.refreshToken);
   localStorage.setItem(AUTH_STORAGE_KEYS.role, auth.role);
 
   document.cookie = `accessToken=${auth.accessToken}; path=/; max-age=86400; SameSite=Lax`;
@@ -27,16 +28,24 @@ export function clearAuth() {
   window.dispatchEvent(new Event("auth-changed"));
 }
 
+export async function logout() {
+  try {
+    await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch {
+    // Backend không reachable → vẫn clear local. Cookie HttpOnly JS không tự xóa được,
+    // nhưng refresh token phía server sẽ hết hạn sau tối đa 7 ngày.
+  }
+
+  clearAuth();
+}
+
 export function getAccessToken() {
   if (typeof window === "undefined") return null;
 
   return localStorage.getItem(AUTH_STORAGE_KEYS.accessToken);
-}
-
-export function getRefreshToken() {
-  if (typeof window === "undefined") return null;
-
-  return localStorage.getItem(AUTH_STORAGE_KEYS.refreshToken);
 }
 
 export function getUserRole(): UserRole | null {

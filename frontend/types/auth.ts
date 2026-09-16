@@ -3,6 +3,8 @@ export type UserRole = "USER" | "ADMIN";
 export interface LoginRequest {
   email: string;
   password: string;
+  captchaId: string;
+  captchaCode: string;
 }
 
 export interface RegisterRequest {
@@ -13,6 +15,5 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
   role: UserRole;
 }
