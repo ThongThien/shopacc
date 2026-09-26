@@ -1,39 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { getAccessToken, getUserRole, logout } from "@/lib/auth";
-import { getListings } from "@/services/listing.service";
 import { getMyBalance } from "@/services/user.service";
-import { Listing } from "@/types/listing";
 import { UserBalance } from "@/types/user";
 import { formatCurrency } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
 import { useCart } from "@/components/cart/CartContext";
 import useWebSocket from "@/hooks/useWebSocket";
-import { ShoppingCart, User, ChevronDown } from "lucide-react";
+import { ShoppingCart, User, Menu, X } from "lucide-react";
 
 export default function PublicNavbar() {
+  const pathname = usePathname();
   const { notify, confirmAction } = useNotify();
   const { count } = useCart();
   useWebSocket(); // Kết nối WebSocket real-time, fallback polling nếu không có
 
-  const [listings, setListings] = useState<Listing[]>([]);
   const [balance, setBalance] = useState<UserBalance | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [role, setRole] = useState<string | null>(null);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-
-  // Close dropdown on outside click
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      setOpenDropdown(null);
-    }
-    if (openDropdown) {
-      setTimeout(() => document.addEventListener("click", handleClick), 0);
-      return () => document.removeEventListener("click", handleClick);
-    }
-  }, [openDropdown]);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   async function syncAuthState() {
     const token = getAccessToken();
@@ -57,17 +45,7 @@ export default function PublicNavbar() {
   }
 
   useEffect(() => {
-    async function loadNavbarData() {
-      try {
-        const data = await getListings();
-        setListings(data);
-      } catch {
-        setListings([]);
-      }
-    }
-
     const initTimer = window.setTimeout(() => {
-      void loadNavbarData();
       void syncAuthState();
     }, 0);
 
@@ -95,12 +73,6 @@ export default function PublicNavbar() {
     };
   }, []);
 
-  const games = useMemo(() => {
-    return Array.from(
-      new Set(listings.map((listing) => listing.gameName).filter(Boolean)),
-    );
-  }, [listings]);
-
   async function handleLogout() {
     const ok = await confirmAction("Bạn có chắc muốn đăng xuất không?");
 
@@ -111,18 +83,35 @@ export default function PublicNavbar() {
     window.location.href = "/";
   }
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === href : pathname.startsWith(href);
+
   return (
     <header className="public-navbar">
-      <Link href="/" className="public-logo">
+      <Link href="/" className="public-logo" aria-label="Về trang chủ">
         <img src="/logo_2.png" alt="shopthien.xyz" />
       </Link>
 
-      <nav className="public-nav">
-        <Link href="/">Trang chủ</Link>
+      <button
+        className="mobile-nav-toggle"
+        type="button"
+        aria-label={mobileOpen ? "Đóng menu" : "Mở menu"}
+        aria-expanded={mobileOpen}
+        onClick={() => setMobileOpen((value) => !value)}
+      >
+        {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+      </button>
 
-        <Link href="/accounts">Kho acc</Link>
+      <nav className={`public-nav${mobileOpen ? " mobile-open" : ""}`}>
+        <Link href="/" className={isActive("/") ? "active" : ""}>Trang chủ</Link>
 
-        <Link href="/services">Dịch vụ</Link>
+        <Link href="/accounts" className={isActive("/accounts") || isActive("/account") ? "active" : ""}>Kho acc</Link>
+
+        <Link href="/services" className={isActive("/services") ? "active" : ""}>Dịch vụ</Link>
 
         <Link href="https://zalo.me/g/eyaot0lf9jm4qegzhu9u">Cộng Đồng</Link>
 
@@ -132,19 +121,14 @@ export default function PublicNavbar() {
 
         <button
           type="button"
-          className="btn-primary"
-          style={{
-            background: "var(--color-bg-card)",
-            color: "var(--color-text)",
-            position: "relative",
-            height: 44,
-          }}
+          className="nav-cart-button"
+          aria-label={`Giỏ hàng, ${count} sản phẩm`}
           onClick={() => window.dispatchEvent(new Event("cart:toggle"))}
         >
           <ShoppingCart size={18} />
 
           {count > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 bg-pink-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[11px] font-black">
+            <span className="nav-cart-count">
               {count}
             </span>
           )}
@@ -154,8 +138,7 @@ export default function PublicNavbar() {
           <>
             <Link
               href="/register"
-              className="nav-login"
-              style={{ color: "var(--color-primary)" }}
+              className="nav-register"
             >
               Đăng ký
             </Link>

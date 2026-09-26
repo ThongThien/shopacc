@@ -29,6 +29,7 @@ export default function CartDrawer() {
       {/* Overlay */}
       {open && (
         <div
+          className="cart-overlay"
           style={{
             position: "fixed",
             inset: 0,
@@ -41,6 +42,7 @@ export default function CartDrawer() {
 
       {/* Drawer */}
       <div
+        className={`cart-drawer${open ? " open" : ""}`}
         style={{
           position: "fixed",
           top: 0,
@@ -69,6 +71,7 @@ export default function CartDrawer() {
           <h2 style={{ margin: 0, fontSize: 19 }}>Giỏ hàng ({count})</h2>
           <button
             type="button"
+            aria-label="Đóng giỏ hàng"
             onClick={() => setOpen(false)}
             style={{
               border: "none",
@@ -142,6 +145,7 @@ export default function CartDrawer() {
                   </div>
                   <button
                     type="button"
+                    aria-label={`Xóa ${item.title} khỏi giỏ hàng`}
                     onClick={() => void removeItem(item.listingId)}
                     style={{
                       border: "none",

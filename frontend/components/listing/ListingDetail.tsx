@@ -29,7 +29,6 @@ export default function ListingDetail({ listing }: Props) {
   const [selectedImage, setSelectedImage] = useState(defaultImage);
   const [open, setOpen] = useState(false);
   const [balance, setBalance] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   async function handleBuyClick() {
@@ -201,7 +200,6 @@ export default function ListingDetail({ listing }: Props) {
         />
       )}
 
-      {loading && <div className="page-loading">Đang xử lý đơn hàng...</div>}
     </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Listing } from "@/types/listing";
 import ListingGrid from "@/components/listing/ListingGrid";
 import ListingToolbar from "@/components/listing/ListingToolbar";
@@ -27,7 +26,6 @@ export default function ListingBrowser({
   categorySlug,
   listingType: initialType,
 }: Props) {
-  const router = useRouter();
   const [activeType, setActiveType] = useState(initialType || "");
   const [keyword, setKeyword] = useState("");
   const [serverName, setServerName] = useState("");

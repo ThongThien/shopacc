@@ -6,9 +6,9 @@ export default function PublicFooter() {
       <div className="footer-grid">
         <div>
           <img
+            className="footer-logo"
             src="/logo_footer.png"
             alt="shopthien.xyz"
-            style={{ height: 100, width: 100, borderRadius: 30 }}
           />
         </div>
         <div>

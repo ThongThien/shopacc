@@ -25,7 +25,7 @@ interface DiscountResult {
 export default function CheckoutPage() {
   const router = useRouter();
   const { notify } = useNotify();
-  const { items, removeItem, clearCart } = useCart();
+  const { items, removeItem } = useCart();
 
   const [balance, setBalance] = useState<number | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -114,8 +114,8 @@ export default function CheckoutPage() {
   if (items.length === 0) return null;
 
   return (
-    <section style={{ maxWidth: 720, margin: "0 auto", padding: "28px 16px" }}>
-      <div className="card" style={{ padding: 24 }}>
+    <section className="checkout-page">
+      <div className="card checkout-card">
         <h1 style={{ margin: "0 0 6px" }}>Thanh toán</h1>
         <p style={{ color: "var(--color-text-muted)", margin: "0 0 20px" }}>
           Xác nhận mua {items.length} acc
@@ -185,7 +185,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Discount Code */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+        <div className="checkout-discount-row">
           <input
             className="input"
             placeholder="Nhập mã giảm giá (nếu có)"
@@ -286,7 +286,7 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+        <div className="checkout-actions">
           <button
             className="btn-secondary"
             type="button"

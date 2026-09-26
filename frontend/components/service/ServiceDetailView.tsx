@@ -71,12 +71,12 @@ export default function ServiceDetailView({ listing }: Props) {
   }
 
   return (
-    <div style={{ display: "grid", gap: 24 }}>
+    <div className="service-detail-page">
       {/* Hero */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="service-hero-grid">
         {/* Image */}
         <div
-          className="card"
+          className="card service-hero-image"
           style={{
             padding: 0,
             overflow: "hidden",
@@ -99,7 +99,7 @@ export default function ServiceDetailView({ listing }: Props) {
 
         {/* Info */}
         <div
-          className="card"
+          className="card service-hero-info"
           style={{
             padding: 24,
             display: "grid",
@@ -142,7 +142,7 @@ export default function ServiceDetailView({ listing }: Props) {
               {formatCurrency(listing.price)}
             </b>
           </div>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className="service-trust-badges">
             <span
               style={{
                 background: "var(--color-bg-secondary)",
@@ -185,7 +185,7 @@ export default function ServiceDetailView({ listing }: Props) {
           {/* Service Form */}
           {showForm && (
             <div
-              className="card"
+              className="card service-order-form"
               style={{
                 padding: 16,
                 marginTop: 14,
@@ -281,13 +281,7 @@ export default function ServiceDetailView({ listing }: Props) {
                     placeholder="VD: Cần up đệ tử từ cấp 1 lên cấp 5..."
                   />
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    justifyContent: "flex-end",
-                  }}
-                >
+                <div className="service-form-actions">
                   <button
                     className="btn-secondary"
                     type="button"
@@ -310,7 +304,7 @@ export default function ServiceDetailView({ listing }: Props) {
       </div>
 
       {/* Features + Requirements + Instructions + FAQ */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+      <div className="service-info-grid">
         <div className="card" style={{ padding: 24 }}>
           <h2 style={{ marginTop: 0 }}>Tính năng nổi bật</h2>
           <ul style={{ display: "grid", gap: 8, paddingLeft: 20 }}>

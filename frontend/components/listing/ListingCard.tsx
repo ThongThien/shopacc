@@ -48,7 +48,7 @@ export default function ListingCard({ listing }: Props) {
 
   return (
     <article className="listing-card">
-      <div className="listing-image-wrap">
+      <Link href={`/account/${listing.id}`} className="listing-image-wrap">
         <img
           src={listing.thumbnail || "/placeholder.png"}
           alt={listing.title || "Listing"}
@@ -56,49 +56,22 @@ export default function ListingCard({ listing }: Props) {
         />
 
         <span className="listing-code">MS: #{listing.id}</span>
-      </div>
+      </Link>
 
       <div className="listing-card-body">
         <h3>{listing.title}</h3>
 
         <div className="listing-tags">
           {listing.listingType && TYPE_CONFIG[listing.listingType] && (
-            <span
-              style={{
-                background: TYPE_CONFIG[listing.listingType].bg,
-                color: TYPE_CONFIG[listing.listingType].color,
-                padding: "4px 10px",
-                fontSize: 12,
-                fontWeight: 700,
-                borderRadius: 8,
-              }}
-            >
+            <span className="listing-type-badge">
               {TYPE_CONFIG[listing.listingType].label}
             </span>
           )}
-          <span
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              color: "var(--color-text-secondary)",
-              padding: "4px 10px",
-              borderRadius: 8,
-              fontSize: 12,
-              fontWeight: 600,
-            }}
-          >
+          <span>
             {listing.gameName}
           </span>
           {listing.serverName && (
-            <span
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                color: "var(--color-text-muted)",
-                padding: "4px 10px",
-                borderRadius: 8,
-                fontSize: 12,
-                fontWeight: 500,
-              }}
-            >
+            <span>
               SV {listing.serverName}
             </span>
           )}
@@ -108,7 +81,6 @@ export default function ListingCard({ listing }: Props) {
           <strong>{formatCurrency(listing.price)}</strong>
           <Link
             href={`/account/${listing.id}`}
-            style={{ color: "var(--color-text-muted)", fontSize: 13 }}
           >
             Chi tiết →
           </Link>
@@ -116,8 +88,7 @@ export default function ListingCard({ listing }: Props) {
 
         <button
           type="button"
-          className={inCart ? "btn-secondary" : "btn-primary"}
-          style={{ width: "100%", height: 44, fontSize: 14 }}
+          className={`${inCart ? "btn-secondary" : "btn-primary"} listing-card-cta`}
           disabled={inCart}
           onClick={handleAddToCart}
         >

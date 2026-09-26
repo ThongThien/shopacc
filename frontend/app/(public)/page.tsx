@@ -60,7 +60,7 @@ async function getServices(): Promise<ServiceItem[]> {
 
     if (!res.ok) {
       return [];
-    }53
+    }
 
     return await res.json();
   } catch {
@@ -92,59 +92,31 @@ export default async function HomePage() {
   );
 
   return (
-    <div className="page-container" style={{ paddingTop: 20 }}>
+    <div className="page-container home-page">
       <NoticeBox type="home" />
 
-      <div style={{ display: "grid", gap: 32 }}>
+      <div className="home-content">
         {/* ==================== PRODUCTS ==================== */}
         {games.map((game) => {
           const gameListings = listings.filter((l) => l.gameName === game);
 
           return (
-            <section key={game}>
+            <section key={game} className="market-section">
               {/* Game Name Row */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  marginBottom: 14,
-                  paddingBottom: 10,
-                  borderBottom: "2px solid var(--color-border)",
-                }}
-              >
-                <h1
-                  style={{
-                    margin: 0,
-                    fontSize: 22,
-                    fontWeight: 900,
-                  }}
-                >
-                  {game}
-                </h1>
+              <div className="market-section-heading">
+                <div>
+                  <span className="section-kicker">KHO TÀI KHOẢN</span>
+                  <h1>{game}</h1>
+                </div>
 
-                <span
-                  style={{
-                    background: "var(--color-danger)",
-                    color: "white",
-                    padding: "2px 10px",
-                    borderRadius: 999,
-                    fontSize: 11,
-                    fontWeight: 900,
-                  }}
-                >
-                  HOT
+                <span className="live-badge">
+                  <i /> ĐANG MỞ BÁN
                 </span>
               </div>
 
               {/* Account Card */}
               <div
                 className="home-type-grid"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(3, 1fr)",
-                  gap: 14,
-                }}
               >
                 {TYPE_CARDS.map((card) => {
                   const count = countByType(gameListings, card.type);
@@ -157,16 +129,7 @@ export default async function HomePage() {
                     <Link
                       key={card.type}
                       href="/accounts"
-                      className="listing-card"
-                      style={{
-                        textDecoration: "none",
-                        color: "inherit",
-                        background: card.bg,
-                        border: `1.5px solid ${card.border}`,
-                        borderRadius: 14,
-                        overflow: "hidden",
-                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                      }}
+                      className="home-feature-card"
                     >
                       {/* Account Image */}
                       <div className="listing-image-wrap">
@@ -174,40 +137,19 @@ export default async function HomePage() {
                       </div>
 
                       {/* Account Information */}
-                      <h3
-                        style={{
-                          margin: "0 0 8px",
-                          color: card.color,
-                          fontSize: 24,
-                          fontWeight: 900,
-                          lineHeight: 1.2,
-                        }}
-                      >
-                        {card.label}
-                      </h3>
+                      <div className="home-feature-body">
+                        <div className="home-feature-title">
+                          <h3>{card.label}</h3>
+                          <span>Xem kho <b>→</b></span>
+                        </div>
 
                       {count > 0 ? (
-                        <div
-                          style={{
-                            display: "grid",
-                            gap: 4,
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: 16,
-                              fontWeight: 700,
-                              color: "var(--color-text)",
-                              lineHeight: 1.4,
-                            }}
-                          >
+                        <div className="home-feature-meta">
+                          <span>
                             {count} sản phẩm
                             {sold > 0 && (
                               <span
-                                style={{
-                                  color: "var(--color-text-muted)",
-                                  fontWeight: 500,
-                                }}
+                                className="muted-text"
                               >
                                 {" "}
                                 · {sold} đã bán
@@ -216,28 +158,17 @@ export default async function HomePage() {
                           </span>
 
                           {from != null && (
-                            <span
-                              style={{
-                                fontSize: 15,
-                                color: "var(--color-primary)",
-                                fontWeight: 800,
-                                lineHeight: 1.4,
-                              }}
-                            >
+                            <strong>
                               Giá từ {formatCurrency(from)}
-                            </span>
+                            </strong>
                           )}
                         </div>
                       ) : (
-                        <span
-                          style={{
-                            fontSize: 15,
-                            color: "var(--color-text-muted)",
-                          }}
-                        >
+                        <span className="muted-text">
                           Chưa có sản phẩm
                         </span>
                       )}
+                      </div>
                     </Link>
                   );
                 })}
@@ -259,10 +190,14 @@ export default async function HomePage() {
         )}
 
         {/* ==================== SERVICES ==================== */}
-        <section>
-          <section className="page-heading">
-            <h1>Dịch vụ</h1>
-          </section>
+        <section className="market-section">
+          <div className="market-section-heading">
+            <div>
+              <span className="section-kicker">TIỆN ÍCH GAME</span>
+              <h1>Dịch vụ nổi bật</h1>
+            </div>
+            <Link href="/services" className="section-link">Xem tất cả →</Link>
+          </div>
 
           {Object.keys(serviceGroups).length === 0 ? (
             <p
@@ -276,36 +211,16 @@ export default async function HomePage() {
             </p>
           ) : (
             Object.entries(serviceGroups).map(([gameName, items]) => (
-              <section key={gameName} style={{ marginBottom: 32 }}>
+              <section key={gameName} className="service-group">
                 <div className="listing-grid">
                   {items.map((svc) => (
                     <Link
                       key={svc.id}
                       href={`/services/${svc.id}`}
-                      className="listing-card"
-                      style={{
-                        textDecoration: "none",
-                        color: "inherit",
-                        position: "relative",
-                      }}
+                      className="listing-card service-card"
                     >
                       {/* HOT badge */}
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 10,
-                          right: 10,
-                          zIndex: 2,
-                          background: "#ef4444",
-                          color: "#fff",
-                          fontSize: 12,
-                          fontWeight: 900,
-                          padding: "5px 9px",
-                          borderRadius: 999,
-                          lineHeight: 1,
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-                        }}
-                      >
+                      <span className="hot-badge">
                         Siêu HOT
                       </span>
 
@@ -342,14 +257,7 @@ export default async function HomePage() {
                           </span>
                         )}
 
-                        <p
-                          style={{
-                            color: "var(--color-primary)",
-                            fontWeight: 700,
-                            fontSize: 18,
-                            margin: 0,
-                          }}
-                        >
+                        <p className="service-price">
                           {formatCurrency(svc.price)}
                         </p>
                       </div>
