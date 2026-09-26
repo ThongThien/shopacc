@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { getPublicHomeData } from "@/services/listing.service";
 import NoticeBox from "@/components/layout/NoticeBox";
 
 const TYPE_CARDS = [
@@ -8,9 +7,6 @@ const TYPE_CARDS = [
     label: "Tài khoản",
     desc: "Mua bán tài khoản game.",
     icon: "👤",
-    color: "#dbeafe",
-    borderColor: "#3b82f6",
-    textColor: "#1e40af",
   },
   // {
   //   type: "ITEM",
@@ -26,9 +22,6 @@ const TYPE_CARDS = [
     label: "Dịch vụ",
     desc: "Up SKH, săn đệ và các dịch vụ khác.",
     icon: "🔧",
-    color: "#f3e8ff",
-    borderColor: "#a855f7",
-    textColor: "#6b21a8",
   },
 ];
 
@@ -39,9 +32,6 @@ export default async function GamePage({
 }) {
   const { gameName } = await params;
   const decoded = decodeURIComponent(gameName);
-  const homeData = await getPublicHomeData();
-  const section = homeData.find((s) => s.gameName === decoded);
-
   return (
     <div className="page-container">
       <NoticeBox type="home" />
@@ -56,14 +46,11 @@ export default async function GamePage({
           <Link
             key={card.type}
             href={`/accounts?game=${encodeURIComponent(decoded)}&type=${card.type}`}
-            className="card"
+            className="card game-type-card"
             style={{
               textDecoration: "none",
               color: "inherit",
               padding: 24,
-              border: `2px solid var(--color-border)`,
-              borderRadius: "var(--radius-lg)",
-              background: card.color,
               display: "grid",
               gap: 8,
               justifyItems: "center",
@@ -71,12 +58,12 @@ export default async function GamePage({
             }}
           >
             <span style={{ fontSize: 40 }}>{card.icon}</span>
-            <h3 style={{ margin: 0, color: card.textColor }}>{card.label}</h3>
+            <h3 style={{ margin: 0 }}>{card.label}</h3>
             <p
               style={{
                 margin: 0,
                 fontSize: 14,
-                color: card.textColor,
+                color: "var(--color-text-muted)",
                 opacity: 0.85,
               }}
             >

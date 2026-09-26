@@ -8,6 +8,7 @@ export default function MePage() {
       <UserAccountOverview />
 
       <div
+        className="user-dashboard-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",

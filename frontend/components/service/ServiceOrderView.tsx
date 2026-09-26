@@ -88,8 +88,8 @@ export default function ServiceOrderView() {
     );
 
   return (
-    <div className="page-container" style={{ maxWidth: 900 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+    <div className="page-container service-order-page" style={{ maxWidth: 900 }}>
+      <div className="service-order-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
         <div
           className="card"
           style={{ padding: 0, overflow: "hidden", height: 320 }}

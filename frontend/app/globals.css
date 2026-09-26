@@ -45,10 +45,13 @@ body {
   min-height: 100%;
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Inter", "Segoe UI Variable Text", "Segoe UI", "Noto Sans", system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.5;
+  font-weight: 450;
+  letter-spacing: -0.005em;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 a {
   color: inherit;
@@ -1381,6 +1384,40 @@ select.input {
   border-color: var(--color-warning);
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b {
+  text-wrap: balance;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-text);
+  font-weight: 780;
+  letter-spacing: -0.025em;
+}
+
+p,
+li,
+td,
+th,
+label,
+input,
+select,
+textarea,
+button {
+  text-wrap: pretty;
+}
+
 /* 2026 marketplace polish */
 *,
 *::before,
@@ -2518,5 +2555,393 @@ textarea {
 
   .cart-drawer {
     width: min(100%, 360px) !important;
+  }
+}
+
+/* Shared user, admin and state presentation */
+.loading-box {
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  color: var(--color-text-muted);
+}
+
+.loading-box p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(3, 5, 10, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.loading-overlay-card {
+  min-width: min(280px, 100%);
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 28px 34px;
+  border: 1px solid rgba(34, 197, 94, 0.18);
+  border-radius: var(--radius-modal);
+  background: var(--color-bg-card);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.55);
+}
+
+.loading-overlay-card b {
+  font-size: 14px;
+}
+
+.loading-spinner-large {
+  width: 42px;
+  height: 42px;
+  border-width: 4px;
+}
+
+.user-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 24px;
+}
+
+.user-card > h1,
+.profile-card > h1,
+.table-heading h1,
+.table-heading h2 {
+  margin: 0;
+  font-size: clamp(20px, 2.5vw, 26px);
+}
+
+.user-card > p,
+.table-heading p {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+}
+
+.balance-box {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(34, 197, 94, 0.16);
+  background: linear-gradient(110deg, rgba(34, 197, 94, 0.1), var(--color-bg-secondary));
+}
+
+.balance-box::after {
+  content: "";
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  right: -35px;
+  bottom: -45px;
+  border-radius: 50%;
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.profile-grid > div,
+.change-password-box {
+  border: 1px solid rgba(255, 255, 255, 0.055);
+}
+
+.table-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.table-link {
+  color: var(--color-cyan);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.table-link:hover {
+  color: var(--color-cyan-hover);
+}
+
+.responsive-table {
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: rgba(34, 197, 94, 0.45) var(--color-bg-secondary);
+}
+
+.data-table th {
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.data-table td {
+  color: var(--color-text-secondary);
+  font-weight: 520;
+}
+
+.data-table td:first-child {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.empty-cell {
+  height: 150px !important;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.admin-page-header {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-page-header h1 {
+  font-size: clamp(24px, 3vw, 31px);
+  letter-spacing: -0.035em;
+}
+
+.admin-summary-row span {
+  background: rgba(21, 24, 41, 0.78);
+}
+
+.admin-toolbar {
+  padding: 16px;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-toolbar .input {
+  min-width: 160px;
+}
+
+.admin-pagination > p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.admin-pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-narrow-page {
+  width: min(860px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 36px 0 56px;
+}
+
+.user-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.user-page-heading h1 {
+  margin: 0;
+  font-size: clamp(26px, 3vw, 34px);
+}
+
+.user-page-heading p {
+  margin: 5px 0 0;
+  color: var(--color-text-muted);
+}
+
+.user-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.ticket-card,
+.service-order-card {
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.ticket-summary,
+.service-order-summary {
+  gap: 18px;
+}
+
+.ticket-summary:hover b {
+  color: var(--color-primary);
+}
+
+.ticket-reply {
+  align-items: center;
+}
+
+.deposit-card {
+  border-color: rgba(34, 197, 94, 0.12);
+}
+
+.deposit-layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  align-items: start;
+}
+
+.deposit-form label {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.deposit-qr {
+  overflow: hidden;
+}
+
+.service-order-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.game-service-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.game-type-card {
+  min-height: 210px;
+  align-content: center;
+  border-color: rgba(34, 197, 94, 0.13);
+  background:
+    radial-gradient(circle at 50% 0, rgba(34, 197, 94, 0.1), transparent 55%),
+    var(--color-bg-card);
+}
+
+.game-type-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.3), 0 0 26px rgba(34, 197, 94, 0.06);
+}
+
+.game-type-card > span {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+}
+
+.game-type-card h3 {
+  font-size: 20px;
+}
+
+.toast {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  animation: toastEnter 220ms ease-out;
+}
+
+@keyframes toastEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+
+@media (max-width: 900px) {
+  .user-dashboard-grid,
+  .deposit-layout,
+  .service-order-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .game-service-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .data-table {
+    min-width: 720px;
+  }
+
+  .responsive-table {
+    position: relative;
+    background:
+      linear-gradient(90deg, var(--color-bg-card) 30%, transparent),
+      linear-gradient(90deg, transparent, var(--color-bg-card) 70%) 100% 0,
+      radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.35), transparent),
+      radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.35), transparent) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 32px 100%, 32px 100%, 12px 100%, 12px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .data-table th,
+  .data-table td {
+    height: 52px;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+
+  .user-narrow-page {
+    width: 100%;
+    padding: 24px 14px 42px;
+  }
+
+  .user-page-heading,
+  .table-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .user-page-heading > .btn-primary {
+    width: 100%;
+  }
+
+  .user-form-actions,
+  .ticket-reply {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .user-form-actions > *,
+  .ticket-reply > button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ticket-summary,
+  .service-order-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .service-order-summary > div:last-child {
+    text-align: left !important;
+  }
+
+  .deposit-card {
+    padding: 18px !important;
+  }
+
+  .game-service-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .admin-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-pagination > div {
+    justify-content: space-between;
+  }
+
+  .admin-pagination .btn-secondary {
+    flex: 1;
+    justify-content: center;
   }
 }

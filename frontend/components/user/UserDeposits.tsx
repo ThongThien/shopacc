@@ -108,15 +108,6 @@ export default function UserDeposits() {
     };
   }, []);
 
-  async function handleRetryDeposit(tx: Transaction) {
-    setDepositContent(tx.transactionCode);
-    // Rebuild QR URL using VietQR
-    const qr = `https://vietqr.app/img?acc=${bankAccount}&bank=${bankName}&amount=${tx.amount}&des=${encodeURIComponent(tx.transactionCode)}&template=compact`;
-    setQrUrl(qr);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    notify("info", "Vui lòng chuyển khoản đúng nội dung và số tiền.");
-  }
-
   async function handleCreateAtmDeposit() {
     const ok = await confirmAction(
       `Bạn muốn tạo lệnh nạp ${formatCurrency(amount)} qua ATM?`,
@@ -170,8 +161,9 @@ export default function UserDeposits() {
       <NoticeBox type="deposit" />
 
       {/* ========== DEPOSIT FORM + QR ========== */}
-      <div className="card" style={{ padding: 28, marginBottom: 22 }}>
+      <div className="card deposit-card" style={{ padding: 28, marginBottom: 22 }}>
         <div
+            className="deposit-layout"
             style={{
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
@@ -180,7 +172,7 @@ export default function UserDeposits() {
             }}
           >
             {/* Left: form */}
-            <div style={{ display: "grid", gap: 12 }}>
+            <div className="deposit-form" style={{ display: "grid", gap: 12 }}>
               <h1 style={{ margin: 0 }}>Nạp tiền ATM</h1>
               <label>Số tiền cần nạp</label>
               <input
@@ -244,6 +236,7 @@ export default function UserDeposits() {
 
             {/* Right: QR */}
             <div
+              className="deposit-qr"
               style={{
                 display: "grid",
                 placeItems: "center",

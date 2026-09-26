@@ -41,17 +41,19 @@ export default function MyServiceOrders() {
   }, []);
 
   return (
-    <div style={{ maxWidth: 800, margin: "0 auto", padding: "28px 16px" }}>
+    <div className="user-narrow-page service-orders-page">
+      <div className="page-heading">
       <h1>Đơn dịch vụ của tôi</h1>
       <p style={{ color: "var(--color-text-muted)" }}>Theo dõi trạng thái các đơn dịch vụ đã đặt.</p>
+      </div>
 
       {orders.length === 0 ? (
-        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>Chưa có đơn dịch vụ nào.</p>
+        <p className="empty-text">Chưa có đơn dịch vụ nào.</p>
       ) : (
         <div style={{ display: "grid", gap: 12 }}>
           {orders.map((o) => (
-            <div key={o.id} className="card" style={{ padding: 16 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+            <div key={o.id} className="card service-order-card" style={{ padding: 16 }}>
+              <div className="service-order-summary" style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
                 <div>
                   <b>{o.serviceTitle}</b>
                   <p style={{ margin: "4px 0", color: "var(--color-text-muted)", fontSize: 13 }}>

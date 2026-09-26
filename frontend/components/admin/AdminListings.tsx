@@ -10,7 +10,7 @@ import {
 import { Listing, ListingType } from "@/types/listing";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { Category } from "@/types/category";
-import { formatCurrency, formatDateTime } from "@/lib/format";
+import { formatCurrency } from "@/lib/format";
 import { useNotify } from "@/components/shared/NotificationProvider";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 import { listingStatusLabel, listingTypeLabel } from "@/lib/admin-labels";

@@ -8,7 +8,7 @@ import { useNotify } from "@/components/shared/NotificationProvider";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 export default function UserTickets() {
-  const { notify, confirmAction } = useNotify();
+  const { notify } = useNotify();
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -77,8 +77,8 @@ export default function UserTickets() {
   }
 
   return (
-    <section style={{ maxWidth: 800, margin: "0 auto", padding: "28px 16px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+    <section className="user-narrow-page ticket-page">
+      <div className="user-page-heading">
         <div>
           <h1 style={{ margin: 0 }}>Hỗ trợ</h1>
           <p style={{ margin: "4px 0 0", color: "var(--color-text-muted)" }}>
@@ -116,7 +116,7 @@ export default function UserTickets() {
                 onChange={(e) => setSubject(e.target.value)}
               />
             </div>
-            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <div className="user-form-actions">
               <button className="btn-secondary" type="button" onClick={() => setShowCreate(false)}>
                 Hủy
               </button>
@@ -132,7 +132,7 @@ export default function UserTickets() {
       {loading ? (
         <LoadingSpinner text="Đang tải..." />
       ) : tickets.length === 0 ? (
-        <p style={{ color: "var(--color-text-muted)", textAlign: "center", padding: 40 }}>
+        <p className="empty-text">
           Chưa có ticket hỗ trợ nào.
         </p>
       ) : (
@@ -142,8 +142,9 @@ export default function UserTickets() {
             const isExpanded = expandedId === ticket.id;
 
             return (
-              <div key={ticket.id} className="card" style={{ padding: 16 }}>
+              <div key={ticket.id} className="card ticket-card" style={{ padding: 16 }}>
                 <div
+                  className="ticket-summary"
                   style={{ display: "flex", justifyContent: "space-between", cursor: "pointer" }}
                   onClick={() => setExpandedId(isExpanded ? null : ticket.id)}
                 >
@@ -198,7 +199,7 @@ export default function UserTickets() {
                     ))}
 
                     {ticket.status === "OPEN" && (
-                      <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                      <div className="ticket-reply" style={{ display: "flex", gap: 8, marginTop: 12 }}>
                         <input
                           className="input"
                           placeholder="Nhập tin nhắn..."

@@ -29,7 +29,7 @@ export default async function ServiceListPage({
           Chưa có dịch vụ nào cho game này.
         </p>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
+        <div className="game-service-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
           {services.map((svc) => (
             <Link
               key={svc.id}

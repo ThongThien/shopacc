@@ -32,38 +32,10 @@ export default function LoadingOverlay() {
   if (!state.show) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.45)",
-        display: "grid",
-        placeItems: "center",
-        zIndex: 9998,
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          borderRadius: 16,
-          padding: "32px 40px",
-          display: "grid",
-          gap: 16,
-          justifyItems: "center",
-          boxShadow: "0 24px 80px rgba(15,23,42,0.3)",
-        }}
-      >
-        <div
-          style={{
-            width: 40,
-            height: 40,
-            border: "4px solid var(--color-border)",
-            borderTopColor: "var(--color-primary)",
-            borderRadius: "50%",
-            animation: "spin 0.7s linear infinite",
-          }}
-        />
-        <b style={{ color: "var(--color-text)", fontSize: 15 }}>{state.text}</b>
+    <div className="loading-overlay" role="status" aria-live="polite">
+      <div className="loading-overlay-card">
+        <div className="loading-spinner loading-spinner-large" />
+        <b>{state.text}</b>
       </div>
     </div>
   );

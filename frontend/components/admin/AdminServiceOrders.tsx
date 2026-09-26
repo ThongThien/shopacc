@@ -24,7 +24,7 @@ function statusBadge(status: string) {
 }
 
 export default function AdminServiceOrders() {
-  const { notify, confirmAction } = useNotify();
+  const { notify } = useNotify();
   const [orders, setOrders] = useState<SOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
