@@ -18,7 +18,7 @@ interface ServiceItem {
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 const ACCOUNT_IMAGE =
-  "https://cdn.phototourl.com/free/2026-08-27-d5816456-b6bf-4bc7-84c3-d8de19259e41.jpg";
+  "https://cdn.phototourl.com/member/2026-10-02-2447e0f8-aecd-4460-afe7-552a4671c8bc.jpg";
 
 const TYPE_CARDS = [
   {
